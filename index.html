@@ -354,9 +354,9 @@ pt:{
  fullTime:'Fim de jogo.',
  rules:[['Palheta','Toque num botão e puxe para trás. A força cresce por igual e o número ao lado do medidor mostra a porcentagem.'],
   ['Cancelar','Volte o dedo até o botão (aparece um ✕), toque com outro dedo, clique com o botão direito ou aperte Esc.'],
-  ['Altura','Amarelo no medidor levanta a bola por cima de botões e goleiros. Vermelho costuma passar por cima do travessão.'],
+  ['Altura','Com força suficiente a mira fica amarela: a bola sobe por cima de botões e goleiros. Vermelha costuma passar por cima do travessão.'],
   ['Vez','Quem tocou por último na bola joga. Errou a bola, ou anunciou o chute e não fez o gol, a vez passa.'],
-  ['Chute','Toque em Pro gol antes de bater: a câmera vai para trás do botão. Puxe para baixo para dar força, arraste para os lados para mirar e ajuste a altura à direita. Use + e − ou faça pinça para aproximar ou afastar a câmera. Gol sem anunciar não vale.'],
+  ['Chute','Toque em Pro gol antes de bater e chute com qualquer botão seu. Gol sem anunciar não vale.'],
   ['Goleiro','Quando a CPU anuncia, arraste seu goleiro, gire pelas pontas ou com ↺ ↻ e toque em Pronto.'],
   ['Bola parada','Pela linha de fundo: se o último toque foi do ataque, tiro de meta do canto da pequena área; se foi da defesa, escanteio. Os adversários ficam fora do círculo. Cada lado move até quatro botões e o cobrador vai em qualquer ponto do círculo.'],
   ['Mira','Uma linha clara mostra para onde a bola vai. Ela começa curta e um pouco imprecisa; vença partidas para liberar linhas mais longas e certeiras.'],
@@ -397,9 +397,9 @@ en:{
  fullTime:'Full time.',
  rules:[['Palheta','Press a button and pull back. Power builds evenly and the number by the meter shows the percentage.'],
   ['Cancel','Slide back onto the button (an ✕ appears), tap with a second finger, right-click or press Esc.'],
-  ['Lift','Yellow on the meter lifts the ball over buttons and keepers. Red usually clears the bar.'],
+  ['Lift','Hit it hard enough and the aim turns yellow: the ball lifts over buttons and keepers. Red usually clears the bar.'],
   ['Turns','Last touch plays next. Miss the ball, or announce a shot and fail to score, and the turn passes.'],
-  ['Shooting','Press Announce shot before you shoot: the camera moves behind the button. Drag down for power, sideways to aim, and set the height on the right. Use + and − or pinch to move the camera closer or further. Unannounced goals don\'t count.'],
+  ['Shooting','Press Announce shot before you shoot, then flick with any of your buttons. Unannounced goals don\'t count.'],
   ['Keeper','When the CPU announces, drag your keeper, angle it by its ends or with ↺ ↻, then press Ready.'],
   ['Dead ball','Over the goal line: a goal kick from the nearest small-box corner if the attack touched it last, a corner if the defence did. Opponents stay outside the circle. Each side moves up to four buttons and the taker goes anywhere in the circle.'],
   ['Aim','A faint line shows where the ball will go. It starts short and a little off; win matches to unlock longer, more accurate lines.'],
@@ -1156,7 +1156,7 @@ function penaltyKick(side){
   if(side===0){
     const r=rand(),off=(GW/2-KW/2-.4)*(.5+rand()*.6);
     G.kt[1]={x:CX+(r<.38?-off:r<.76?off:0),y:G.keepers[1].y,a:gauss()*.15};
-    G.phase='aim';setStatus(tr('penYou'));later(enterShot,450);
+    G.phase='aim';setStatus(tr('penYou'));
   }else{G.phase='keeperSet';setStatus(tr('penCpu',{c:cpuC()}))}
   hud();
 }
@@ -1244,7 +1244,7 @@ function nextPen(){
   if(s===0){
     const r=rand(),off=(GW/2-KW/2-.4)*(.5+rand()*.6);
     G.kt[1]={x:CX+(r<.38?-off:r<.76?off:0),y:G.keepers[1].y,a:gauss()*.15};
-    G.phase='aim';setStatus(tr('penYou'));later(enterShot,450);
+    G.phase='aim';setStatus(tr('penYou'));
   }else{G.phase='keeperSet';setStatus(tr('penCpu',{c:cpuC()}))}
   hud();
 }
@@ -1449,8 +1449,8 @@ cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',()=>
 
 $('#btnShoot').onclick=()=>{
   if(!G||G.paused||G.phase!=='aim'||G.turn!==0)return;
-  if(!G.announced){if(G.mode!=='match'||(G.koTouches||0)<2)return;G.announced=true;G.kt[1]=faceBall(1)}
-  pickShooter();hud();
+  if(!G.announced){if(G.mode!=='match'||(G.koTouches||0)<2)return;G.announced=true;G.kt[1]=faceBall(1);Snd.hit('press',.4);setStatus(tr('announced'))}
+  hud();
 };
 const rotK=d=>{if(!G||G.phase!=='keeperSet')return;const k=G.keepers[0];G.keepers[0]=clampK(0,{x:k.x,y:k.y,a:k.a+d})};
 $('#btnRotL').onclick=()=>rotK(-.18);$('#btnRotR').onclick=()=>rotK(.18);
@@ -1479,9 +1479,9 @@ function hud(){
   if(!G)return;
   $('#sA').textContent=G.score[0];$('#sB').textContent=G.score[1];
   const own=G.turn===0,live=G.phase!=='over';$('#possA').classList.toggle('on',own&&live);$('#possB').classList.toggle('on',!own&&live);
-  const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2,canAim=G.phase==='aim'&&G.turn===0&&G.announced&&!V3.on;
+  const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2,canAim=false;
   $('#btnShoot').disabled=!(canAnn||canAim);
-  $('#btnShoot').textContent=G.announced&&G.turn===0?(V3.on?tr('shotOn'):tr('aimView')):tr('shoot');
+  $('#btnShoot').textContent=G.announced&&G.turn===0?tr('shotOn'):tr('shoot');
   const ks=G.phase==='keeperSet';
   $('#btnReady').hidden=!(ks||G.phase==='setup');$('#btnReady').textContent=ks?tr('ready'):tr('done');
   $('#btnRotL').hidden=!ks;$('#btnRotR').hidden=!ks;
@@ -1675,14 +1675,14 @@ function render3D(ts){
 }
 function shotCands(){const bl=G.ball;return bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b)).sort((a,b)=>hyp(a.x-bl.x,a.y-bl.y)-hyp(b.x-bl.x,b.y-bl.y)).slice(0,5)}
 const angTo=(b,t)=>Math.atan2(t.y-b.y,t.x-b.x);
-function enterShot(btn){
+function enterShot(btn){return;
   if(!G||G.phase!=='aim'||G.turn!==0||(V3.on&&V3.mode!=='out'))return;
   V3.list=shotCands();const b=btn||V3.list[0];if(!b)return;G.pickShot=false;V3.btn=b;V3.ang=angTo(b,G.ball);
   const from=V3.on&&V3.pose?V3.pose:topPose();V3.on=true;V3.mode='shotIn';
   V3.anim={from,t:0,dur:1.05,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}};
   setStatus(tr('shotHelp'));hud();
 }
-function pickShooter(){if(!G||G.phase!=='aim'||G.turn!==0)return;const own=bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b));
+function pickShooter(){return;if(!G||G.phase!=='aim'||G.turn!==0)return;const own=bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b));
   if(own.length===1)return enterShot(own[0]);G.pickShot=true;setStatus(tr('pickShooter'));hud()}
 function cycleShooter(){if(!V3.on||V3.mode!=='shot'||G.aim)return;exitView(pickShooter)}
 function exitView(after){if(!V3.on)return;G.aim=G.aim&&G.aim.mode3?null:G.aim;V3.mode='out';
@@ -1881,14 +1881,14 @@ function predictBall(b,ang,pw,seed,ts,loft,minLen){
   }
   return pts.length>1?pts:null;
 }
-function drawPrediction(c,pts){
-  const n=pts.length;c.lineCap='round';
+function drawPrediction(c,pts,pw){
+  const n=pts.length;c.lineCap='round';const rgb=pw==null||pw<LIFT_P?'255,255,255':pw<HIGH_P?'255,210,63':'255,90,61';
   for(let i=1;i<n;i++){const [x0,y0,z0]=pts[i-1],[x1,y1]=pts[i],t=i/n;
-    c.strokeStyle=`rgba(255,255,255,${.55*(1-t)+.08})`;c.lineWidth=.32;
+    c.strokeStyle=`rgba(${rgb},${.7*(1-t)+.12})`;c.lineWidth=.34;
     if(z0>BTN_H){c.setLineDash([.6,.7])}else c.setLineDash([]);
     c.beginPath();c.moveTo(x0,y0-z0*.9);c.lineTo(x1,y1-pts[i][2]*.9);c.stroke()}
   c.setLineDash([]);const [ex,ey,ez]=pts[n-1];
-  c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=.2;c.beginPath();c.arc(ex,ey-ez*.9,BALLR,0,2*PI);c.stroke();
+  c.strokeStyle=`rgba(${rgb},.3)`;c.lineWidth=.2;c.beginPath();c.arc(ex,ey-ez*.9,BALLR,0,2*PI);c.stroke();
 }
 const powerColor=pw=>pw<LIFT_P?'#ffffff':pw<HIGH_P?'#ffd23f':'#ff5a3d';
 function drawAim(c,b,ang,pw,finger,skin){
@@ -1939,7 +1939,7 @@ function render(ts){
     // inside the cancel zone: letting go here does nothing
     const b=G.aim.b;c.strokeStyle='rgba(255,120,100,.85)';c.lineWidth=.3;c.setLineDash([.7,.6]);c.beginPath();c.arc(b.x,b.y,b.r+1.6,0,2*PI);c.stroke();c.setLineDash([]);
     c.lineWidth=.45;const k=1.1,cx=b.x+b.r+2.6,cy=b.y-b.r-1.6;c.beginPath();c.moveTo(cx-k,cy-k);c.lineTo(cx+k,cy+k);c.moveTo(cx+k,cy-k);c.lineTo(cx-k,cy+k);c.stroke()}
-  if(G.aim&&G.aim.pw>.005&&G.aim.raw>=CANCEL_PX){const pr=predictBall(G.aim.b,G.aim.ang,G.aim.pw,G.aim.seed,ts);if(pr)drawPrediction(c,pr);
+  if(G.aim&&G.aim.pw>.005&&G.aim.raw>=CANCEL_PX){const pr=predictBall(G.aim.b,G.aim.ang,G.aim.pw,G.aim.seed,ts);if(pr)drawPrediction(c,pr,G.aim.pw);
     drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},skinById(prefs.skin))}
   if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,SKINS[0])}
   if(G.announced&&G.phase!=='moving'&&G.mode==='match'){
