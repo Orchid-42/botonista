@@ -1,10 +1,9 @@
 # Botonista
 
-Futebol de botão na mesa. Pick a cup, a team and a formation, then flick your buttons with the palheta through a 16-team knockout against the CPU. First to 3 goals wins each match.
+Futebol de botão na mesa. Pick a cup, then your team and formation, then flick your buttons with the palheta through a 16-team knockout against the CPU. First to 3 goals wins each match.
 
 - **Copa do Mundo:** 16 national teams.
 - **Copa do Brasil:** 16 Brazilian clubs.
-- **Volta ao Mundo (World Tour):** 10 tables around the world, from a São Paulo boteco to a Paris salon, each with its own look and feel, plus 4 bonus tables.
 - **1 contra 1:** two players on one device.
 
 Portuguese (BR) by default, with English in the settings.
@@ -17,7 +16,7 @@ Portuguese (BR) by default, with English in the settings.
 
 ## Account and sync
 
-Botonista uses the same Orchid-42 account as the other Orchid-42 games (email and password, or Google). Signing in saves your settings, unlocked palhetas, stats and the current Copa online and syncs them across devices. Without an account, progress stays on the device.
+Botonista uses the same Orchid-42 account as the other Orchid-42 games (email and password, or Google). Signing in saves your settings, unlocked palhetas, stats, the current Copa and the match in progress online and syncs them across devices. Matches autosave at every turn, so you can pick one up on another device with the same score and positions. Without an account, progress stays on the device.
 
 ## Files
 
