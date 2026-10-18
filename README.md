@@ -1,6 +1,9 @@
 # Botonista
 
-Futebol de botão na mesa. Pick a nation and a formation, then flick your buttons with the palheta through a 16-team World Cup knockout against the CPU. First to 3 goals wins each match.
+Futebol de botão na mesa. Pick a cup, a team and a formation, then flick your buttons with the palheta through a 16-team knockout against the CPU. First to 3 goals wins each match.
+
+- **Copa do Mundo:** 16 national teams.
+- **Copa do Brasil:** 16 Brazilian clubs.
 
 Portuguese (BR) by default, with English in the settings.
 
