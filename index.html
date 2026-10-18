@@ -229,6 +229,7 @@ button{touch-action:manipulation}
 .hudbot .btn.go:disabled{opacity:0;pointer-events:none}
 #status{margin:0;max-width:min(460px,100%);height:auto;font-size:13px;line-height:1.35;color:var(--muted);padding:8px 12px;border-radius:10px;background:rgba(5,12,32,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:block;-webkit-line-clamp:unset;overflow:visible;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s;pointer-events:none}
 #status.show{opacity:1;transform:none}
+#status{display:none!important}
 @media (max-width:480px){.bug{height:27px}.bug .tm{padding:0 8px;gap:6px}.bug .tm b{font-size:12.5px}.bug .sc{font-size:16px;padding:0 9px}.bug .flag{width:17px;height:12px}#status{font-size:12px}}
 </style>
 
@@ -442,7 +443,7 @@ const tr=(k,v)=>{let s=STR[prefs.lang][k];if(typeof s==='string'&&v)for(const x 
 
 /* ---------- table geometry, in centimetres (1.21 m × 1.86 m) ---------- */
 /* the pitch keeps its size; the table around it has a proper margin, so buttons can stand off the lines */
-const MX=12, MY=22, RAIL=1.8; // MY leaves room behind each goal so buttons can't get wedged against the rail
+const MX=16, MY=19, RAIL=1.8; // MY leaves room behind each goal so buttons can't get wedged against the rail
 const FW=109, FH=166, TW=FW+2*MX, TH=FH+2*MY;
 const F={l:MX,r:MX+FW,t:MY,b:MY+FH};
 const CX=(F.l+F.r)/2, CY=(F.t+F.b)/2;
@@ -956,7 +957,7 @@ const cpuC=()=>tn(TEAMS[G.teams[1]]);
 function startMatch(home,away){
   V3.on=false;V3.mode=null;V3.anim=null;V3.pose=null;
   useCup(T.cup||'wc');
-  const base={easy:.3,normal:.58,hard:.82}[T.diff]||.58;
+  const base={easy:.38,normal:.68,hard:.93}[T.diff]||.68;
   G={id:++matchId,teams:[home,away],score:[0,0],half:1,halfLen:T.half,clock:T.half,timeUp:false,paused:false,timers:[],
      skill:clamp(base+(TEAMS[away].r-85)*.012,.12,.95),kickFirst:rand()<.5?0:1,
      buttons:[],ball:newBall(CX,CY),keepers:[homeKeeper(0),homeKeeper(1)],kt:[null,null],
@@ -1060,8 +1061,10 @@ function keeperHit(b,k,side){
 function railHit(b,v){if(v>20)Snd.hit(b.isBall?'wood':'thud',v/320)}
 function statics(b){
   const lo=RAIL+b.r,hx=TW-RAIL-b.r,hy=TH-RAIL-b.r;
-  if(b.x<lo){b.x=lo;if(b.vx<0){railHit(b,-b.vx);b.vx=-b.vx*E_RAIL}}if(b.x>hx){b.x=hx;if(b.vx>0){railHit(b,b.vx);b.vx=-b.vx*E_RAIL}}
-  if(b.y<lo){b.y=lo;if(b.vy<0){railHit(b,-b.vy);b.vy=-b.vy*E_RAIL}}if(b.y>hy){b.y=hy;if(b.vy>0){railHit(b,b.vy);b.vy=-b.vy*E_RAIL}}
+  // a ball in the air that reaches the rail drops dead behind it instead of bouncing back across the table
+  const E=b.isBall&&b.z>1.5?0:E_RAIL;
+  if(b.x<lo){b.x=lo;if(b.vx<0){railHit(b,-b.vx);b.vx=-b.vx*E}}if(b.x>hx){b.x=hx;if(b.vx>0){railHit(b,b.vx);b.vx=-b.vx*E}}
+  if(b.y<lo){b.y=lo;if(b.vy<0){railHit(b,-b.vy);b.vy=-b.vy*E}}if(b.y>hy){b.y=hy;if(b.vy>0){railHit(b,b.vy);b.vy=-b.vy*E}}
   if(!(b.isBall&&b.z>BAR)){for(const p of POSTS){const v=pushOut(b,p[0],p[1],POSTR,E_RAIL);if(v>20)Snd.hit('post',v/300)}for(const s of NETS)segHit(b,s)}
   keeperHit(b,G.keepers[0],0);keeperHit(b,G.keepers[1],1);
 }
@@ -1070,7 +1073,7 @@ function checkBall(){
   if(b.y<F.t-BALLR)ev=inMouth?(b.z>BAR?{type:'end',side:1,over:true}:{type:'goal',side:0}):{type:'end',side:1};
   else if(b.y>F.b+BALLR)ev=inMouth?(b.z>BAR?{type:'end',side:0,over:true}:{type:'goal',side:1}):{type:'end',side:0};
   else if(b.x<F.l-BALLR||b.x>F.r+BALLR)ev={type:'side'};
-  if(ev){ev.x=b.x;ev.y=b.y;ev.z=b.z;G.event=ev;b.live=false;if(ev.type!=='goal'){b.vx=0;b.vy=0;b.z=0;b.vz=0}}
+  if(ev){ev.x=b.x;ev.y=b.y;ev.z=b.z;G.event=ev;b.live=false;if(ev.type!=='goal'&&!ev.over){b.vx*=.5;b.vy*=.5}}
 }
 function step(dt){
   const all=bodies().concat([G.ball]);
@@ -1425,7 +1428,7 @@ function simPick(side,cands,forced){
     const runs=hard?5:4;let sum=0;
     for(let i=0;i<runs;i++){
       // judge each option with the same aiming error the flick will really have
-      const a=Math.atan2(f.uy,f.ux)+gauss()*(.012+noise*.05+f.s*.0006),v=clamp(f.v0*(1+gauss()*(.04+noise*.1)),VMIN,VMAX);
+      const a=Math.atan2(f.uy,f.ux)+gauss()*(.006+noise*.05+f.s*.0005*(1.4-sk)),v=clamp(f.v0*(1+gauss()*(.04+noise*.1)),VMIN,VMAX);
       const o=simFlick(f.b,Math.cos(a)*v,Math.sin(a)*v,!!f.shot,kp);if(o)sum+=rateOutcome(o,side,!!f.shot)}
     rated.push({f,val:sum/runs});
   }
@@ -1443,7 +1446,7 @@ function cpuTurn(){
   else execPlan(plan);
 }
 function execPlan(p){
-  const sk=G.skill,sig=.012+(1-sk)*.05+p.s*.0006,a=Math.atan2(p.uy,p.ux)+gauss()*sig;
+  const sk=G.skill,sig=.006+(1-sk)*.05+p.s*.0005*(1.4-sk),a=Math.atan2(p.uy,p.ux)+gauss()*sig;
   const v=clamp(p.v0*(1+gauss()*(.04+(1-sk)*.1)),VMIN,VMAX);
   G.phase='cpuAim';G.cpuAim={b:p.b,ux:Math.cos(a),uy:Math.sin(a),pw:0,tpw:pwOf(v)};hud();Snd.hit('press',.5);
   later(()=>flick(p.b,Math.cos(a)*v,Math.sin(a)*v),650);
@@ -2048,6 +2051,7 @@ function render(ts){
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
       else if(s.moved.length<MAX_MOVE&&G.sp.kind!=='kickoff')glow=`rgba(255,255,255,${.15+.25*pulse})`;}
     drawButton(c,b,team,glow);
+    if(G.streak&&G.streak.b===b&&G.streak.n===MAX_TOUCH-1&&!(G.lock&&G.lock.b===b)&&G.mode==='match'&&G.phase!=='moving'){const bl=.5+.5*Math.sin(ts/170);c.strokeStyle=`rgba(255,210,63,${.25+.7*bl})`;c.lineWidth=.42;c.beginPath();c.arc(b.x,b.y,b.r+.95,0,2*PI);c.stroke()}
     if(G.lock&&G.lock.b===b&&G.mode==='match'&&G.phase!=='moving'){c.strokeStyle='rgba(255,90,61,.75)';c.lineWidth=.3;c.setLineDash([.6,.6]);c.beginPath();c.arc(b.x,b.y,b.r+.8,0,2*PI);c.stroke();c.setLineDash([])}
   }
   const z=bl.z,sr=bl.r*Math.max(.55,1-z*.03),BL=lampVec(bl.x,bl.y);
