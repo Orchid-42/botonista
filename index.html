@@ -383,7 +383,7 @@ pt:{
  throwMsg:'Lateral.',cornerMsg:'Escanteio.',goalkickMsg:'Tiro de meta.',overMsg:'Por cima do travessão. Tiro de meta.',keeperMsg:'Bola do goleiro.',freeMsg:'Falta.',
  cpuRepo:'{c} reposiciona os botões.',cpuPrep:'{c} prepara a cobrança.',
  kind:{free:'Falta',throw:'Lateral',corner:'Escanteio',goalkick:'Tiro de meta',kickoff:'Saída de bola'},
- koSetup:'<strong>Saída de bola.</strong> Arraste o botão que vai dar a saída para onde quiser em volta da bola, no seu campo. Depois toque em Feito.',
+ koSetup:'<strong>Saída de bola.</strong> Posicione quem dá a saída em volta da bola e mais até {n} botões no seu campo. Depois toque em Feito.',
  setupTake:'<strong>{k} para você.</strong> Arraste o cobrador (anel amarelo) dentro do círculo e mova até {n} botões. Depois toque em Feito.',
  setupDef:'<strong>Arme a defesa.</strong> Mova até {n} botões e toque em Feito.',already2:'Você já moveu {n} botões.',
  cpuAnnounce:'<strong>A CPU vai chutar.</strong> Posicione e gire seu goleiro, depois toque em Pronto.',cpuStep:'A CPU vai bater.',
@@ -427,7 +427,7 @@ en:{
  throwMsg:'Throw-in.',cornerMsg:'Corner.',goalkickMsg:'Goal kick.',overMsg:'Over the bar. Goal kick.',keeperMsg:'Keeper\'s ball.',freeMsg:'Free kick.',
  cpuRepo:'{c} reposition their buttons.',cpuPrep:'{c} set up the restart.',
  kind:{free:'Free kick',throw:'Throw-in',corner:'Corner',goalkick:'Goal kick',kickoff:'Kick-off'},
- koSetup:'<strong>Kick-off.</strong> Drag your kicker anywhere around the ball in your own half. Then Done.',
+ koSetup:'<strong>Kick-off.</strong> Place your kicker around the ball and up to {n} more buttons in your own half. Then Done.',
  setupTake:'<strong>Your {k}.</strong> Drag the taker (yellow ring) anywhere inside the circle and move up to {n} buttons. Then Done.',
  setupDef:'<strong>Set your defence.</strong> Move up to {n} buttons, then Done.',already2:'You have already moved {n} buttons.',
  cpuAnnounce:'<strong>CPU announces a shot.</strong> Move and angle your keeper, then press Ready.',cpuStep:'CPU steps up.',
@@ -480,6 +480,7 @@ const LIFT_P=pwOf(LIFT_T/BALL_K), HIGH_P=pwOf((LIFT_T+Math.sqrt(2*GRAV*BAR)/LIFT
 const LOFT_K=.3; // shot view: vertical speed given to the ball per unit of chosen height
 const E_BB=.75, E_BALL=.88, E_RAIL=.5, E_NET=.2, E_KEEP=.45;
 const MAX_MOVE=4; // buttons each side may reposition at a dead ball
+const KO_MOVE=2;  // at your kick-off: the kicker plus two more buttons, staying in your own half
 const RING=14, WALL=11, PAL_R=2.4;
 const CANCEL_PX=28, RANGE_PX=230; // pull inside CANCEL_PX cancels; full power at CANCEL_PX+RANGE_PX
 const DOME=.86; // dome radius as a share of the button radius
@@ -1259,7 +1260,7 @@ function setupTaker(){
 }
 function startSetup(taking){G.phase='setup';G.turn=G.sp.side;G.setup={taking,moved:[]};hud();setupStatus()}
 function setupStatus(extra){
-  if(G.sp.kind==='kickoff'){setStatus(tr('koSetup')+(extra?' '+extra:''));return}
+  if(G.sp.kind==='kickoff'){setStatus(tr('koSetup',{n:KO_MOVE-G.setup.moved.length})+(extra?' '+extra:''));return}
   const s=G.setup,n=MAX_MOVE-s.moved.length,K=STR[prefs.lang].kind[G.sp.kind];
   setStatus((s.taking?tr('setupTake',{k:prefs.lang==='en'?K.toLowerCase():K,n}):tr('setupDef',{n}))+(extra?' '+extra:''));
 }
@@ -1537,9 +1538,10 @@ cv.addEventListener('pointerdown',e=>{
     if(b){const a=Math.atan2(b.y-p.y,b.x-p.x);G.aim={b,fx:p.x,fy:p.y,pw:0,tpw:0,raw:0,ang:a,tang:a,seed:rand()*6.3};took=true;Snd.hit('press',.45)}
   }else if(G.phase==='setup'){
     const s=G.setup,sp=G.sp;
-    const b=nearestOwn(p,BR+3,o=>{if(o===sp.taker)return s.taking;if(sp.kind==='kickoff')return false;return s.moved.includes(o)||s.moved.length<MAX_MOVE});
+    const lim=sp.kind==='kickoff'?KO_MOVE:MAX_MOVE;
+    const b=nearestOwn(p,BR+3,o=>{if(o===sp.taker)return s.taking;return s.moved.includes(o)||s.moved.length<lim});
     if(b){G.sdrag={b,ox:b.x-p.x,oy:b.y-p.y,taker:s.taking&&b===sp.taker};took=true}
-    else if(nearestOwn(p,BR+2))setupStatus(tr('already2',{n:MAX_MOVE}));
+    else if(nearestOwn(p,BR+2))setupStatus(tr('already2',{n:lim}));
   }else if(G.phase==='keeperSet'){
     const k=G.keepers[0],{lx,ly}=keeperLocal(k,p.x,p.y);
     if(Math.abs(lx)<KW/2+3&&Math.abs(ly)<KH/2+4){
@@ -1566,7 +1568,7 @@ cv.addEventListener('pointermove',e=>{
   if(G.sdrag){const d=G.sdrag,b=d.b,ball=G.ball;let x=p.x+d.ox,y=p.y+d.oy;
     const ex=x-ball.x,ey=y-ball.y,ed=hyp(ex,ey)||1;
     if(d.taker){const dd=clamp(ed,BR+BALLR+.4,RING);x=ball.x+ex/ed*dd;y=ball.y+ey/ed*dd;if(G.sp.kind==='kickoff')y=Math.max(y,CY+.2)}
-    else{const R=b.side!==G.sp.side?RING+.6:BR+BALLR+.5;if(ed<R){x=ball.x+ex/ed*R;y=ball.y+ey/ed*R}x=clamp(x,F.l-2,F.r+2);y=clamp(y,F.t+1,F.b-1)}
+    else{const R=b.side!==G.sp.side?RING+.6:BR+BALLR+.5;if(ed<R){x=ball.x+ex/ed*R;y=ball.y+ey/ed*R}x=clamp(x,F.l-2,F.r+2);y=clamp(y,F.t+1,F.b-1);if(G.sp.kind==='kickoff')y=Math.max(y,CY+BR+.2)}
     for(let it=0;it<3;it++){
       for(const o of G.buttons)if(o!==b){const fx=x-o.x,fy=y-o.y,fd=hyp(fx,fy)||.01;if(fd<BR*2+.2){x=o.x+fx/fd*(BR*2+.2);y=o.y+fy/fd*(BR*2+.2)}}
       for(const k of G.keepers){const kd=keeperDist(k,x,y);if(kd<BR+.3){const fx=x-k.x,fy=y-k.y,fd=hyp(fx,fy)||1;x+=fx/fd*(BR+.3-kd);y+=fy/fd*(BR+.3-kd)}}}
@@ -2074,7 +2076,7 @@ function render(ts){
     if(G.phase==='setup'&&b.side===0){const s=G.setup;
       if(b===G.sp.taker){if(s.taking)glow=`rgba(255,210,63,${.5+.5*pulse})`}
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
-      else if(s.moved.length<MAX_MOVE&&G.sp.kind!=='kickoff')glow=`rgba(255,255,255,${.15+.25*pulse})`;}
+      else if(s.moved.length<(G.sp.kind==='kickoff'?KO_MOVE:MAX_MOVE))glow=`rgba(255,255,255,${.15+.25*pulse})`;}
     drawButton(c,b,team,glow);
     if(G.streak&&G.streak.b===b&&G.streak.n===MAX_TOUCH-1&&!(G.lock&&G.lock.b===b)&&G.mode==='match'&&G.phase!=='moving'){const bl=.5+.5*Math.sin(ts/170);c.strokeStyle=`rgba(255,210,63,${.25+.7*bl})`;c.lineWidth=.42;c.beginPath();c.arc(b.x,b.y,b.r+.95,0,2*PI);c.stroke()}
     if(G.lock&&G.lock.b===b&&G.mode==='match'&&G.phase!=='moving'){c.strokeStyle='rgba(255,90,61,.75)';c.lineWidth=.3;c.setLineDash([.6,.6]);c.beginPath();c.arc(b.x,b.y,b.r+.8,0,2*PI);c.stroke();c.setLineDash([])}
