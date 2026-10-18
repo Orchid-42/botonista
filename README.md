@@ -4,6 +4,8 @@ Futebol de botão na mesa. Pick a cup, a team and a formation, then flick your b
 
 - **Copa do Mundo:** 16 national teams.
 - **Copa do Brasil:** 16 Brazilian clubs.
+- **Volta ao Mundo (World Tour):** 10 tables around the world, from a São Paulo boteco to a Paris salon, each with its own look and feel, plus 4 bonus tables.
+- **1 contra 1:** two players on one device.
 
 Portuguese (BR) by default, with English in the settings.
 
