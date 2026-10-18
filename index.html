@@ -1253,7 +1253,7 @@ function kickoff(side,first){
   if(G.pvp&&side===1){flipView();side=0}
   setFormation(side);G.lock=null;G.streak=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;saveMatch('kickoff',{kside:side});
   const who=side===0?tr('youKick'):tr('cpuKick',{c:cpuC()});
-  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);
+  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);G.koTaker=kicker||null;
   const go=()=>{
     if(side===0&&G.mode==='match'&&kicker){G.sp={kind:'kickoff',side:0,taker:kicker,msg:who};startSetup(true)}
     else{ // the CPU sets its kicker at a slight angle so the first pass goes to a teammate
@@ -1425,7 +1425,7 @@ function resolve(){
   if(V3.on)exitView();
   freeze();Snd.slide(0,0);G.phase='pause';const m=G.move,ev=G.event;
   if(G.mode==='pens')return resolvePen();
-  const mover=m.side;
+  const mover=m.side;G.koTaker=null;
   if(m.lastTouch!=null||m.moverTouched)G.koTouches=(G.koTouches||0)+1;
   // the ball reached a teammate: the flicker's touches reset, and a restart taker may play again
   if(m.mate){G.streak=null;if(G.lock&&G.lock.side===mover)G.lock=null}
@@ -1545,7 +1545,11 @@ function cpuSetup(taking){
       let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-x,o.y-y));
       spots.push({x,y,s:Math.min(mo,16)-hyp(x-CX,y-(F.b-24))*.12-Math.abs(hyp(x-ball.x,y-ball.y)-35)*.15})}
     spots.sort((a,b)=>b.s-a.s);
-    const movers=mine.filter(b=>b!==sp.taker&&b.y>F.t+40).sort((a,b)=>hyp(b.x-ball.x,b.y-ball.y)-hyp(a.x-ball.x,a.y-ball.y)).slice(0,MAX_MOVE-1);
+    // first put the most out-of-place buttons (defenders weigh more) back into the shape, then use what's left for support
+    const off=mine.filter(b=>b!==sp.taker).map(b=>{const r=roleSpot(1,b.num,ball.x,ball.y);return {b,r,e:r?hyp(b.x-r.x,b.y-r.y)*(.6+r.depth):0}}).filter(q=>q.r&&q.e>14).sort((a,b)=>b.e-a.e);
+    let left=MAX_MOVE-1;
+    for(const q of off.slice(0,Math.max(1,left-1))){if(!left)break;const t=nearestOk(q.r.x,q.r.y,q.b,WALL);if(t){moveTo(q.b,t,true);left--}}
+    const movers=mine.filter(b=>b!==sp.taker&&b.y>F.t+40&&!off.slice(0,MAX_MOVE).some(q=>q.b===b&&q.b.tx!=null)).sort((a,b)=>hyp(b.x-ball.x,b.y-ball.y)-hyp(a.x-ball.x,a.y-ball.y)).slice(0,left);
     let k=0;for(const b of movers){while(k<spots.length&&!okSpot(spots[k].x,spots[k].y,b,WALL))k++;if(k<spots.length){moveTo(b,spots[k],true);k++}}
   }else{
     const d=hyp(own.x-ball.x,own.y-ball.y)||1;
@@ -1619,6 +1623,32 @@ function finishMatch(){
 }
 
 /* ---------- CPU ---------- */
+/* where a button "should" be: its formation spot, with the whole block sliding toward the ball
+   (half way up/down the pitch and a quarter across), so the shape travels with play */
+function roleSpot(side,num,bx,by){
+  const r=(FORMS[G.forms[side]]||[]).find(q=>q[2]===num);if(!r)return null;
+  if(side===1){bx=2*CX-bx;by=2*CY-by}
+  let x=F.l+r[0]*FW,y=F.t+r[1]*FH;const depth=clamp((r[1]-.6)/.285,0,1);
+  y=y*.5+by*.5+depth*6;x=x+(bx-CX)*.25;
+  x=clamp(x,F.l+6,F.r-6);y=clamp(y,F.t+14,F.b-8);
+  if(side===1){x=2*CX-x;y=2*CY-y}
+  return {x,y,depth};
+}
+/* how badly a team's shape is broken after a move: the mover's distance from its spot (defenders count more),
+   bunching around the ball, and how few buttons are left between the ball and our goal */
+function shapeCost(o,side){
+  const bl=o.ball,mv=o.buttons[o.mi];let c=0;
+  if(mv&&mv.side===side){const sp=roleSpot(side,mv.num,bl.x,bl.y);
+    if(sp){const w=.55+sp.depth*1.1,d=hyp(mv.x-sp.x,mv.y-sp.y),d0=o.start?hyp(o.start.x-sp.x,o.start.y-sp.y):d;
+      c+=w*Math.max(0,d-10)*1.5-w*Math.max(0,d0-d)*.5;
+      // a defender carrying the ball up the pitch leaves a hole behind it
+      if(sp.depth>.75&&o.start){const up=(o.start.y-mv.y)*(side===1?-1:1);if(up>8)c+=(up-8)*1.2}}
+    let near=0;for(const b of o.buttons)if(b!==mv&&b.side===side&&hyp(b.x-mv.x,b.y-mv.y)<14)near++;c+=Math.max(0,near-1)*14}
+  const ownGy=side===1?F.t:F.b;let cov=0;
+  for(const b of o.buttons)if(b.side===side&&(side===1?b.y<bl.y-2:b.y>bl.y+2)&&Math.abs(b.x-bl.x)<40)cov++;
+  c+=Math.max(0,3-cov)*14*(1-clamp(hyp(bl.x-CX,bl.y-ownGy)/FH,0,1)*.5);
+  return c;
+}
 function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;const t=l?clamp(((px-ax)*vx+(py-ay)*vy)/l,0,1):0;return [hyp(px-ax-vx*t,py-ay-vy*t),t]}
 // launch speed needed to cover dist (cm) and still be moving at vEnd, with friction a and drag (the same model as step())
 function speedFor(dist,a,vEnd=0){let v=Math.max(vEnd,1);const n=Math.ceil(dist/.5),ds=dist/n;for(let i=0;i<n;i++){v+=(a+DRAG*v)/v*ds;if(v>2000)break}return v}
@@ -1641,7 +1671,9 @@ function keeperShadow(k,bx,by,gy){
   return xs.length?[Math.min(...xs),Math.max(...xs)]:[CX,CX];
 }
 function cpuPlan(side,forceShot){
-  const ball=G.ball,dirY=side===1?1:-1,gy=side===1?F.b:F.t,mine=bodies().filter(b=>b.side===side&&!(G.lock&&G.lock.side===side&&G.lock.b===b)),opp=bodies().filter(b=>b.side!==side);
+  const ball=G.ball,dirY=side===1?1:-1,gy=side===1?F.b:F.t,opp=bodies().filter(b=>b.side!==side);
+  let mine=bodies().filter(b=>b.side===side&&!(G.lock&&G.lock.side===side&&G.lock.b===b));
+  if(G.mode==='match'&&G.koTaker&&G.koTaker.side===side&&mine.includes(G.koTaker))mine=[G.koTaker]; // kick-off: the centre forward takes it
   const distGoal=hyp(ball.x-CX,ball.y-gy);
   let bestPass=null,bestShot=null;const shots=[],passes=[];
   const lo=CX-GW/2+BALLR+.8,hi=CX+GW/2-BALLR-.8;let tx=[],lob=false;
@@ -1686,7 +1718,7 @@ function simFlick(btn,vx,vy,shot,keepers){
     G.ball.live=true;b.vx=vx;b.vy=vy;
     const dt=1/240;
     for(let i=0;i<240*6;i++){step(dt);if(G.event||G.move.foul&&i>40)break;if(i%8===0&&stopped())break}
-    out={m:G.move,ev:G.event,ball:{x:G.ball.x,y:G.ball.y},buttons:G.buttons,kh:G.event?-1:keeperHolds()};
+    out={m:G.move,ev:G.event,ball:{x:G.ball.x,y:G.ball.y},buttons:G.buttons,kh:G.event?-1:keeperHolds(),mi:bi,start:{x:btn.x,y:btn.y}};
   }finally{G=real;SIM=false}
   return out;
 }
@@ -1728,7 +1760,8 @@ function simPick(side,cands,forced){
   // the best few by the quick estimate, at most two per target button so the list stays varied
   // shortlist: the buttons closest to the ball, a few options each (far buttons rarely flick cleanly)
   const by=new Map();for(const f of cands){if(f.shot)continue;if(!by.has(f.b))by.set(f.b,[]);by.get(f.b).push(f)}
-  const near=[...by.keys()].sort((a,b)=>hyp(a.x-G.ball.x,a.y-G.ball.y)-hyp(b.x-G.ball.x,b.y-G.ball.y)).slice(0,hard?6:easy?3:5),pool=[];
+  const roleD=b=>{const sp=roleSpot(side,b.num,G.ball.x,G.ball.y);return hyp(b.x-G.ball.x,b.y-G.ball.y)+(sp?(.5+sp.depth)*Math.max(0,hyp(sp.x-G.ball.x,sp.y-G.ball.y)-20)*.5:0)};
+  const near=[...by.keys()].sort((a,b)=>roleD(a)-roleD(b)).slice(0,hard?6:easy?3:5),pool=[];
   for(const b of near){const best=new Map();for(const f of by.get(b)){const o=best.get(f.L);if(!o||f.total>o.total)best.set(f.L,f)}
     pool.push(...[...best.values()].sort((x,y)=>y.total-x.total).slice(0,hard?5:4))}
   for(const f of cands.filter(f=>f.shot).sort((a,b)=>b.total-a.total).slice(0,4))if(!pool.includes(f))pool.push(f);
@@ -1739,7 +1772,7 @@ function simPick(side,cands,forced){
     for(let i=0;i<runs;i++){
       // judge each option with the same aiming error the flick will really have
       const a=Math.atan2(f.uy,f.ux)+gauss()*(.006+noise*.05+f.s*.0005*(1.4-sk)),v=clamp(f.v0*(1+gauss()*(.04+noise*.1)),VMIN,VMAX);
-      const o=simFlick(f.b,Math.cos(a)*v,Math.sin(a)*v,!!f.shot,kp);if(o){const n=(G.streak&&G.streak.b===f.b?G.streak.n:0)+1;if(n>=MAX_TOUCH)o.excl=o.buttons[G.buttons.indexOf(f.b)];sum+=rateOutcome(o,side,!!f.shot)}}
+      const o=simFlick(f.b,Math.cos(a)*v,Math.sin(a)*v,!!f.shot,kp);if(o){const n=(G.streak&&G.streak.b===f.b?G.streak.n:0)+1;if(n>=MAX_TOUCH)o.excl=o.buttons[G.buttons.indexOf(f.b)];sum+=rateOutcome(o,side,!!f.shot)-(f.shot?0:shapeCost(o,side)*(.6+sk*.7))}}
     rated.push({f,val:sum/runs});
   }
   rated.sort((a,b)=>b.val-a.val);
