@@ -533,7 +533,7 @@ pt:{
  youKick:'Você dá a saída.',cpuKick:'{c} dá a saída.',yourBall:'<strong>Sua bola.</strong> Toque num botão, puxe e solte.',cpuBall:'<strong>Bola de {c}.</strong> A CPU está se preparando.',
  missYou:'Você errou a bola.',missCpu:'A CPU errou a bola.',deflect:'Desvio. Troca de posse.',shotMissYou:'Chute perdido. A bola é deles.',shotMissCpu:'A CPU perdeu o chute. Sua bola.',
  rescue1:'Um botão atrás do gol voltou para a defesa.',rescueN:'Botões atrás do gol voltaram para a defesa.',
- throwMsg:'Lateral.',cornerMsg:'Escanteio.',goalkickMsg:'Tiro de meta.',overMsg:'Por cima do travessão. Tiro de meta.',keeperMsg:'Bola do goleiro.',freeMsg:'Falta.',
+ throwMsg:'Lateral.',cornerMsg:'Escanteio.',goalkickMsg:'Tiro de meta.',overMsg:'Por cima do travessão. Tiro de meta.',keeperMsg:'Bola do goleiro.',boxMsg:'Parou na pequena área: tiro de meta.',freeMsg:'Falta.',
  cpuRepo:'{c} reposiciona os botões.',cpuPrep:'{c} prepara a cobrança.',
  kind:{free:'Falta',throw:'Lateral',corner:'Escanteio',goalkick:'Tiro de meta',kickoff:'Saída de bola'},
  koSetup:'<strong>Saída de bola.</strong> Posicione quem dá a saída em volta da bola e mais até {n} botões no seu campo. Depois toque em Feito.',
@@ -577,7 +577,7 @@ en:{
  youKick:'You kick off.',cpuKick:'{c} kick off.',yourBall:'<strong>Your ball.</strong> Press a button, pull back, release.',cpuBall:'<strong>{c} ball.</strong> CPU is lining up.',
  missYou:'You missed the ball.',missCpu:'CPU missed the ball.',deflect:'Deflected. Possession changes.',shotMissYou:'Shot missed. Their ball.',shotMissCpu:'CPU shot missed. Your ball.',
  rescue1:'A button behind the goal went back to defence.',rescueN:'Buttons behind the goal went back to defence.',
- throwMsg:'Throw-in.',cornerMsg:'Corner.',goalkickMsg:'Goal kick.',overMsg:'Over the bar. Goal kick.',keeperMsg:'Keeper\'s ball.',freeMsg:'Free kick.',
+ throwMsg:'Throw-in.',cornerMsg:'Corner.',goalkickMsg:'Goal kick.',overMsg:'Over the bar. Goal kick.',boxMsg:'Stopped in the six-yard box: goal kick.',keeperMsg:'Keeper\'s ball.',freeMsg:'Free kick.',
  cpuRepo:'{c} reposition their buttons.',cpuPrep:'{c} set up the restart.',
  kind:{free:'Free kick',throw:'Throw-in',corner:'Corner',goalkick:'Goal kick',kickoff:'Kick-off'},
  koSetup:'<strong>Kick-off.</strong> Place your kicker around the ball and up to {n} more buttons in your own half. Then Done.',
@@ -1451,6 +1451,9 @@ function resolve(){
     return proceed(()=>lt===def?setPiece('corner',1-def,ev,tr('cornerMsg')):setPiece('goalkick',def,ev,tr('goalkickMsg')))}
   const kh=keeperHolds();
   if(kh>=0)return proceed(()=>setPiece('goalkick',kh,{x:G.ball.x},tr('keeperMsg')));
+  // a shot that dies in the six-yard box: goal kick for the defenders
+  if(m.announced){const def=1-mover,line=def===0?F.b:F.t,b=G.ball;
+    if(Math.abs(b.x-CX)<SA.w/2&&(def===0?b.y>line-SA.d:b.y<line+SA.d))return proceed(()=>setPiece('goalkick',def,{x:b.x},tr('boxMsg')))}
   let next,msg='';
   if(m.announced){next=1-mover;msg=mover===0?tr('shotMissYou'):tr('shotMissCpu')}
   else if(!m.moverTouched){next=1-mover;msg=mover===0?tr('missYou'):tr('missCpu')}
@@ -1791,7 +1794,7 @@ function camTarget(){
 }
 const toWorld=(sx,sy)=>{const f=G.flipped?-1:1;return {x:f*(sx-CW/2)/S+G.cam.x,y:f*(sy-CH/2)/S+G.cam.y}};
 function miniRect(){const w=Math.min(70,CW*.16),h=w*TH/TW;return {x:CW-w-12,y:12,w,h}}
-function setZoom(z){prefs.zoom=clamp(z,1,4);save()}
+function setZoom(z){prefs.zoom=clamp(z,.6,4);save()}
 const zoom3=z=>{prefs.zoom3=clamp(z,.55,2.2);save()};
 const zoomBy=f=>{if(V3.on)zoom3((prefs.zoom3||1)*f);else setZoom(prefs.zoom*f)};
 $('#zIn').onclick=()=>zoomBy(1.25);$('#zOut').onclick=()=>zoomBy(1/1.25);
