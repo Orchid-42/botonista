@@ -153,7 +153,7 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .score{font-family:var(--mono);font-weight:500;font-size:28px;line-height:1;display:flex;gap:12px}
 .score .dash{color:var(--board-muted)}
 .clock{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.08em}
-.pens{font-family:var(--mono);font-size:12px;color:var(--board-ink);display:flex;flex-direction:column;letter-spacing:.1em}
+.pens{font-family:var(--mono);font-size:11px;color:var(--board-ink);display:flex;gap:10px;letter-spacing:.06em;white-space:nowrap}
 .poss{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);visibility:hidden}
 .poss.on{visibility:visible}
 @media (max-width:480px){.board .side b{font-size:14px}.board .flag{display:none}}
@@ -193,7 +193,9 @@ button{touch-action:manipulation}
 @media (prefers-reduced-motion:reduce){.overlay .card,.sheet{animation:none}}
 
 .controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px 12px;border-top:1px solid var(--line)}
-#status{margin:0;flex:1 1 260px;min-width:0;font-size:13.5px;color:var(--muted)}
+#status{margin:0;flex:1 1 260px;min-width:0;font-size:13.5px;line-height:1.35;color:var(--muted);height:calc(3 * 1.35em);overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.controls .row{flex-wrap:nowrap;min-height:42px}
+.board{height:58px;box-sizing:border-box}
 #status strong{color:var(--ink);font-weight:600}
 .champ{font-size:clamp(24px,4.6vh,40px)}
 </style>
@@ -325,7 +327,7 @@ pt:{
  soundOn:'Som: ligado',soundOff:'Som: desligado',
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
- shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Trocar botão',topView:'Visão de cima',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
+ shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'Visão de cima',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
  firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola não pode tocar de novo.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
@@ -367,7 +369,7 @@ en:{
  soundOn:'Sound: on',soundOff:'Sound: off',
  rounds:['Round of 16','Quarter-finals','Semi-finals','Final'],roundsShort:['Last 16','Quarters','Semis','Final'],tbd:'To be decided',nextMatch:'{round} · next match',play:'Kick off',
  champs:'World champions',lifts:'{t} lift the cup',outIn:'Out in the {round}',wonCopa:'{t} won the Copa',newCopa:'New Copa',newSkin:'Unlocked: {x}',
- shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Switch button',topView:'Top view',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
+ shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'Top view',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
  firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it next.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
  kickoff:'Kick-off',second:'Second half',goal:'Goal!',own:'Own goal',penalty:'Penalty!',penFor:'Your penalty.',penForCpu:'{c} penalty.',outOfTime:'Out of time. Their ball.',noGoal:'No goal',noGoalSub:'The shot wasn\'t announced. Goal kick.',
  foul:'Foul',foulYou:'Your free kick.',foulCpu:'{c} free kick.',halfTime:'Half-time',pens:'Penalties',pensSub:'Level at full time. Five kicks each.',
@@ -942,6 +944,7 @@ function kickoff(side,first){
 }
 function setStatus(html){$('#status').innerHTML=html}
 function beginTurn(side,msg){
+  G.pickShot=false;
   if(G.lock&&G.lock.side!==side)G.lock=null;
   const koBlock=G.mode==='match'&&(G.koTouches||0)<2;
   G.turn=side;G.announced=false;G.move=null;G.event=null;G.cpuAim=null;G.setup=null;G.cam.manual=false;
@@ -1371,7 +1374,9 @@ cv.addEventListener('pointerdown',e=>{
   const mr=miniRect();if(sx>=mr.x&&sx<=mr.x+mr.w&&sy>=mr.y&&sy<=mr.y+mr.h){G.cam.manual=true;const c=camClamp((sx-mr.x)/mr.w*TW,(sy-mr.y)/mr.h*TH);G.cam.x=c.x;G.cam.y=c.y;return}
   let took=false;
   if(G.phase==='aim'&&G.turn===0){
-    const locked=G.lock&&G.lock.side===0?G.lock.b:null,b=nearestOwn(p,BR+3.5,o=>o!==locked);
+    const locked=G.lock&&G.lock.side===0?G.lock.b:null;
+    if(G.pickShot){const sb=nearestOwn(p,BR+3.5,o=>o!==locked);if(sb){Snd.hit('press',.4);enterShot(sb);cv.setPointerCapture(e.pointerId);e.preventDefault();return}}
+    const b=G.pickShot?null:nearestOwn(p,BR+3.5,o=>o!==locked);
     if(!b&&locked&&hyp(locked.x-p.x,locked.y-p.y)<BR+3.5)setStatus(`${tr('yourBall')} ${tr('lockNote')}`);
     if(b){const a=Math.atan2(b.y-p.y,b.x-p.x);G.aim={b,fx:p.x,fy:p.y,pw:0,tpw:0,raw:0,ang:a,tang:a,seed:rand()*6.3};took=true;Snd.hit('press',.45)}
   }else if(G.phase==='setup'){
@@ -1423,7 +1428,7 @@ cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',()=>
 $('#btnShoot').onclick=()=>{
   if(!G||G.paused||G.phase!=='aim'||G.turn!==0)return;
   if(!G.announced){if(G.mode!=='match'||(G.koTouches||0)<2)return;G.announced=true;G.kt[1]=faceBall(1)}
-  enterShot();hud();
+  pickShooter();hud();
 };
 const rotK=d=>{if(!G||G.phase!=='keeperSet')return;const k=G.keepers[0];G.keepers[0]=clampK(0,{x:k.x,y:k.y,a:k.a+d})};
 $('#btnRotL').onclick=()=>rotK(-.18);$('#btnRotR').onclick=()=>rotK(.18);
@@ -1624,16 +1629,16 @@ function render3D(ts){
 }
 function shotCands(){const bl=G.ball;return bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b)).sort((a,b)=>hyp(a.x-bl.x,a.y-bl.y)-hyp(b.x-bl.x,b.y-bl.y)).slice(0,5)}
 const angTo=(b,t)=>Math.atan2(t.y-b.y,t.x-b.x);
-function enterShot(){
+function enterShot(btn){
   if(!G||G.phase!=='aim'||G.turn!==0||(V3.on&&V3.mode!=='out'))return;
-  V3.list=shotCands();if(!V3.list.length)return;V3.idx=0;V3.btn=V3.list[0];V3.ang=angTo(V3.btn,G.ball);
+  V3.list=shotCands();const b=btn||V3.list[0];if(!b)return;G.pickShot=false;V3.btn=b;V3.ang=angTo(b,G.ball);
   const from=V3.on&&V3.pose?V3.pose:topPose();V3.on=true;V3.mode='shotIn';
   V3.anim={from,t:0,dur:1.05,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}};
   setStatus(tr('shotHelp'));hud();
 }
-function cycleShooter(){if(!V3.on||V3.mode!=='shot'||G.aim||V3.list.length<2)return;
-  V3.idx=(V3.idx+1)%V3.list.length;V3.btn=V3.list[V3.idx];V3.ang=angTo(V3.btn,G.ball);
-  V3.mode='shotIn';V3.anim={from:V3.pose,t:0,dur:.6,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}}}
+function pickShooter(){if(!G||G.phase!=='aim'||G.turn!==0)return;const own=bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b));
+  if(own.length===1)return enterShot(own[0]);G.pickShot=true;setStatus(tr('pickShooter'));hud()}
+function cycleShooter(){if(!V3.on||V3.mode!=='shot'||G.aim)return;exitView(pickShooter)}
 function exitView(after){if(!V3.on)return;G.aim=G.aim&&G.aim.mode3?null:G.aim;V3.mode='out';
   V3.anim={from:V3.pose,t:0,dur:.95,to:topPose,done:()=>{V3.on=false;V3.mode=null;V3.pose=null;hud();after&&after()}};hud()}
 function v3Update(dt){
@@ -1652,7 +1657,7 @@ function shotUiTick(){
   if(!on)return;const pw=G.aim&&G.aim.mode3&&G.aim.raw>=CANCEL_PX?G.aim.pw:0;
   $('#powFill').style.transform=`scaleX(${pw})`;$('#powNum').textContent=Math.round(pw*100)+'%';
   $('#loftFill').style.transform=`scaleY(${V3.loft})`;$('#loftKnob').style.bottom=`calc(${V3.loft*100}% - 9px)`;$('#loftNum').textContent=Math.round(V3.loft*100)+'%';
-  $('#swapBtn').disabled=V3.list.length<2||V3.mode!=='shot';
+  $('#swapBtn').disabled=V3.mode!=='shot'||bodies().filter(b=>b.side===0).length<2;
 }
 (()=>{const tr0=$('#loftTrack');let drag=false;
   const set=e=>{const r=tr0.getBoundingClientRect();V3.loft=clamp(1-(e.clientY-r.top)/r.height,0,1)};
@@ -1661,16 +1666,19 @@ function shotUiTick(){
   tr0.addEventListener('pointerup',()=>{drag=false});tr0.addEventListener('pointercancel',()=>{drag=false});
   tr0.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowRight'){V3.loft=clamp(V3.loft+.05,0,1);e.preventDefault()}if(e.key==='ArrowDown'||e.key==='ArrowLeft'){V3.loft=clamp(V3.loft-.05,0,1);e.preventDefault()}});
   $('#swapBtn').onclick=cycleShooter;
-  $('#topBtn').onclick=()=>{if(G&&V3.on){exitView();setStatus(tr('announced'))}};
+  $('#topBtn').onclick=()=>{if(G&&V3.on){G.pickShot=false;exitView();setStatus(tr('announced'))}};
 })();
 
 /* ---------- rendering ---------- */
 function resize(){
   const st=$('#stage');if(!st||st.offsetParent===null)return;
-  CW=st.clientWidth;CH=st.clientHeight;DPR=Math.min(2.5,window.devicePixelRatio||1);
-  cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);
+  const w=st.clientWidth,h=st.clientHeight,d=Math.min(2.5,window.devicePixelRatio||1);
+  if(w===CW&&h===CH&&d===DPR&&cv.width===Math.round(w*d))return; // same size: never clear the canvas for nothing
+  CW=w;CH=h;DPR=d;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);
   FIT=Math.max(.5,Math.min(CW/TW,CH/TH)*.96);if(!S||!isFinite(S)||!resize.done)S=FIT*prefs.zoom;resize.done=true;
   stageBg=getComputedStyle(st).backgroundColor||stageBg;
+  // a resized canvas is blank: draw straight away instead of waiting for the next frame
+  if(G&&!$('#match').hidden){try{if(V3.on&&V3.pose)render3D(performance.now());else render(performance.now())}catch(e){}}
 }
 new ResizeObserver(resize).observe($('#stage'));
 addEventListener('resize',resize);
@@ -1841,7 +1849,7 @@ function render(ts){
   const myTurn=G.phase==='aim'&&G.turn===0;
   for(const b of bodies()){
     const team=b.side===0?tA:tB;let glow=null;
-    if(myTurn&&b.side===0&&!(G.lock&&G.lock.b===b))glow=G.aim&&G.aim.b===b?'#ffd23f':`rgba(255,255,255,${.18+.32*pulse})`;
+    if(myTurn&&b.side===0&&!(G.lock&&G.lock.b===b))glow=G.pickShot?`rgba(255,210,63,${.45+.5*pulse})`:G.aim&&G.aim.b===b?'#ffd23f':`rgba(255,255,255,${.18+.32*pulse})`;
     if(G.phase==='setup'&&b.side===0){const s=G.setup;
       if(b===G.sp.taker){if(s.taking)glow=`rgba(255,210,63,${.5+.5*pulse})`}
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
