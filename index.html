@@ -1432,7 +1432,7 @@ cv.addEventListener('pointermove',e=>{
 const endPtr=()=>{
   if(!G)return;
   if(G.aim){const a=G.aim;G.aim=null;Snd.tension(0);
-    if(G.phase==='aim'&&a.raw>=CANCEL_PX&&a.tpw>0){const v=vOf(a.pw);if(a.mode3){V3.ang=a.ang;V3.mode='chase'}flick(a.b,Math.cos(a.ang)*v,Math.sin(a.ang)*v,a.mode3?V3.loft:null)}else if(a.raw>4)setStatus(tr('cancelled'))}
+    if(G.phase==='aim'&&a.raw>=CANCEL_PX&&a.tpw>0){const v=vOf(a.pw);if(a.mode3){V3.ang=a.ang;V3.mode='chase';const b0=a.b,p0=shotPose(b0,a.ang);V3.chaseBase={x:p0.x-Math.cos(a.ang)*6,y:p0.y-Math.sin(a.ang)*6,z:p0.z+5,yaw:a.ang,pitch:p0.pitch-.06};V3.chaseYaw=a.ang}flick(a.b,Math.cos(a.ang)*v,Math.sin(a.ang)*v,a.mode3?V3.loft:null)}else if(a.raw>4)setStatus(tr('cancelled'))}
   G.kdrag=null;G.sdrag=null;G.pan=null;
 };
 cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',()=>{if(G){G.aim=null;G.kdrag=null;G.sdrag=null;G.pan=null;Snd.tension(0)}});
@@ -1518,10 +1518,13 @@ function frame(ts){
   }
   if(G){
     // zoom: eases to the chosen level; pulls back a touch while a hard shot is travelling
-    let fast=0;if(G.phase==='moving'){for(const o of bodies())fast=Math.max(fast,hyp(o.vx,o.vy));fast=Math.max(fast,hyp(G.ball.vx,G.ball.vy))}
-    const zT=FIT*prefs.zoom*(1-Math.min(.14,fast/3200)),zw=PINCH?16:5;G.zv=(G.zv||0)+(zw*zw*(zT-S)-2*zw*(G.zv||0))*dt;S+=G.zv*dt;
+    const zT=FIT*prefs.zoom,zw=PINCH?16:4;G.zv=(G.zv||0)+(zw*zw*(zT-S)-2*zw*(G.zv||0))*dt;S+=G.zv*dt;
     if(G.pan){G.cam.vx=G.cam.vy=0}else{
-      const t=camClamp(camTarget().x,camTarget().y),w=G.phase==='moving'?3.4:2.6;
+      /* dead zone: the camera only moves when the point of interest leaves the middle of the screen,
+         and then just far enough to bring it back, so it glides to a spot and stays there */
+      const want=camTarget(),hw=CW/S*.2,hh=CH/S*.2;let tx=G.cam.tx??G.cam.x,ty=G.cam.ty??G.cam.y;
+      if(G.cam.manual){tx=want.x;ty=want.y}else{if(want.x<tx-hw)tx=want.x+hw;else if(want.x>tx+hw)tx=want.x-hw;if(want.y<ty-hh)ty=want.y+hh;else if(want.y>ty+hh)ty=want.y-hh}
+      const tc=camClamp(tx,ty);G.cam.tx=tc.x;G.cam.ty=tc.y;const t=tc,w=1.9;
       G.cam.vx=(G.cam.vx||0)+(w*w*(t.x-G.cam.x)-2*w*(G.cam.vx||0))*dt;G.cam.vy=(G.cam.vy||0)+(w*w*(t.y-G.cam.y)-2*w*(G.cam.vy||0))*dt;
       const c=camClamp(G.cam.x+G.cam.vx*dt,G.cam.y+G.cam.vy*dt);G.cam.x=c.x;G.cam.y=c.y}
     if(!G.paused)v3Update(dt);
@@ -1539,7 +1542,7 @@ const V3={on:false,mode:null,pose:null,anim:null,btn:null,list:[],idx:0,ang:0,lo
 const NEAR=1.2, SOLID_NEAR=4.5; // objects with any part closer than SOLID_NEAR are left out (they'd smear across the screen)
 let CV=null;
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-const focal=()=>CH*.95;
+const focal=()=>Math.max(CH*.95,CW*1.05);
 function topPose(){return {x:G.cam.x,y:G.cam.y,z:focal()/S,yaw:-PI/2,pitch:-PI/2+1e-3}}
 function shotPose(b,ang){const z=prefs.zoom3||1,back=21/z,h=14/Math.pow(z,.85),ahead=42;return {x:b.x-Math.cos(ang)*back,y:b.y-Math.sin(ang)*back,z:h,yaw:ang,pitch:-Math.atan2(h,back+ahead)}}
 function mixPose(a,b,t){let dy=b.yaw-a.yaw;while(dy>PI)dy-=2*PI;while(dy<-PI)dy+=2*PI;
@@ -1572,6 +1575,13 @@ function shadow3(pts,blur,a){const cc=pts.map(p=>toC(p[0],p[1],.02));if(cc.some(
 /* a top face mapped onto local coords [-10,10]², so art and text can be drawn flat on it */
 function withTop(x,y,z,ax,ay,draw){const c0=toC(x,y,z),cx=toC(x+ax[0],y+ax[1],z),cy=toC(x+ay[0],y+ay[1],z);if(c0[2]<NEAR||cx[2]<NEAR||cy[2]<NEAR)return;
   const s0=scr(c0),sx=scr(cx),sy=scr(cy);ctx.save();ctx.setTransform(DPR*(sx[0]-s0[0])/10,DPR*(sx[1]-s0[1])/10,DPR*(sy[0]-s0[0])/10,DPR*(sy[1]-s0[1])/10,DPR*s0[0],DPR*s0[1]);draw();ctx.restore()}
+/* a button: low rounded body like a frisbee, tucked in at the bottom, with a curved rim up to the printed top */
+const DISC_PROFILE=[[0,.86],[.15,.95],[.35,1],[.62,.99],[.85,.955],[1,.93]];
+function disc3(x,y,z0,r,h,col,drawTop){const N=28,P=[];
+  for(const [zf,rf] of DISC_PROFILE)for(let i=0;i<N;i++){const a=i/N*2*PI,q=toC(x+r*rf*Math.cos(a),y+r*rf*Math.sin(a),z0+h*zf);if(q[2]<SOLID_NEAR)return;P.push(scr(q))}
+  const H=hull(P);let y0=1e9,y1=-1e9;for(const p of H){y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])}
+  const g=ctx.createLinearGradient(0,y0,0,y1);g.addColorStop(0,shade(col,.12));g.addColorStop(.45,col);g.addColorStop(1,shade(col,-.55));
+  fillScr(H,g);withTop(x,y,z0+h,[r*.97,0],[0,r*.97],drawTop)}
 function cyl3(x,y,z0,r,h,side,drawTop){const N=24,P=[];
   for(let i=0;i<N;i++){const a=i/N*2*PI,cx=x+r*Math.cos(a),cy=y+r*Math.sin(a);for(const zz of [z0,z0+h]){const q=toC(cx,cy,zz);if(q[2]<SOLID_NEAR)return;P.push(scr(q))}}
   fillScr(hull(P),side);withTop(x,y,z0+h,[r,0],[0,r],drawTop)}
@@ -1605,7 +1615,7 @@ function goal3(top){
 function buttonTop(b,team){return ()=>{const c=ctx;c.beginPath();c.arc(0,0,10,0,2*PI);c.save();c.clip();
   if(team.img&&team.img.complete&&team.img.naturalWidth)c.drawImage(team.img,-10,-10,20,20);else{c.fillStyle=team.ring;c.fillRect(-10,-10,20,20);c.fillStyle=team.dome;c.beginPath();c.arc(0,0,8.6,0,2*PI);c.fill()}
   c.fillStyle=team.num;c.font='700 5px Geist, system-ui, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(b.num,0,3.8);
-  const eg=c.createRadialGradient(-1,-1.5,5.5,0,0,10.1);eg.addColorStop(0,'rgba(0,0,0,0)');eg.addColorStop(.8,'rgba(0,0,0,.1)');eg.addColorStop(1,'rgba(0,0,0,.35)');c.fillStyle=eg;c.fillRect(-10,-10,20,20);
+  const eg=c.createRadialGradient(-.6,-1,0,0,0,10.05);eg.addColorStop(0,'rgba(0,0,0,0)');eg.addColorStop(.72,'rgba(0,0,0,0)');eg.addColorStop(.82,'rgba(255,255,255,.12)');eg.addColorStop(.9,'rgba(0,0,0,.06)');eg.addColorStop(1,'rgba(0,0,0,.4)');c.fillStyle=eg;c.fillRect(-10,-10,20,20);
   const gg=c.createLinearGradient(0,-9,0,0);gg.addColorStop(0,'rgba(255,255,255,.34)');gg.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gg;c.beginPath();c.ellipse(-1.5,-4,7,4.2,-.2,0,2*PI);c.fill();
   c.restore()}}
 function render3D(ts){
@@ -1622,7 +1632,7 @@ function render3D(ts){
     seg3([b.x+ux*(b.r+.6),b.y+uy*(b.r+.6),.05],[b.x+ux*L,b.y+uy*L,.05],.45,'rgba(255,210,63,.9)')}
   // everything with height, far to near
   const items=[];
-  for(const b of bodies())items.push({o:b,d:toC(b.x,b.y,0)[2],f:()=>{const t=b.side===0?tA:tB;cyl3(b.x,b.y,0,b.r,.6,shade(t.ring,-.35),buttonTop(b,t))}});
+  for(const b of bodies())items.push({o:b,d:toC(b.x,b.y,0)[2],f:()=>{const t=b.side===0?tA:tB;disc3(b.x,b.y,0,b.r,.7,t.ring,buttonTop(b,t))}});
   G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({o:{x:k.x,y:k.y,r:KW/2},d:toC(k.x,k.y,0)[2],f:()=>box3(k,2.4,shade(t.ring,-.3),()=>{const c=ctx;c.fillStyle=t.dome;c.fillRect(-10,-10,20,20);c.fillStyle=t.ring;c.fillRect(-.9,-10,1.8,20);
     const g=c.createLinearGradient(0,-10,0,10);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(1,'rgba(0,0,0,.12)');c.fillStyle=g;c.fillRect(-10,-10,20,20)})})});
   items.push({d:toC(bl.x,bl.y,bl.z)[2],f:()=>cyl3(bl.x,bl.y,bl.z,BALLR,.5,'#050607',()=>{const c=ctx,g=c.createRadialGradient(-3,-4,1,0,0,10);g.addColorStop(0,'#3d434a');g.addColorStop(1,'#101214');c.fillStyle=g;c.beginPath();c.arc(0,0,10,0,2*PI);c.fill()})});
@@ -1666,8 +1676,11 @@ function v3Update(dt){
     if(A.t>=A.dur){const d=A.done;V3.anim=null;V3.pose=A.to();d&&d()}return}
   const k=(rate)=>Math.min(1,dt*rate),sm=(p,q,r)=>{const m=mixPose(p,q,k(r));return m};
   if(V3.mode==='shot'){V3.pose=sm(V3.pose,shotPose(V3.btn,V3.ang),6)}
-  else if(V3.mode==='chase'){const bl=G.ball,dir=V3.ang,h=13+Math.min(6,bl.z*.6),back=26;
-    const t={x:bl.x-Math.cos(dir)*back,y:bl.y-Math.sin(dir)*back,z:h,yaw:dir,pitch:-Math.atan2(h-bl.z*.5,back+14)};V3.pose=sm(V3.pose,t,2.4)}
+  else if(V3.mode==='chase'&&V3.chaseBase){const B=V3.chaseBase,bl=G.ball;
+    // turn only if the ball drifts well off-centre, and then only by the excess
+    let want=Math.atan2(bl.y-B.y,bl.x-B.x),d=want-V3.chaseYaw;while(d>PI)d-=2*PI;while(d<-PI)d+=2*PI;const dz=.32;
+    if(d>dz)V3.chaseYaw+=d-dz;else if(d<-dz)V3.chaseYaw+=d+dz;
+    V3.pose=sm(V3.pose,{...B,yaw:V3.chaseYaw},1.6)}
 }
 /* the shot panel: power, height and the shooter */
 function shotUiTick(){
@@ -1774,8 +1787,8 @@ function drawButton(c,b,team,glow){
   else{c.fillStyle=team.ring;c.fillRect(b.x-r,b.y-r,2*r,2*r);c.fillStyle=team.dome;disc(b.x,b.y,r2);c.fill()}
   c.fillStyle=team.num;c.font=`700 ${r*.5}px Geist, system-ui, sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(b.num,b.x,b.y+r*.38);
   // rounded edge: the resin curves down at the rim, darker on the side away from the lamp
-  const eg=c.createRadialGradient(b.x-L.x*r*.14,b.y-L.y*r*.14-r*.08,r*.55,b.x,b.y,r*1.01);
-  eg.addColorStop(0,'rgba(0,0,0,0)');eg.addColorStop(.72,'rgba(0,0,0,.05)');eg.addColorStop(.92,'rgba(0,0,0,.2)');eg.addColorStop(1,'rgba(0,0,0,.38)');
+  const eg=c.createRadialGradient(b.x-L.x*r*.14,b.y-L.y*r*.14-r*.08,0,b.x,b.y,r*1.01);
+  eg.addColorStop(0,'rgba(0,0,0,0)');eg.addColorStop(.62,'rgba(0,0,0,0)');eg.addColorStop(.76,'rgba(255,255,255,.1)');eg.addColorStop(.86,'rgba(0,0,0,.05)');eg.addColorStop(.95,'rgba(0,0,0,.24)');eg.addColorStop(1,'rgba(0,0,0,.42)');
   c.fillStyle=eg;c.fillRect(b.x-r,b.y-r,2*r,2*r);
   // glossy resin layer: a broad soft reflection near the top that drifts with the lamp
   const gx=b.x-L.x*r*.28,gy=b.y-L.y*r*.28-r*.34;
