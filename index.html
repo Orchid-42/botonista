@@ -388,7 +388,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 /* ---------- language ---------- */
 const STR={
 pt:{
- inProgress:'Copa em andamento',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'1 contra 1',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',
+ inProgress:'Copa em andamento',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'1 contra 1',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',
  skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
@@ -425,14 +425,14 @@ pt:{
   ['Bola parada','Pela linha de fundo: se o último toque foi do ataque, tiro de meta do canto da pequena área; se foi da defesa, escanteio. Os adversários ficam fora do círculo. Cada lado move até quatro botões e o cobrador vai em qualquer ponto do círculo.'],
   ['Mira','Uma linha clara mostra para onde a bola vai, com um pouco de imprecisão.'],
   ['Falta','Acertar um botão adversário antes da bola é falta. A cobrança é no local do toque; dentro da área, é pênalti.'],
-  ['Placar','Vence quem fizer 3 gols primeiro. Depois de cada saída de bola, são dois toques antes de poder chutar.'],
+  ['Placar','Vence quem fizer 3 gols primeiro; se empatar em 2 a 2, vence quem fizer 4; 3 a 3 vai para os pênaltis. Depois de cada saída de bola, são dois toques antes de poder chutar.'],
   ['Reinício','Na saída de bola e em toda bola parada, o botão que repõe a bola não pode dar o toque seguinte.'],
   ['Visão','Arraste a mesa para mover a câmera. Para zoom, use + e −, a roda do mouse ou faça pinça com dois dedos. Toque no minimapa para pular.']],
  aim:'Mira',aimLevel:'Nível {n} de {m}',aimNext:'próximo: {x}',aimMax:'completa',aimUp:'Mira nível {n}',aimReq:['','Vença 2 partidas','Chegue à semifinal','Ganhe a Copa'],
  skinReq:['Inicial','Vença uma partida','Faça um gol de cobertura','Marque 10 gols','Vença 3 partidas','Marque de pênalti','Vença por 3 a 0','Chegue à semifinal','Vença no Difícil','Ganhe a Copa']
 },
 en:{
- inProgress:'Copa in progress',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'1 vs 1',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',
+ inProgress:'Copa in progress',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'1 vs 1',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',
  skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
@@ -469,7 +469,7 @@ en:{
   ['Dead ball','Over the goal line: a goal kick from the nearest small-box corner if the attack touched it last, a corner if the defence did. Opponents stay outside the circle. Each side moves up to four buttons and the taker goes anywhere in the circle.'],
   ['Aim','A faint line shows where the ball will go, with a little uncertainty.'],
   ['Foul','Hitting an opponent\'s button before the ball is a foul. The free kick is taken where the buttons touched; inside the box it\'s a penalty.'],
-  ['Score','First to 3 goals wins. After each kick-off the ball needs two touches before anyone can shoot.'],
+  ['Score','First to 3 goals wins; at 2–2 it becomes first to 4; 3–3 goes to penalties. After each kick-off the ball needs two touches before anyone can shoot.'],
   ['Restarts','At kick-off and every dead ball, the button that restarts play can\'t make the next touch.'],
   ['View','Drag the table to pan. Zoom with + and −, the mouse wheel or a two-finger pinch. Tap the minimap to jump.']],
  aim:'Aim guide',aimLevel:'Level {n} of {m}',aimNext:'next: {x}',aimMax:'complete',aimUp:'Aim guide level {n}',aimReq:['','Win 2 matches','Reach a semi-final','Win the Copa'],
@@ -509,7 +509,9 @@ const KO_MOVE=2;  // at your kick-off: the kicker plus two more buttons, staying
 const RING=14, WALL=11, PAL_R=2.4;
 const CANCEL_PX=28, RANGE_PX=230; // pull inside CANCEL_PX cancels; full power at CANCEL_PX+RANGE_PX
 const DOME=.86; // dome radius as a share of the button radius
-const GOALS_TO_WIN=3; // matches are first to this many goals, no clock
+const GOALS_TO_WIN=3; // first to 3; if it reaches 2-2, first to 4; 3-3 goes to penalties
+function matchOutcome(){const [a,b]=G.score,hi=Math.max(a,b),lo=Math.min(a,b);
+  if(hi>=4||(hi===3&&lo<=1))return 'win';if(a===3&&b===3)return 'pens';return null}
 const POSTS=[[CX-GW/2,F.t],[CX+GW/2,F.t],[CX-GW/2,F.b],[CX+GW/2,F.b]];
 const NETS=[
   [CX-GW/2,F.t-GD,CX-GW/2,F.t],[CX+GW/2,F.t-GD,CX+GW/2,F.t],[CX-GW/2,F.t-GD,CX+GW/2,F.t-GD],
@@ -999,10 +1001,10 @@ function renderBracket(keepFresh){
 
 /* formations: [x share of width, y share of length from the far goal line, shirt number], own half only */
 const FORMS={
- '4-3-3':[[.2,.86,2],[.4,.875,3],[.6,.875,4],[.8,.86,6],[.24,.74,5],[.5,.72,8],[.76,.74,10],[.2,.61,7],[.8,.61,11],[.5,.6,9]],
- '4-4-2':[[.2,.86,2],[.4,.875,3],[.6,.875,4],[.8,.86,6],[.14,.73,7],[.38,.75,5],[.62,.75,8],[.86,.73,11],[.38,.61,9],[.62,.61,10]],
+ '4-3-3':[[.2,.86,6],[.4,.875,3],[.6,.875,4],[.8,.86,2],[.24,.74,5],[.5,.72,8],[.76,.74,10],[.2,.61,7],[.8,.61,11],[.5,.6,9]],
+ '4-4-2':[[.2,.86,6],[.4,.875,3],[.6,.875,4],[.8,.86,2],[.14,.73,7],[.38,.75,5],[.62,.75,8],[.86,.73,11],[.38,.61,9],[.62,.61,10]],
  '3-5-2':[[.28,.87,3],[.5,.885,4],[.72,.87,2],[.1,.74,6],[.3,.72,5],[.5,.76,8],[.7,.72,10],[.9,.74,7],[.38,.61,9],[.62,.61,11]],
- '4-2-3-1':[[.2,.86,2],[.4,.875,3],[.6,.875,4],[.8,.86,6],[.38,.785,5],[.62,.785,8],[.18,.67,7],[.5,.68,10],[.82,.67,11],[.5,.6,9]]
+ '4-2-3-1':[[.2,.86,6],[.4,.875,3],[.6,.875,4],[.8,.86,2],[.38,.785,5],[.62,.785,8],[.18,.67,7],[.5,.68,10],[.82,.67,11],[.5,.6,9]]
 };
 
 /* ================= MATCH ================= */
@@ -1069,6 +1071,8 @@ function flipView(label){
   G.kt=G.kt.map(t=>t?{x:2*CX-t.x,y:2*CY-t.y,a:t.a}:null).reverse();
   G.teams.reverse();G.kit.reverse();G.score.reverse();G.forms.reverse();
   G.turn=1-G.turn;if(G.lock)G.lock.side=1-G.lock.side;if(G.sp)G.sp.side=1-G.sp.side;
+  if(G.pkBtn){G.pkBtn.x=2*CX-G.pkBtn.x;G.pkBtn.y=2*CY-G.pkBtn.y;G.pkBtn.side=1-G.pkBtn.side}
+  if(G.pens){G.pens.k.reverse();G.pens.shooter=1-G.pens.shooter}
   if(G.event){G.event.x=2*CX-G.event.x;G.event.y=2*CY-G.event.y;if(G.event.side!=null)G.event.side=1-G.event.side}
   G.kickFirst=1-G.kickFirst;G.cam.x=2*CX-G.cam.x;G.cam.y=2*CY-G.cam.y;G.cam.vx=0;G.cam.vy=0;G.cam.manual=false;
   G.flipped=!G.flipped;G.aim=null;G.sdrag=null;G.kdrag=null;G.pan=null;
@@ -1259,7 +1263,7 @@ function goalFor(sc,label,lob){
   const el=$((G.flipped?1-sc:sc)===0?'#sA':'#sB');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
   if(sc===0&&!G.pvp){prefs.stats.goals++;G.hat++;if(lob)prefs.stats.lobs++;save()}
   const t=TEAMS[G.teams[sc]];
-  banner(tr('goal'),`${label?label+' · ':''}${tn(t)} · ${G.score[0]}–${G.score[1]}`,2100,()=>{if(G.score[sc]>=GOALS_TO_WIN)finishMatch();else kickoff(1-sc,false)});
+  banner(tr('goal'),`${label?label+' · ':''}${tn(t)} · ${G.score[0]}–${G.score[1]}`,2100,()=>{const r=matchOutcome();if(r==='win')finishMatch();else if(r==='pens'){Snd.whistle(true);banner(tr('pensTitle'),tr('pensSub'),1800,startPens)}else kickoff(1-sc,false)});
 }
 
 /* ---------- penalty during the match ---------- */
@@ -1364,12 +1368,14 @@ function endHalf(){
 /* ---------- penalties ---------- */
 function startPens(){G.mode='pens';G.pens={k:[[],[]],shooter:rand()<.5?0:1};$('#pens').hidden=false;hud();nextPen()}
 function nextPen(){
+  if(G.pvp&&G.pens.shooter===1)flipView();
   const s=G.pens.shooter,dirY=s===0?-1:1;
   G.ball=newBall(CX,s===0?F.t+SPOT:F.b-SPOT);
   G.pkBtn={x:CX,y:G.ball.y-dirY*(BR+BALLR+3),vx:0,vy:0,r:BR,m:3,side:s,num:10};
   G.keepers=[homeKeeper(0),homeKeeper(1)];G.kt=[null,null];
   G.turn=s;G.announced=true;G.event=null;G.move=null;G.cam.manual=false;
-  if(s===0){
+  if(s===0&&G.pvp){flipView('pvpKeeper');G.phase='keeperSet'}
+  else if(s===0){
     const r=rand(),off=(GW/2-KW/2-.4)*(.5+rand()*.6);
     G.kt[1]={x:CX+(r<.38?-off:r<.76?off:0),y:G.keepers[1].y,a:gauss()*.15};
     G.phase='aim';setStatus(tr('penYou'));
@@ -1379,7 +1385,7 @@ function nextPen(){
 function resolvePen(){
   const s=G.pens.shooter,ev=G.event,scored=!!(ev&&ev.type==='goal'&&ev.side===s),over=!!(ev&&ev.over);
   G.pens.k[s].push(scored?1:0);hud();
-  banner(scored?tr('penGoal'):over?tr('penOver'):tr('penSaved'),s===0?(scored?tr('youScore'):tr('youMiss')):(scored?tr('cpuScore'):tr('cpuMiss')),1300,()=>{
+  banner(scored?tr('penGoal'):over?tr('penOver'):tr('penSaved'),G.pvp?tn(TEAMS[G.teams[s]]):s===0?(scored?tr('youScore'):tr('youMiss')):(scored?tr('cpuScore'):tr('cpuMiss')),1300,()=>{
     if(pensDecided())finishMatch();else{G.pens.shooter=1-s;nextPen()}});
 }
 function pensDecided(){
@@ -1389,8 +1395,8 @@ function pensDecided(){
 }
 function finishMatch(){
   G.phase='over';Snd.whistle(true);
-  if(G.pvp){const w=G.score[0]>G.score[1]?0:1,t=TEAMS[G.teams[w]],o=G.flipped?1:0,a=TEAMS[G.teams[o]],b=TEAMS[G.teams[1-o]];hud();
-    bannerBtn(tr('pvpWin',{t:tn(t)}),`${a.c} ${G.score[o]}–${G.score[1-o]} ${b.c}`,()=>{G=null;show('home');renderHome()});return}
+  if(G.pvp){const pk=G.mode==='pens'?G.pens.k.map(k=>k.reduce((x,y)=>x+y,0)):null,w=pk?(pk[0]>pk[1]?0:1):(G.score[0]>G.score[1]?0:1),t=TEAMS[G.teams[w]],o=G.flipped?1:0,a=TEAMS[G.teams[o]],b=TEAMS[G.teams[1-o]];hud();
+    bannerBtn(tr('pvpWin',{t:tn(t)}),`${a.c} ${G.score[o]}–${G.score[1-o]} ${b.c}${pk?' · '+tr('pensShort',{a:pk[o],b:pk[1-o]}):''}`,()=>{G=null;show('home');renderHome()});return}
   let win,p=null;
   if(G.mode==='pens'){const s=G.pens.k.map(k=>k.reduce((x,y)=>x+y,0));p=s;win=s[0]>s[1]}else win=G.score[0]>G.score[1];
   const st=prefs.stats;
@@ -1496,7 +1502,12 @@ function rateOutcome(o,side,shot){
     const ux=(bl.x-b.x)/d,uy=(bl.y-b.y)/d,gx=(CX-bl.x)/(dGoal||1),gyy=(gy-bl.y)/(dGoal||1),c=ux*gx+uy*gyy;
     play=Math.max(play,(34-d)*.6+c*14)}
   v+=play;
-  if(dGoal<70&&(side===1?bl.y>CY-BALLR:bl.y<CY+BALLR))v+=(70-dGoal)*.35; // a shooting chance next
+  if(dGoal<75&&(side===1?bl.y>CY-BALLR:bl.y<CY+BALLR)){ // a shooting chance next turn: someone lined up behind the ball, a clear lane
+    v+=(75-dGoal)*.35;let lane=1;const gx=(CX-bl.x)/(dGoal||1),g2=(gy-bl.y)/(dGoal||1);
+    for(const q of o.buttons)if(q.side!==side&&segDist(q.x,q.y,bl.x,bl.y,CX,gy)[0]<BR+BALLR+.4)lane*=.45;
+    let sh=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d>22)continue;
+      const c=((bl.x-b.x)*gx+(bl.y-b.y)*g2)/(d||1);if(c>.6)sh=Math.max(sh,(c-.6)/.4*(1-d/22))}
+    v+=70*sh*lane*(1-dGoal/75)}
   if(bl.x<F.l+4||bl.x>F.r-4)v-=10;if(bl.y<F.t+4||bl.y>F.b-4)v-=6;
   return v;
 }
@@ -1541,10 +1552,17 @@ function execPlan(p){
   later(()=>flick(p.b,Math.cos(a)*v,Math.sin(a)*v),650);
 }
 function faceBall(side){
-  const b=G.ball,gx=CX,gy=side===0?F.b:F.t,dx=b.x-gx,dy=b.y-gy,d=hyp(dx,dy)||1,ux=dx/d,uy=dy/d;
-  const dist=KH/2+1+(d<45?2.5:0);
-  let a=Math.atan2(uy,ux)+PI/2;while(a>PI/2)a-=PI;while(a<-PI/2)a+=PI;
-  return clampK(side,{x:gx+ux*dist+gauss()*(1-G.skill)*3,y:gy+uy*dist,a:a+gauss()*(1-G.skill)*.25});
+  const b=G.ball,gx=CX,gy=side===0?F.b:F.t,inw=side===0?-1:1,lo=CX-GW/2+BALLR,hi=CX+GW/2-BALLR;
+  let best=null;
+  for(let dy=KH/2+.4;dy<=SA.d-KH/2;dy+=1.1)for(let ox=-GW/2;ox<=GW/2;ox+=.7){
+    const k=clampK(side,{x:CX+ox,y:gy+inw*dy,a:0});
+    const ux=b.x-k.x,uy=b.y-k.y;let a=Math.atan2(uy,ux)+PI/2;while(a>PI/2)a-=PI;while(a<-PI/2)a+=PI;k.a=clamp(a,-1.3,1.3);
+    if(hyp(b.x-k.x,b.y-k.y)<BR+BALLR+KH)continue;
+    const [l,r]=keeperShadow(k,b.x,b.y,gy),gl=Math.max(0,Math.min(hi,l-BALLR)-lo),gr=Math.max(0,hi-Math.max(lo,r+BALLR));
+    const sc=Math.max(gl,gr)+dy*.12; // biggest gap left to aim at; a little reluctance to come off the line (lobs)
+    if(!best||sc<best.sc)best={k,sc}}
+  const k=best?best.k:clampK(side,{x:CX,y:gy+inw*(KH/2+1),a:0}),n=1-G.skill;
+  return clampK(side,{x:k.x+gauss()*n*3,y:k.y+gauss()*n*.8,a:k.a+gauss()*n*.25});
 }
 function clampK(side,p){
   const xr=GW/2+2;
@@ -1690,7 +1708,7 @@ function hud(){
   $('#btnRotL').hidden=!ks;$('#btnRotR').hidden=!ks;
   $('#btnPause').textContent=G.paused?'▶':'❚❚';$('#btnPause').setAttribute('aria-label',G.paused?tr('resume'):tr('pause'));
   if(G.pens){const dots=k=>{let s=k.map(x=>x?'●':'○').join(' ');for(let i=k.length;i<5;i++)s+=' ·';return s};
-    $('#pens').innerHTML=`<span>${dots(G.pens.k[0])}</span><span>${dots(G.pens.k[1])}</span>`}
+    const po=G.flipped?1:0;$('#pens').innerHTML=`<span>${dots(G.pens.k[po])}</span><span>${dots(G.pens.k[1-po])}</span>`}
   drawClock();
 }
 let lastClock='';
