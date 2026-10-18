@@ -743,23 +743,28 @@ const Snd={ctx:null,
     const mk=brown=>{const n=c.sampleRate*2,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);let l=0;
       for(let i=0;i<n;i++){const w=rand()*2-1;if(brown){l=(l+.02*w)/1.02;d[i]=l*3.5}else d[i]=w}return b};
     this.white=mk(false);this.brown=mk(true);
+    // a bottle cap scraping over wood: fine hiss plus sparse little catches of the grain
+    this.scrape=(()=>{const n=c.sampleRate*2,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);let e=0,l=0;
+      for(let i=0;i<n;i++){if(rand()<.0035)e=.5+rand()*.7;e*=.992;const w=rand()*2-1;l=l*.6+w*.4;d[i]=l*(.32+e)}return b})();
     const loop=(buf,type,f,q)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;
       const g=c.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(this.master);s.start();return {g,fl}};
-    this.sBtn=loop(this.brown,'lowpass',380,.8);   // buttons sliding on the wood
+    this.sBtn=loop(this.scrape,'bandpass',1500,.9);   // plastic cap sliding on the wood
+    {const body=c.createBiquadFilter();body.type='peaking';body.frequency.value=520;body.Q.value=1.4;body.gain.value=7; // wooden tabletop body
+     this.sBtn.fl.disconnect();this.sBtn.fl.connect(body);body.connect(this.sBtn.g)}
     this.sBall=loop(this.white,'bandpass',2400,1.3); // puck hiss
     this.last={};
   },
   setOn(on){prefs.sound=on;save();if(this.master)this.master.gain.setTargetAtTime(on?VOL:0,this.ctx.currentTime,.05)},
   slide(bv,lv){if(!this.ctx)return;const t=this.ctx.currentTime;
-    this.sBtn.g.gain.setTargetAtTime(Math.min(.6,bv/240),t,.04);this.sBtn.fl.frequency.setTargetAtTime(220+bv*1.2,t,.05);
+    this.sBtn.g.gain.setTargetAtTime(bv<4?0:Math.min(.75,.12+bv/200),t,.03);this.sBtn.fl.frequency.setTargetAtTime(1100+bv*2.4,t,.05);
     this.sBall.g.gain.setTargetAtTime(Math.min(.16,lv/1700),t,.03);this.sBall.fl.frequency.setTargetAtTime(1600+lv*2.2,t,.05)},
   tension(){},
   hit(type,v){
     const c=this.ctx;if(!c||!prefs.sound)return;v=clamp(v,0,1);if(v<.04)return;
     const now=c.currentTime;if(this.last[type]&&now-this.last[type]<.035)return;this.last[type]=now;
     // [noise band, Q, length, tone Hz, wave, volume]
-    const P={clack:[1700,3,.07,720,'triangle',.55],tick:[3200,4,.045,1450,'sine',.4],thud:[240,1,.12,105,'sine',.65],wood:[950,2,.07,430,'sine',.35],
-      keeper:[1100,2.5,.08,500,'triangle',.5],post:[2500,14,.3,1950,'sine',.35],net:[850,.7,.3,0,null,.35],land:[1900,2,.05,880,'sine',.25],
+    const P={clack:[1700,3,.07,720,'triangle',.55],tick:[2600,5,.04,1750,'sine',.5],thud:[240,1,.12,105,'sine',.65],wood:[950,2,.07,430,'sine',.35],
+      keeper:[1100,2.5,.08,500,'triangle',.5],post:[2500,14,.3,1950,'sine',.35],net:[700,.6,.38,140,'sine',.45],land:[1900,2,.05,880,'sine',.25],
       press:[1300,2,.05,560,'sine',.3],flick:[4200,1.4,.035,2400,'triangle',.4]}[type];
     const [f,q,dur,tone,wave,vol]=P,g0=vol*(.25+.75*v);
     const s=c.createBufferSource();s.buffer=this.white;const fl=c.createBiquadFilter();fl.type='bandpass';fl.frequency.value=f;fl.Q.value=q;
@@ -996,7 +1001,7 @@ function collide(a,b){
       if(m&&m.loft!=null){if(mine&&!m.lofted&&ball.z<.5){m.lofted=true;ball.vz=m.loft*LOFT_K*sp;const k=1-.3*m.loft;ball.vx*=k;ball.vy*=k}}
       else if(sp>LIFT_T&&sp-before>40&&ball.z<.5)ball.vz=Math.max(ball.vz,(sp-LIFT_T)*LIFT_K)}
     if(vr<-.5){
-      Snd.hit(ball?'tick':'clack',-vr/330);
+      Snd.hit(ball?'tick':'clack',ball?Math.max(.3,-vr/260):-vr/330);
       if(ball)touchBall(ball===a?b:a);
       else{const m=G.move;if(m&&G.mode==='match'&&!m.moverTouched&&!m.foul&&a.side!==b.side&&(a===m.btn||b===m.btn)){m.foul=true;m.foulAt={x:(a.x+b.x)/2,y:(a.y+b.y)/2}}}
     }
@@ -1007,7 +1012,7 @@ function pushOut(b,px,py,r,e){
   const nx=dx/d,ny=dy/d;b.x=px+nx*rr;b.y=py+ny*rr;const vn=b.vx*nx+b.vy*ny;
   if(vn<0){b.vx-=(1+e)*vn*nx;b.vy-=(1+e)*vn*ny;return -vn}return 0;
 }
-function segHit(b,s){const[ax,ay,bx,by]=s,vx=bx-ax,vy=by-ay;const t=clamp(((b.x-ax)*vx+(b.y-ay)*vy)/(vx*vx+vy*vy),0,1);const v=pushOut(b,ax+vx*t,ay+vy*t,0,E_NET);if(v>20)Snd.hit('net',v/250)}
+function segHit(b,s){const[ax,ay,bx,by]=s,vx=bx-ax,vy=by-ay;const t=clamp(((b.x-ax)*vx+(b.y-ay)*vy)/(vx*vx+vy*vy),0,1);const v=pushOut(b,ax+vx*t,ay+vy*t,0,E_NET);if(v>8)Snd.hit('net',Math.max(.35,v/220))}
 function keeperLocal(k,x,y){const c=Math.cos(k.a),s=Math.sin(k.a),dx=x-k.x,dy=y-k.y;return {lx:dx*c+dy*s,ly:-dx*s+dy*c,c,s}}
 function keeperDist(k,x,y){const {lx,ly}=keeperLocal(k,x,y);return hyp(lx-clamp(lx,-KW/2,KW/2),ly-clamp(ly,-KH/2,KH/2))}
 function keeperHit(b,k,side){
@@ -1743,8 +1748,13 @@ function vignette(c){const g=c.createRadialGradient(CW/2,CH/2,Math.min(CW,CH)*.3
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
 function softShadow(c,x,y,r0,r1,a){const g=c.createRadialGradient(x,y,r0,x,y,r1);g.addColorStop(0,`rgba(6,22,0,${a})`);g.addColorStop(.55,`rgba(6,22,0,${a*.4})`);g.addColorStop(1,'rgba(6,22,0,0)');c.fillStyle=g;c.fillRect(x-r1,y-r1,2*r1,2*r1)}
 /* fine felt grain, drawn at screen resolution so it stays crisp at any zoom */
-const NOISE=(()=>{const n=document.createElement('canvas');n.width=n.height=128;const x=n.getContext('2d'),d=x.createImageData(128,128);
-  for(let i=0;i<d.data.length;i+=4){const v=110+Math.random()*90|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);return n})();
+const NOISE=(()=>{const N=256,n=document.createElement('canvas');n.width=n.height=N;const x=n.getContext('2d'),d=x.createImageData(N,N);
+  let sd=7;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  for(let i=0;i<d.data.length;i+=4){const v=110+r()*90|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);
+  // soften into short felt fibres so it reads as cloth, not pixel noise
+  const m=document.createElement('canvas');m.width=m.height=N;const y=m.getContext('2d');y.filter='blur(.6px)';
+  for(const [ox,oy] of [[0,0],[-N,0],[0,-N],[-N,-N],[N,0],[0,N]])y.drawImage(n,ox,oy);return m})();
+const GRAIN=.13; // cm of table per texel: the grain is printed on the felt, so it pans and zooms with it
 let noisePat=null;
 const LAMP={x:CX,y:CY-25}; // overhead lamp: highlights and shadows react to where each piece is
 function shade(h,k){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
@@ -1791,8 +1801,8 @@ function drawTable(c){
   const lg=c.createRadialGradient(LAMP.x,LAMP.y+20,10,LAMP.x,LAMP.y+20,130);lg.addColorStop(0,'rgba(255,250,225,.10)');lg.addColorStop(.6,'rgba(0,0,0,0)');lg.addColorStop(1,'rgba(0,8,30,.32)');
   c.fillStyle=lg;rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.fill();
   // felt grain
-  try{if(!noisePat)noisePat=c.createPattern(NOISE,'repeat');const k=1/(S*DPR);noisePat.setTransform(new DOMMatrix([k,0,0,k,0,0]));
-    c.save();c.globalAlpha=.16;c.globalCompositeOperation='overlay';c.fillStyle=noisePat;rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.fill();c.restore()}catch(e){}
+  try{if(!noisePat)noisePat=c.createPattern(NOISE,'repeat');noisePat.setTransform(new DOMMatrix([GRAIN,0,0,GRAIN,0,0]));
+    c.save();c.globalAlpha=.26;c.globalCompositeOperation='overlay';c.fillStyle=noisePat;rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.fill();c.restore()}catch(e){}
   // the rail throws a soft shadow onto the felt
   for(const [x0,y0,x1,y1,w,h] of [[0,RAIL,0,RAIL+3,TW,3],[0,TH-RAIL,0,TH-RAIL-3,TW,-3],[RAIL,0,RAIL+3,0,3,TH],[TW-RAIL,0,TW-RAIL-3,0,-3,TH]]){
     const g=c.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,'rgba(0,10,0,.32)');g.addColorStop(1,'rgba(0,10,0,0)');c.fillStyle=g;
