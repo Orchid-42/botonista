@@ -388,7 +388,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 /* ---------- language ---------- */
 const STR={
 pt:{
- inProgress:'Copa em andamento',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'1 contra 1',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. A mesa gira para quem joga.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',
+ inProgress:'Copa em andamento',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'1 contra 1',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',
  skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
@@ -432,7 +432,7 @@ pt:{
  skinReq:['Inicial','Vença uma partida','Faça um gol de cobertura','Marque 10 gols','Vença 3 partidas','Marque de pênalti','Vença por 3 a 0','Chegue à semifinal','Vença no Difícil','Ganhe a Copa']
 },
 en:{
- inProgress:'Copa in progress',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'1 vs 1',pvpHint:'Two players on one device, taking turns. The table turns to face whoever is playing.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',
+ inProgress:'Copa in progress',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'1 vs 1',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',
  skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
@@ -1564,7 +1564,7 @@ function camTarget(){
   if(G.cpuAim)return {x:(G.cpuAim.b.x+G.ball.x)/2,y:(G.cpuAim.b.y+G.ball.y)/2};
   return {x:G.ball.x,y:G.ball.y};
 }
-const toWorld=(sx,sy)=>({x:(sx-CW/2)/S+G.cam.x,y:(sy-CH/2)/S+G.cam.y});
+const toWorld=(sx,sy)=>{const f=G.flipped?-1:1;return {x:f*(sx-CW/2)/S+G.cam.x,y:f*(sy-CH/2)/S+G.cam.y}};
 function miniRect(){const w=Math.min(70,CW*.16),h=w*TH/TW;return {x:CW-w-12,y:12,w,h}}
 function setZoom(z){prefs.zoom=clamp(z,1,4);save()}
 const zoom3=z=>{prefs.zoom3=clamp(z,.55,2.2);save()};
@@ -1592,7 +1592,7 @@ cv.addEventListener('pointerdown',e=>{
       G.aim={b:V3.btn,mode3:true,sx,sy,raw:0,tpw:0,pw:0,ang:V3.ang,tang:V3.ang,base:V3.ang,seed:rand()*6.3,fx:0,fy:0};cv.setPointerCapture(e.pointerId);Snd.hit('press',.45)}
     e.preventDefault();return}
   const {sx,sy}=evPos(e),p=toWorld(sx,sy);
-  const mr=miniRect();if(S>FIT*1.12&&sx>=mr.x&&sx<=mr.x+mr.w&&sy>=mr.y&&sy<=mr.y+mr.h){G.cam.manual=true;const c=camClamp((sx-mr.x)/mr.w*TW,(sy-mr.y)/mr.h*TH);G.cam.x=c.x;G.cam.y=c.y;return}
+  const mr=miniRect();if(S>FIT*1.12&&sx>=mr.x&&sx<=mr.x+mr.w&&sy>=mr.y&&sy<=mr.y+mr.h){G.cam.manual=true;let mx=(sx-mr.x)/mr.w*TW,my=(sy-mr.y)/mr.h*TH;if(G.flipped){mx=2*CX-mx;my=2*CY-my}const c=camClamp(mx,my);G.cam.x=c.x;G.cam.y=c.y;return}
   let took=false;
   if(G.phase==='aim'&&G.turn===0){
     const locked=G.lock&&G.lock.side===0?G.lock.b:null;
@@ -1625,7 +1625,7 @@ cv.addEventListener('pointermove',e=>{
     a.fx=p.x;a.fy=p.y;
     a.raw=px;a.tpw=px<CANCEL_PX?0:Math.min(1,(px-CANCEL_PX)/RANGE_PX);
     if(px>4)a.tang=Math.atan2(dy,dx)}
-  if(G.pan){G.cam.manual=true;const c=camClamp(G.pan.cx-(sx-G.pan.sx)/S,G.pan.cy-(sy-G.pan.sy)/S);G.cam.x=c.x;G.cam.y=c.y}
+  if(G.pan){G.cam.manual=true;const f=G.flipped?-1:1,c=camClamp(G.pan.cx-f*(sx-G.pan.sx)/S,G.pan.cy-f*(sy-G.pan.sy)/S);G.cam.x=c.x;G.cam.y=c.y}
   if(G.kdrag){const k=G.keepers[0];
     if(G.kdrag.rot){let a=Math.atan2(p.y-k.y,p.x-k.x);if(G.kdrag.end<0)a+=PI;while(a>PI/2)a-=PI;while(a<-PI/2)a+=PI;G.keepers[0]=clampK(0,{x:k.x,y:k.y,a})}
     else G.keepers[0]=clampK(0,{x:p.x+G.kdrag.ox,y:p.y+G.kdrag.oy,a:k.a})}
@@ -2125,7 +2125,15 @@ function drawAim(c,b,ang,pw,finger,skin){
   c.fillStyle='rgba(255,255,255,.85)';c.fillRect(mx-.25,my+9*(1-LIFT_P)-.08,1.7,.16);c.fillRect(mx-.25,my+9*(1-HIGH_P)-.08,1.7,.16);
   c.fillStyle=col;c.font='600 1.5px "Geist Mono", monospace';c.textAlign='center';c.textBaseline='bottom';c.fillText(Math.round(pw*100),mx+.6,my-.4);
 }
+/* 1v1: the game swaps sides internally so both players use the same controls, but the table is always
+   drawn the real way round: while flipped, positions are mirrored back just for drawing */
+function mirrorForDraw(){const m=o=>{o.x=2*CX-o.x;o.y=2*CY-o.y};
+  for(const b of G.buttons)m(b);m(G.ball);for(const k of G.keepers)m(k);m(G.cam);
+  if(G.aim){G.aim.fx=2*CX-G.aim.fx;G.aim.fy=2*CY-G.aim.fy;G.aim.ang+=PI;G.aim.tang+=PI}}
 function render(ts){
+  if(G&&G.flipped){mirrorForDraw();try{renderView(ts)}finally{mirrorForDraw()}}else renderView(ts);
+}
+function renderView(ts){
   const c=ctx;c.setTransform(DPR,0,0,DPR,0,0);roomBg(c);
   c.setTransform(S*DPR,0,0,S*DPR,(CW/2-G.cam.x*S)*DPR,(CH/2-G.cam.y*S)*DPR);
   drawTable(c);LIGHT.overlay(c);
@@ -2165,7 +2173,7 @@ function render(ts){
     drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},skinById(prefs.skin))}
   if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,SKINS[0])}
   if(G.announced&&G.phase!=='moving'&&G.mode==='match'){
-    const top=G.turn===0;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
+    const top=(G.turn===0)!==!!G.flipped;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
   }
   c.setTransform(DPR,0,0,DPR,0,0);vignette(c);
   if(S>FIT*1.12){const m=miniRect(),k=m.w/TW;
