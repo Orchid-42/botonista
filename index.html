@@ -356,7 +356,7 @@ pt:{
   ['Cancelar','Volte o dedo até o botão (aparece um ✕), toque com outro dedo, clique com o botão direito ou aperte Esc.'],
   ['Altura','Com força suficiente a mira fica amarela: a bola sobe por cima de botões e goleiros. Vermelha costuma passar por cima do travessão.'],
   ['Vez','Quem tocou por último na bola joga. Errou a bola, ou anunciou o chute e não fez o gol, a vez passa.'],
-  ['Chute','Toque em Pro gol antes de bater e chute com qualquer botão seu. Gol sem anunciar não vale.'],
+  ['Chute','Toque em Pro gol antes de bater e chute com qualquer botão seu. Só dá para chutar com a bola no campo de ataque (tocando a linha do meio já vale). Gol sem anunciar não vale.'],
   ['Goleiro','Quando a CPU anuncia, arraste seu goleiro, gire pelas pontas ou com ↺ ↻ e toque em Pronto.'],
   ['Bola parada','Pela linha de fundo: se o último toque foi do ataque, tiro de meta do canto da pequena área; se foi da defesa, escanteio. Os adversários ficam fora do círculo. Cada lado move até quatro botões e o cobrador vai em qualquer ponto do círculo.'],
   ['Mira','Uma linha clara mostra para onde a bola vai. Ela começa curta e um pouco imprecisa; vença partidas para liberar linhas mais longas e certeiras.'],
@@ -399,7 +399,7 @@ en:{
   ['Cancel','Slide back onto the button (an ✕ appears), tap with a second finger, right-click or press Esc.'],
   ['Lift','Hit it hard enough and the aim turns yellow: the ball lifts over buttons and keepers. Red usually clears the bar.'],
   ['Turns','Last touch plays next. Miss the ball, or announce a shot and fail to score, and the turn passes.'],
-  ['Shooting','Press Announce shot before you shoot, then flick with any of your buttons. Unannounced goals don\'t count.'],
+  ['Shooting','Press Announce shot before you shoot, then flick with any of your buttons. You can only shoot with the ball in the attacking half (touching the halfway line counts). Unannounced goals don\'t count.'],
   ['Keeper','When the CPU announces, drag your keeper, angle it by its ends or with ↺ ↻, then press Ready.'],
   ['Dead ball','Over the goal line: a goal kick from the nearest small-box corner if the attack touched it last, a corner if the defence did. Opponents stay outside the circle. Each side moves up to four buttons and the taker goes anywhere in the circle.'],
   ['Aim','A faint line shows where the ball will go. It starts short and a little off; win matches to unlock longer, more accurate lines.'],
@@ -418,6 +418,8 @@ const MX=12, MY=14, RAIL=1.8;
 const FW=109, FH=166, TW=FW+2*MX, TH=FH+2*MY;
 const F={l:MX,r:MX+FW,t:MY,b:MY+FH};
 const CX=(F.l+F.r)/2, CY=(F.t+F.b)/2;
+// a shot can only be announced with the ball in the attacking half; touching the halfway line counts
+const inShotHalf=side=>side===0?G.ball.y-BALLR<=CY:G.ball.y+BALLR>=CY;
 const GW=21, GD=5.5, POSTR=0.7;
 const BR=3.0, BALLR=1.1, KW=8.5, KH=2.6;
 const SA={w:34,d:9}, PA={w:68,d:27}, SPOT=19, CIRC=15;
@@ -1317,7 +1319,7 @@ function cpuPlan(side,forceShot){
     for(const b of mine){const f=evalFlick(b,Tg,hyp(Tg.x-ball.x,Tg.y-ball.y)+25,lob);if(!f)continue;
       f.total=45-(distGoal-25)*.45+f.score-35*lane;f.shot=true;if(!bestShot||f.total>bestShot.total)bestShot=f}}
   if(forceShot&&bestShot)return bestShot;
-  if(G.mode==='match'&&(G.koTouches||0)<2)bestShot=null; // no shots straight from kick-off
+  if(G.mode==='match'&&((G.koTouches||0)<2||!inShotHalf(side)))bestShot=null; // no shots straight from kick-off
   const base=Math.atan2(gy-ball.y,CX-ball.x);
   for(const a of [-110,-80,-55,-30,-12,0,12,30,55,80,110])for(const L of [16,30,46]){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
@@ -1454,7 +1456,7 @@ cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',()=>
 
 $('#btnShoot').onclick=()=>{
   if(!G||G.paused||G.phase!=='aim'||G.turn!==0)return;
-  if(!G.announced){if(G.mode!=='match'||(G.koTouches||0)<2)return;G.announced=true;G.kt[1]=faceBall(1);Snd.hit('press',.4);setStatus(tr('announced'))}
+  if(!G.announced){if(G.mode!=='match'||(G.koTouches||0)<2||!inShotHalf(0))return;G.announced=true;G.kt[1]=faceBall(1);Snd.hit('press',.4);setStatus(tr('announced'))}
   hud();
 };
 const rotK=d=>{if(!G||G.phase!=='keeperSet')return;const k=G.keepers[0];G.keepers[0]=clampK(0,{x:k.x,y:k.y,a:k.a+d})};
@@ -1484,7 +1486,7 @@ function hud(){
   if(!G)return;
   $('#sA').textContent=G.score[0];$('#sB').textContent=G.score[1];
   const own=G.turn===0,live=G.phase!=='over';$('#possA').classList.toggle('on',own&&live);$('#possB').classList.toggle('on',!own&&live);
-  const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2,canAim=false;
+  const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2&&inShotHalf(0),canAim=false;
   $('#btnShoot').disabled=!(canAnn||canAim);
   $('#btnShoot').textContent=G.announced&&G.turn===0?tr('shotOn'):tr('shoot');
   const ks=G.phase==='keeperSet';
