@@ -745,25 +745,25 @@ const Snd={ctx:null,
     this.white=mk(false);this.brown=mk(true);
     // a bottle cap scraping over wood: fine hiss plus sparse little catches of the grain
     this.scrape=(()=>{const n=c.sampleRate*2,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);let e=0,l=0;
-      for(let i=0;i<n;i++){if(rand()<.0035)e=.5+rand()*.7;e*=.992;const w=rand()*2-1;l=l*.6+w*.4;d[i]=l*(.32+e)}return b})();
+      for(let i=0;i<n;i++){if(rand()<.0012)e=.1+rand()*.15;e*=.985;const w=rand()*2-1;l=l*.75+w*.25;d[i]=l*(.6+e)}return b})();
     const loop=(buf,type,f,q)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;
       const g=c.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(this.master);s.start();return {g,fl}};
-    this.sBtn=loop(this.scrape,'bandpass',1500,.9);   // plastic cap sliding on the wood
-    {const body=c.createBiquadFilter();body.type='peaking';body.frequency.value=520;body.Q.value=1.4;body.gain.value=7; // wooden tabletop body
+    this.sBtn=loop(this.scrape,'bandpass',900,.7);   // plastic cap sliding on the wood
+    {const body=c.createBiquadFilter();body.type='peaking';body.frequency.value=520;body.Q.value=1.4;body.gain.value=4; // wooden tabletop body
      this.sBtn.fl.disconnect();this.sBtn.fl.connect(body);body.connect(this.sBtn.g)}
     this.sBall=loop(this.white,'bandpass',2400,1.3); // puck hiss
     this.last={};
   },
   setOn(on){prefs.sound=on;save();if(this.master)this.master.gain.setTargetAtTime(on?VOL:0,this.ctx.currentTime,.05)},
   slide(bv,lv){if(!this.ctx)return;const t=this.ctx.currentTime;
-    this.sBtn.g.gain.setTargetAtTime(bv<4?0:Math.min(.75,.12+bv/200),t,.03);this.sBtn.fl.frequency.setTargetAtTime(1100+bv*2.4,t,.05);
+    this.sBtn.g.gain.setTargetAtTime(bv<4?0:Math.min(.2,.03+bv/1000),t,.05);this.sBtn.fl.frequency.setTargetAtTime(700+bv*1.3,t,.06);
     this.sBall.g.gain.setTargetAtTime(Math.min(.16,lv/1700),t,.03);this.sBall.fl.frequency.setTargetAtTime(1600+lv*2.2,t,.05)},
   tension(){},
   hit(type,v){
     const c=this.ctx;if(!c||!prefs.sound)return;v=clamp(v,0,1);if(v<.04)return;
     const now=c.currentTime;if(this.last[type]&&now-this.last[type]<.035)return;this.last[type]=now;
     // [noise band, Q, length, tone Hz, wave, volume]
-    const P={clack:[1700,3,.07,720,'triangle',.55],tick:[2600,5,.04,1750,'sine',.5],thud:[240,1,.12,105,'sine',.65],wood:[950,2,.07,430,'sine',.35],
+    const P={clack:[1700,3,.07,720,'triangle',.55],tick:[2400,3,.06,1650,'triangle',1],thud:[240,1,.12,105,'sine',.65],wood:[950,2,.07,430,'sine',.35],
       keeper:[1100,2.5,.08,500,'triangle',.5],post:[2500,14,.3,1950,'sine',.35],net:[700,.6,.38,140,'sine',.45],land:[1900,2,.05,880,'sine',.25],
       press:[1300,2,.05,560,'sine',.3],flick:[4200,1.4,.035,2400,'triangle',.4]}[type];
     const [f,q,dur,tone,wave,vol]=P,g0=vol*(.25+.75*v);
