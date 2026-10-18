@@ -338,7 +338,8 @@ pt:{
  rescue1:'Um botão atrás do gol voltou para a defesa.',rescueN:'Botões atrás do gol voltaram para a defesa.',
  throwMsg:'Lateral.',cornerMsg:'Escanteio.',goalkickMsg:'Tiro de meta.',overMsg:'Por cima do travessão. Tiro de meta.',keeperMsg:'Bola do goleiro.',freeMsg:'Falta.',
  cpuRepo:'{c} reposiciona os botões.',cpuPrep:'{c} prepara a cobrança.',
- kind:{free:'Falta',throw:'Lateral',corner:'Escanteio',goalkick:'Tiro de meta'},
+ kind:{free:'Falta',throw:'Lateral',corner:'Escanteio',goalkick:'Tiro de meta',kickoff:'Saída de bola'},
+ koSetup:'<strong>Saída de bola.</strong> Arraste o botão que vai dar a saída para onde quiser em volta da bola, no seu campo. Depois toque em Feito.',
  setupTake:'<strong>{k} para você.</strong> Arraste o cobrador (anel amarelo) dentro do círculo e mova até {n} botões. Depois toque em Feito.',
  setupDef:'<strong>Arme a defesa.</strong> Mova até {n} botões e toque em Feito.',already2:'Você já moveu {n} botões.',
  cpuAnnounce:'<strong>A CPU vai chutar.</strong> Posicione e gire seu goleiro, depois toque em Pronto.',cpuStep:'A CPU vai bater.',
@@ -380,7 +381,8 @@ en:{
  rescue1:'A button behind the goal went back to defence.',rescueN:'Buttons behind the goal went back to defence.',
  throwMsg:'Throw-in.',cornerMsg:'Corner.',goalkickMsg:'Goal kick.',overMsg:'Over the bar. Goal kick.',keeperMsg:'Keeper\'s ball.',freeMsg:'Free kick.',
  cpuRepo:'{c} reposition their buttons.',cpuPrep:'{c} set up the restart.',
- kind:{free:'Free kick',throw:'Throw-in',corner:'Corner',goalkick:'Goal kick'},
+ kind:{free:'Free kick',throw:'Throw-in',corner:'Corner',goalkick:'Goal kick',kickoff:'Kick-off'},
+ koSetup:'<strong>Kick-off.</strong> Drag your kicker anywhere around the ball in your own half. Then Done.',
  setupTake:'<strong>Your {k}.</strong> Drag the taker (yellow ring) anywhere inside the circle and move up to {n} buttons. Then Done.',
  setupDef:'<strong>Set your defence.</strong> Move up to {n} buttons, then Done.',already2:'You have already moved {n} buttons.',
  cpuAnnounce:'<strong>CPU announces a shot.</strong> Move and angle your keeper, then press Ready.',cpuStep:'CPU steps up.',
@@ -939,8 +941,14 @@ function setFormation(kicker){
 function kickoff(side,first){
   setFormation(side);G.lock=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;
   const who=side===0?tr('youKick'):tr('cpuKick',{c:cpuC()});
-  if(first){Snd.whistle(true);banner(G.half===1?tr('kickoff'):tr('second'),`${tn(TEAMS[G.teams[0]])} × ${cpuC()}`,1400,()=>beginTurn(side,who))}
-  else beginTurn(side,who);
+  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);
+  const go=()=>{
+    if(side===0&&G.mode==='match'&&kicker){G.sp={kind:'kickoff',side:0,taker:kicker,msg:who};startSetup(true)}
+    else{ // the CPU sets its kicker at a slight angle so the first pass goes to a teammate
+      if(kicker){const a=PI/2*(side===1?-1:1)+(rand()-.5)*1.1,d=BR+BALLR+1.4;kicker.x=G.ball.x-Math.cos(a)*d;kicker.y=G.ball.y-Math.sin(a)*d}
+      beginTurn(side,who)}};
+  if(first){Snd.whistle(true);banner(G.half===1?tr('kickoff'):tr('second'),`${tn(TEAMS[G.teams[0]])} × ${cpuC()}`,1400,go)}
+  else go();
 }
 function setStatus(html){$('#status').innerHTML=html}
 function beginTurn(side,msg){
@@ -1176,6 +1184,7 @@ function setupTaker(){
 }
 function startSetup(taking){G.phase='setup';G.turn=G.sp.side;G.setup={taking,moved:[]};hud();setupStatus()}
 function setupStatus(extra){
+  if(G.sp.kind==='kickoff'){setStatus(tr('koSetup')+(extra?' '+extra:''));return}
   const s=G.setup,n=MAX_MOVE-s.moved.length,K=STR[prefs.lang].kind[G.sp.kind];
   setStatus((s.taking?tr('setupTake',{k:prefs.lang==='en'?K.toLowerCase():K,n}):tr('setupDef',{n}))+(extra?' '+extra:''));
 }
@@ -1384,7 +1393,7 @@ cv.addEventListener('pointerdown',e=>{
     if(b){const a=Math.atan2(b.y-p.y,b.x-p.x);G.aim={b,fx:p.x,fy:p.y,pw:0,tpw:0,raw:0,ang:a,tang:a,seed:rand()*6.3};took=true;Snd.hit('press',.45)}
   }else if(G.phase==='setup'){
     const s=G.setup,sp=G.sp;
-    const b=nearestOwn(p,BR+3,o=>{if(o===sp.taker)return s.taking;return s.moved.includes(o)||s.moved.length<MAX_MOVE});
+    const b=nearestOwn(p,BR+3,o=>{if(o===sp.taker)return s.taking;if(sp.kind==='kickoff')return false;return s.moved.includes(o)||s.moved.length<MAX_MOVE});
     if(b){G.sdrag={b,ox:b.x-p.x,oy:b.y-p.y,taker:s.taking&&b===sp.taker};took=true}
     else if(nearestOwn(p,BR+2))setupStatus(tr('already2',{n:MAX_MOVE}));
   }else if(G.phase==='keeperSet'){
@@ -1412,7 +1421,7 @@ cv.addEventListener('pointermove',e=>{
     else G.keepers[0]=clampK(0,{x:p.x+G.kdrag.ox,y:p.y+G.kdrag.oy,a:k.a})}
   if(G.sdrag){const d=G.sdrag,b=d.b,ball=G.ball;let x=p.x+d.ox,y=p.y+d.oy;
     const ex=x-ball.x,ey=y-ball.y,ed=hyp(ex,ey)||1;
-    if(d.taker){const dd=clamp(ed,BR+BALLR+.4,RING);x=ball.x+ex/ed*dd;y=ball.y+ey/ed*dd}
+    if(d.taker){const dd=clamp(ed,BR+BALLR+.4,RING);x=ball.x+ex/ed*dd;y=ball.y+ey/ed*dd;if(G.sp.kind==='kickoff')y=Math.max(y,CY+.2)}
     else{const R=b.side!==G.sp.side?RING+.6:BR+BALLR+.5;if(ed<R){x=ball.x+ex/ed*R;y=ball.y+ey/ed*R}x=clamp(x,F.l-2,F.r+2);y=clamp(y,F.t+1,F.b-1)}
     for(let it=0;it<3;it++){
       for(const o of G.buttons)if(o!==b){const fx=x-o.x,fy=y-o.y,fd=hyp(fx,fy)||.01;if(fd<BR*2+.2){x=o.x+fx/fd*(BR*2+.2);y=o.y+fy/fd*(BR*2+.2)}}
@@ -1527,7 +1536,7 @@ function frame(ts){
    A simple perspective camera. The top view is the same camera looking straight down, so the game can
    ease between the two without a cut. */
 const V3={on:false,mode:null,pose:null,anim:null,btn:null,list:[],idx:0,ang:0,loft:.12};
-const NEAR=1.2;
+const NEAR=1.2, SOLID_NEAR=4.5; // objects with any part closer than SOLID_NEAR are left out (they'd smear across the screen)
 let CV=null;
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const focal=()=>CH*.95;
@@ -1557,17 +1566,17 @@ function hull(P){P=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=
   up.pop();lo.pop();return lo.concat(up)}
 function fillScr(pts,style){ctx.beginPath();pts.forEach((s,i)=>i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1]));ctx.closePath();ctx.fillStyle=style;ctx.fill()}
 /* blurred shadow of a footprint on the table (the shape is drawn off-screen; only its blurred shadow lands here) */
-function shadow3(pts,blur,a){const cp=clipPoly(pts.map(p=>toC(p[0],p[1],.02)));if(cp.length<3)return;const q=cp.map(scr),off=10000;
-  const d=cp.reduce((m,p)=>m+p[2],0)/cp.length;ctx.save();ctx.shadowColor=`rgba(4,16,0,${a})`;ctx.shadowBlur=Math.max(2,CV.F*blur/d)*DPR;ctx.shadowOffsetX=off*DPR;
+function shadow3(pts,blur,a){const cc=pts.map(p=>toC(p[0],p[1],.02));if(cc.some(p=>p[2]<SOLID_NEAR))return;const cp=cc;const q=cp.map(scr),off=10000;
+  const d=cp.reduce((m,p)=>m+p[2],0)/cp.length,fade=clamp((d-SOLID_NEAR)/5,0,1);if(fade<=0)return;ctx.save();ctx.shadowColor=`rgba(4,16,0,${a*fade})`;ctx.shadowBlur=Math.min(36,Math.max(2,CV.F*blur/d))*DPR;ctx.shadowOffsetX=off*DPR;
   ctx.beginPath();q.forEach((s,i)=>i?ctx.lineTo(s[0]-off,s[1]):ctx.moveTo(s[0]-off,s[1]));ctx.closePath();ctx.fillStyle='#000';ctx.fill();ctx.restore()}
 /* a top face mapped onto local coords [-10,10]², so art and text can be drawn flat on it */
 function withTop(x,y,z,ax,ay,draw){const c0=toC(x,y,z),cx=toC(x+ax[0],y+ax[1],z),cy=toC(x+ay[0],y+ay[1],z);if(c0[2]<NEAR||cx[2]<NEAR||cy[2]<NEAR)return;
   const s0=scr(c0),sx=scr(cx),sy=scr(cy);ctx.save();ctx.setTransform(DPR*(sx[0]-s0[0])/10,DPR*(sx[1]-s0[1])/10,DPR*(sy[0]-s0[0])/10,DPR*(sy[1]-s0[1])/10,DPR*s0[0],DPR*s0[1]);draw();ctx.restore()}
 function cyl3(x,y,z0,r,h,side,drawTop){const N=24,P=[];
-  for(let i=0;i<N;i++){const a=i/N*2*PI,cx=x+r*Math.cos(a),cy=y+r*Math.sin(a);for(const zz of [z0,z0+h]){const q=toC(cx,cy,zz);if(q[2]<NEAR)return;P.push(scr(q))}}
+  for(let i=0;i<N;i++){const a=i/N*2*PI,cx=x+r*Math.cos(a),cy=y+r*Math.sin(a);for(const zz of [z0,z0+h]){const q=toC(cx,cy,zz);if(q[2]<SOLID_NEAR)return;P.push(scr(q))}}
   fillScr(hull(P),side);withTop(x,y,z0+h,[r,0],[0,r],drawTop)}
 function box3(k,h,side,drawTop){const ca=Math.cos(k.a),sa=Math.sin(k.a),P=[];
-  for(const [u,v] of [[-1,-1],[1,-1],[1,1],[-1,1]])for(const zz of [0,h]){const q=toC(k.x+ca*u*KW/2-sa*v*KH/2,k.y+sa*u*KW/2+ca*v*KH/2,zz);if(q[2]<NEAR)return;P.push(scr(q))}
+  for(const [u,v] of [[-1,-1],[1,-1],[1,1],[-1,1]])for(const zz of [0,h]){const q=toC(k.x+ca*u*KW/2-sa*v*KH/2,k.y+sa*u*KW/2+ca*v*KH/2,zz);if(q[2]<SOLID_NEAR)return;P.push(scr(q))}
   fillScr(hull(P),side);withTop(k.x,k.y,h,[ca*KW/2,sa*KW/2],[-sa*KH/2,ca*KH/2],drawTop)}
 function table3(){
   const c=ctx,T0=-5;
@@ -1613,14 +1622,21 @@ function render3D(ts){
     seg3([b.x+ux*(b.r+.6),b.y+uy*(b.r+.6),.05],[b.x+ux*L,b.y+uy*L,.05],.45,'rgba(255,210,63,.9)')}
   // everything with height, far to near
   const items=[];
-  for(const b of bodies())items.push({d:toC(b.x,b.y,0)[2],f:()=>{const t=b.side===0?tA:tB;cyl3(b.x,b.y,0,b.r,.6,shade(t.ring,-.35),buttonTop(b,t))}});
-  G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({d:toC(k.x,k.y,0)[2],f:()=>box3(k,2.4,shade(t.ring,-.3),()=>{const c=ctx;c.fillStyle=t.dome;c.fillRect(-10,-10,20,20);c.fillStyle=t.ring;c.fillRect(-.9,-10,1.8,20);
+  for(const b of bodies())items.push({o:b,d:toC(b.x,b.y,0)[2],f:()=>{const t=b.side===0?tA:tB;cyl3(b.x,b.y,0,b.r,.6,shade(t.ring,-.35),buttonTop(b,t))}});
+  G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({o:{x:k.x,y:k.y,r:KW/2},d:toC(k.x,k.y,0)[2],f:()=>box3(k,2.4,shade(t.ring,-.3),()=>{const c=ctx;c.fillStyle=t.dome;c.fillRect(-10,-10,20,20);c.fillStyle=t.ring;c.fillRect(-.9,-10,1.8,20);
     const g=c.createLinearGradient(0,-10,0,10);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(1,'rgba(0,0,0,.12)');c.fillStyle=g;c.fillRect(-10,-10,20,20)})})});
   items.push({d:toC(bl.x,bl.y,bl.z)[2],f:()=>cyl3(bl.x,bl.y,bl.z,BALLR,.5,'#050607',()=>{const c=ctx,g=c.createRadialGradient(-3,-4,1,0,0,10);g.addColorStop(0,'#3d434a');g.addColorStop(1,'#101214');c.fillStyle=g;c.beginPath();c.arc(0,0,10,0,2*PI);c.fill()})});
   for(const top of [true,false])items.push({d:toC(CX,top?F.t-GD/2:F.b+GD/2,BAR/2)[2],f:()=>goal3(top)});
   if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,sk=skinById(prefs.skin);
     items.push({d:toC(px,py,0)[2],f:()=>cyl3(px,py,.15,PAL_R,.25,shade(sk.base,-.3),()=>{drawPalheta(ctx,0,0,10,sk,0)})})}
-  items.sort((a,b)=>b.d-a.d);for(const it of items)if(it.d>NEAR)it.f();
+  /* Objects close to the camera fade out before they can be cut by it, and anything standing between
+     the camera and your shooter turns see-through, so the shot is never hidden. */
+  const sh=V3.btn&&V3.mode!=='chase'?V3.btn:null,shC=sh?toC(sh.x,sh.y,.3):null,shS=shC&&shC[2]>NEAR?scr(shC):null;
+  items.sort((a,b)=>b.d-a.d);
+  for(const it of items){
+    let al=clamp((it.d-SOLID_NEAR-1)/5,0,1);
+    if(it.o&&it.o!==sh&&shS&&it.d<shC[2]){const q=toC(it.o.x,it.o.y,.3);if(q[2]>NEAR){const p=scr(q),rad=CV.F*(it.o.r||3)/q[2]+CV.F*sh.r/shC[2];if(hyp(p[0]-shS[0],p[1]-shS[1])<rad)al=Math.min(al,.32)}}
+    if(al<=.02)continue;c.globalAlpha=al;it.f();c.globalAlpha=1}
   // predicted flight of the ball, with its height
   if(A&&A.raw>=CANCEL_PX&&A.pw>.005){const pr=predictBall(A.b,A.ang,A.pw,A.seed,ts,V3.loft,70);
     if(pr){for(let i=1;i<pr.length;i++){const t=i/pr.length,[x0,y0,z0]=pr[i-1],[x1,y1,z1]=pr[i];c.setLineDash(z0>BTN_H?[4,4]:[]);seg3([x0,y0,z0+.3],[x1,y1,z1+.3],.22,`rgba(255,255,255,${.75*(1-t)+.15})`)}
@@ -1856,7 +1872,7 @@ function render(ts){
     if(G.phase==='setup'&&b.side===0){const s=G.setup;
       if(b===G.sp.taker){if(s.taking)glow=`rgba(255,210,63,${.5+.5*pulse})`}
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
-      else if(s.moved.length<MAX_MOVE)glow=`rgba(255,255,255,${.15+.25*pulse})`;}
+      else if(s.moved.length<MAX_MOVE&&G.sp.kind!=='kickoff')glow=`rgba(255,255,255,${.15+.25*pulse})`;}
     drawButton(c,b,team,glow);
     if(G.lock&&G.lock.b===b&&G.mode==='match'&&G.phase!=='moving'){c.strokeStyle='rgba(255,90,61,.75)';c.lineWidth=.3;c.setLineDash([.6,.6]);c.beginPath();c.arc(b.x,b.y,b.r+.8,0,2*PI);c.stroke();c.setLineDash([])}
   }
