@@ -166,7 +166,7 @@ button{touch-action:manipulation}
 .playbar.low i{background:#ff5a3d}
 .playbar span{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--ink);background:rgba(5,12,32,.75);border:1px solid var(--line2);border-radius:99px;padding:2px 9px}
 .playbar.low span{color:#ff8a70;border-color:#ff5a3d}
-.stage.v3 .zoom{display:none}
+.stage.v3 .zoom{top:auto;bottom:64px}
 .shotui{position:absolute;inset:0;pointer-events:none}
 .shotui>*{pointer-events:auto}
 .shotui .label{color:var(--board-ink);opacity:.8}
@@ -349,7 +349,7 @@ pt:{
   ['Cancelar','Volte o dedo até o botão (aparece um ✕), toque com outro dedo, clique com o botão direito ou aperte Esc.'],
   ['Altura','Amarelo no medidor levanta a bola por cima de botões e goleiros. Vermelho costuma passar por cima do travessão.'],
   ['Vez','Quem tocou por último na bola joga. Errou a bola, ou anunciou o chute e não fez o gol, a vez passa.'],
-  ['Chute','Toque em Pro gol antes de bater: a câmera vai para trás do botão. Puxe para baixo para dar força, arraste para os lados para mirar e ajuste a altura à direita. Gol sem anunciar não vale.'],
+  ['Chute','Toque em Pro gol antes de bater: a câmera vai para trás do botão. Puxe para baixo para dar força, arraste para os lados para mirar e ajuste a altura à direita. Use + e − ou faça pinça para aproximar ou afastar a câmera. Gol sem anunciar não vale.'],
   ['Goleiro','Quando a CPU anuncia, arraste seu goleiro, gire pelas pontas ou com ↺ ↻ e toque em Pronto.'],
   ['Bola parada','Pela linha de fundo: se o último toque foi do ataque, tiro de meta do canto da pequena área; se foi da defesa, escanteio. Os adversários ficam fora do círculo. Cada lado move até quatro botões e o cobrador vai em qualquer ponto do círculo.'],
   ['Mira','Uma linha clara mostra para onde a bola vai. Ela começa curta e um pouco imprecisa; vença partidas para liberar linhas mais longas e certeiras.'],
@@ -391,7 +391,7 @@ en:{
   ['Cancel','Slide back onto the button (an ✕ appears), tap with a second finger, right-click or press Esc.'],
   ['Lift','Yellow on the meter lifts the ball over buttons and keepers. Red usually clears the bar.'],
   ['Turns','Last touch plays next. Miss the ball, or announce a shot and fail to score, and the turn passes.'],
-  ['Shooting','Press Announce shot before you shoot: the camera moves behind the button. Drag down for power, sideways to aim, and set the height on the right. Unannounced goals don\'t count.'],
+  ['Shooting','Press Announce shot before you shoot: the camera moves behind the button. Drag down for power, sideways to aim, and set the height on the right. Use + and − or pinch to move the camera closer or further. Unannounced goals don\'t count.'],
   ['Keeper','When the CPU announces, drag your keeper, angle it by its ends or with ↺ ↻, then press Ready.'],
   ['Dead ball','Over the goal line: a goal kick from the nearest small-box corner if the attack touched it last, a corner if the defence did. Opponents stay outside the circle. Each side moves up to four buttons and the taker goes anywhere in the circle.'],
   ['Aim','A faint line shows where the ball will go. It starts short and a little off; win matches to unlock longer, more accurate lines.'],
@@ -1349,8 +1349,10 @@ function camTarget(){
 const toWorld=(sx,sy)=>({x:(sx-CW/2)/S+G.cam.x,y:(sy-CH/2)/S+G.cam.y});
 function miniRect(){const w=Math.min(70,CW*.16),h=w*TH/TW;return {x:CW-w-12,y:12,w,h}}
 function setZoom(z){prefs.zoom=clamp(z,1,4);save()}
-$('#zIn').onclick=()=>setZoom(prefs.zoom*1.25);$('#zOut').onclick=()=>setZoom(prefs.zoom/1.25);
-cv.addEventListener('wheel',e=>{e.preventDefault();setZoom(prefs.zoom*(e.deltaY<0?1.1:1/1.1))},{passive:false});
+const zoom3=z=>{prefs.zoom3=clamp(z,.55,2.2);save()};
+const zoomBy=f=>{if(V3.on)zoom3((prefs.zoom3||1)*f);else setZoom(prefs.zoom*f)};
+$('#zIn').onclick=()=>zoomBy(1.25);$('#zOut').onclick=()=>zoomBy(1/1.25);
+cv.addEventListener('wheel',e=>{e.preventDefault();zoomBy(e.deltaY<0?1.1:1/1.1)},{passive:false});
 
 /* ---------- player input ---------- */
 function evPos(e){const r=cv.getBoundingClientRect();return {sx:e.clientX-r.left,sy:e.clientY-r.top}}
@@ -1363,7 +1365,8 @@ addEventListener('pointerup',ptrGone,true);addEventListener('pointercancel',ptrG
 cv.addEventListener('pointerdown',e=>{
   if(!G||G.paused)return;
   PTR.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(PTR.size===2&&!G.aim){const [a,b]=[...PTR.values()];G.pan=null;G.sdrag=null;G.kdrag=null;PINCH={d:hyp(a.x-b.x,a.y-b.y)||1,z:prefs.zoom};cv.setPointerCapture(e.pointerId);e.preventDefault();return}
+  if(PTR.size===2&&G.aim&&G.aim.mode3&&G.aim.raw<CANCEL_PX){G.aim=null;Snd.tension(0)}
+  if(PTR.size===2&&!G.aim){const [a,b]=[...PTR.values()];G.pan=null;G.sdrag=null;G.kdrag=null;PINCH={d:hyp(a.x-b.x,a.y-b.y)||1,z:V3.on?(prefs.zoom3||1):prefs.zoom,v3:V3.on};cv.setPointerCapture(e.pointerId);e.preventDefault();return}
   // a second finger, or a right click, while aiming cancels the shot
   if(G.aim){e.preventDefault();cancelAim();return}
   if(e.button===2)return;
@@ -1396,7 +1399,7 @@ cv.addEventListener('pointerdown',e=>{
 cv.addEventListener('pointermove',e=>{
   if(!G)return;
   if(PTR.has(e.pointerId))PTR.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(PINCH&&PTR.size>=2){const [a,b]=[...PTR.values()];G.cam.manual=true;setZoom(PINCH.z*hyp(a.x-b.x,a.y-b.y)/PINCH.d);return}
+  if(PINCH&&PTR.size>=2){const [a,b]=[...PTR.values()],r=hyp(a.x-b.x,a.y-b.y)/PINCH.d;if(PINCH.v3)zoom3(PINCH.z*r);else{G.cam.manual=true;setZoom(PINCH.z*r)}return}
   if(G.aim&&G.aim.mode3){const a=G.aim,q=evPos(e),dx=q.sx-a.sx,dy=q.sy-a.sy;a.raw=Math.max(0,dy);a.tpw=a.raw<CANCEL_PX?0:Math.min(1,(a.raw-CANCEL_PX)/RANGE_PX);
     a.tang=a.base+clamp(dx*.0032,-.7,.7);return}const {sx,sy}=evPos(e),p=toWorld(sx,sy);
   if(G.aim){const a=G.aim,b=a.b,dx=b.x-p.x,dy=b.y-p.y,px=hyp(dx,dy)*S;
@@ -1441,7 +1444,7 @@ function setPause(on){
   if(!G||G.phase==='over')return;
   G.paused=on;G.aim=null;G.pan=null;G.sdrag=null;G.kdrag=null;Snd.tension(0);Snd.slide(0,0);
   $('#pauseOv').hidden=!on;$('#btnPause').textContent=on?tr('resume'):tr('pause');
-  $('#pauseSub').textContent=`${TEAMS[G.teams[0]].c} ${G.score[0]}–${G.score[1]} ${TEAMS[G.teams[1]].c} · ${tr('firstTo',{n:GOALS_TO_WIN}).toLowerCase()}`;
+  $('#pauseSub').textContent=`${TEAMS[G.teams[0]].c} ${G.score[0]}–${G.score[1]} ${TEAMS[G.teams[1]].c}`;
   if(on)$('#resumeMatch').focus();
 }
 $('#btnPause').onclick=()=>{if(G)setPause(!G.paused)};
@@ -1470,7 +1473,7 @@ function hud(){
 }
 let lastClock='';
 function drawClock(){
-  const s=G.mode==='pens'?tr('pensClock'):tr('firstTo',{n:GOALS_TO_WIN});
+  const s=G.mode==='pens'?tr('pensClock'):'';
   if(s!==lastClock){$('#clock').textContent=s;lastClock=s}
 }
 
@@ -1529,7 +1532,7 @@ let CV=null;
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const focal=()=>CH*.95;
 function topPose(){return {x:G.cam.x,y:G.cam.y,z:focal()/S,yaw:-PI/2,pitch:-PI/2+1e-3}}
-function shotPose(b,ang){const back=21,h=14,ahead=42;return {x:b.x-Math.cos(ang)*back,y:b.y-Math.sin(ang)*back,z:h,yaw:ang,pitch:-Math.atan2(h,back+ahead)}}
+function shotPose(b,ang){const z=prefs.zoom3||1,back=21/z,h=14/Math.pow(z,.85),ahead=42;return {x:b.x-Math.cos(ang)*back,y:b.y-Math.sin(ang)*back,z:h,yaw:ang,pitch:-Math.atan2(h,back+ahead)}}
 function mixPose(a,b,t){let dy=b.yaw-a.yaw;while(dy>PI)dy-=2*PI;while(dy<-PI)dy+=2*PI;
   const L=(p,q)=>p+(q-p)*t;return {x:L(a.x,b.x),y:L(a.y,b.y),z:a.z*Math.pow(b.z/a.z,t),yaw:a.yaw+dy*t,pitch:L(a.pitch,b.pitch)}}
 function setCam(p){const ch=Math.cos(p.yaw),sh=Math.sin(p.yaw),cp=Math.cos(p.pitch),sp=Math.sin(p.pitch);
@@ -1646,7 +1649,7 @@ function v3Update(dt){
   if(V3.anim){const A=V3.anim;A.t+=dt;const e=ease(Math.min(1,A.t/A.dur));V3.pose=mixPose(A.from,A.to(),e);
     if(A.t>=A.dur){const d=A.done;V3.anim=null;V3.pose=A.to();d&&d()}return}
   const k=(rate)=>Math.min(1,dt*rate),sm=(p,q,r)=>{const m=mixPose(p,q,k(r));return m};
-  if(V3.mode==='shot'){const a=G.aim&&G.aim.mode3?G.aim.ang:V3.ang;V3.pose=sm(V3.pose,shotPose(V3.btn,a),7)}
+  if(V3.mode==='shot'){V3.pose=sm(V3.pose,shotPose(V3.btn,V3.ang),6)}
   else if(V3.mode==='chase'){const bl=G.ball,dir=V3.ang,h=13+Math.min(6,bl.z*.6),back=26;
     const t={x:bl.x-Math.cos(dir)*back,y:bl.y-Math.sin(dir)*back,z:h,yaw:dir,pitch:-Math.atan2(h-bl.z*.5,back+14)};V3.pose=sm(V3.pose,t,2.4)}
 }
