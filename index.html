@@ -255,7 +255,7 @@ button{touch-action:manipulation}
           <div class="bhead"><p class="label" data-i="yourPalheta"></p><p class="label" id="skinCount"></p></div>
           <div class="skins" id="skinGrid"></div>
           <p class="hint" id="skinHint"></p>
-          <div class="aimrow"><p class="label" data-i="aim"></p><span class="pips" id="aimPips"></span><p class="hint" id="aimText"></p></div>
+          
         </section>
         <section class="block">
           <p class="label" data-i="cpuLevel"></p>
@@ -360,7 +360,7 @@ pt:{
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
  shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'Visão de cima',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
- firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola não pode tocar de novo.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
+ firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
  penGoal:'Gol',penOver:'Por cima',penSaved:'Defendeu',youScore:'Você marca.',youMiss:'Você erra.',cpuScore:'A CPU marca.',cpuMiss:'A CPU erra.',
@@ -382,10 +382,11 @@ pt:{
   ['Cancelar','Volte o dedo até o botão (aparece um ✕), toque com outro dedo, clique com o botão direito ou aperte Esc.'],
   ['Altura','Com força suficiente a mira fica amarela: a bola sobe por cima de botões e goleiros. Vermelha costuma passar por cima do travessão.'],
   ['Vez','Quem tocou por último na bola joga. Errou a bola, ou anunciou o chute e não fez o gol, a vez passa.'],
+  ['Toques','O mesmo botão toca no máximo três vezes seguidas, contando o chute. Se a bola passar por um companheiro, a contagem zera. Em saídas, tiros de meta e faltas, quem bateu volta a jogar depois que a bola tocar num companheiro.'],
   ['Chute','Toque em Pro gol antes de bater e chute com qualquer botão seu. Só dá para chutar com a bola no campo de ataque (tocando a linha do meio já vale). Gol sem anunciar não vale.'],
   ['Goleiro','Quando a CPU anuncia, arraste seu goleiro, gire pelas pontas ou com ↺ ↻ e toque em Pronto.'],
   ['Bola parada','Pela linha de fundo: se o último toque foi do ataque, tiro de meta do canto da pequena área; se foi da defesa, escanteio. Os adversários ficam fora do círculo. Cada lado move até quatro botões e o cobrador vai em qualquer ponto do círculo.'],
-  ['Mira','Uma linha clara mostra para onde a bola vai. Ela começa curta e um pouco imprecisa; vença partidas para liberar linhas mais longas e certeiras.'],
+  ['Mira','Uma linha clara mostra para onde a bola vai, com um pouco de imprecisão.'],
   ['Falta','Acertar um botão adversário antes da bola é falta. A cobrança é no local do toque; dentro da área, é pênalti.'],
   ['Placar','Vence quem fizer 3 gols primeiro. Depois de cada saída de bola, são dois toques antes de poder chutar.'],
   ['Reinício','Na saída de bola e em toda bola parada, o botão que repõe a bola não pode dar o toque seguinte.'],
@@ -403,7 +404,7 @@ en:{
  rounds:['Round of 16','Quarter-finals','Semi-finals','Final'],roundsShort:['Last 16','Quarters','Semis','Final'],tbd:'To be decided',nextMatch:'{round} · next match',play:'Kick off',
  champs:'World champions',lifts:'{t} lift the cup',outIn:'Out in the {round}',wonCopa:'{t} won the Copa',newCopa:'New Copa',newSkin:'Unlocked: {x}',
  shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'Top view',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
- firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it next.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
+ firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
  kickoff:'Kick-off',second:'Second half',goal:'Goal!',own:'Own goal',penalty:'Penalty!',penFor:'Your penalty.',penForCpu:'{c} penalty.',outOfTime:'Out of time. Their ball.',noGoal:'No goal',noGoalSub:'The shot wasn\'t announced. Goal kick.',
  foul:'Foul',foulYou:'Your free kick.',foulCpu:'{c} free kick.',halfTime:'Half-time',pens:'Penalties',pensSub:'Level at full time. Five kicks each.',
  penGoal:'Goal',penOver:'Over the bar',penSaved:'Saved',youScore:'You score.',youMiss:'You miss.',cpuScore:'CPU scores.',cpuMiss:'CPU misses.',
@@ -425,10 +426,11 @@ en:{
   ['Cancel','Slide back onto the button (an ✕ appears), tap with a second finger, right-click or press Esc.'],
   ['Lift','Hit it hard enough and the aim turns yellow: the ball lifts over buttons and keepers. Red usually clears the bar.'],
   ['Turns','Last touch plays next. Miss the ball, or announce a shot and fail to score, and the turn passes.'],
+  ['Touches','The same button can touch the ball at most three times in a row, the shot included. If the ball reaches a teammate, the count resets. At kick-offs, goal kicks and free kicks, the taker can play again once the ball has touched a teammate.'],
   ['Shooting','Press Announce shot before you shoot, then flick with any of your buttons. You can only shoot with the ball in the attacking half (touching the halfway line counts). Unannounced goals don\'t count.'],
   ['Keeper','When the CPU announces, drag your keeper, angle it by its ends or with ↺ ↻, then press Ready.'],
   ['Dead ball','Over the goal line: a goal kick from the nearest small-box corner if the attack touched it last, a corner if the defence did. Opponents stay outside the circle. Each side moves up to four buttons and the taker goes anywhere in the circle.'],
-  ['Aim','A faint line shows where the ball will go. It starts short and a little off; win matches to unlock longer, more accurate lines.'],
+  ['Aim','A faint line shows where the ball will go, with a little uncertainty.'],
   ['Foul','Hitting an opponent\'s button before the ball is a foul. The free kick is taken where the buttons touched; inside the box it\'s a penalty.'],
   ['Score','First to 3 goals wins. After each kick-off the ball needs two touches before anyone can shoot.'],
   ['Restarts','At kick-off and every dead ball, the button that restarts play can\'t make the next touch.'],
@@ -440,13 +442,14 @@ const tr=(k,v)=>{let s=STR[prefs.lang][k];if(typeof s==='string'&&v)for(const x 
 
 /* ---------- table geometry, in centimetres (1.21 m × 1.86 m) ---------- */
 /* the pitch keeps its size; the table around it has a proper margin, so buttons can stand off the lines */
-const MX=12, MY=14, RAIL=1.8;
+const MX=12, MY=22, RAIL=1.8; // MY leaves room behind each goal so buttons can't get wedged against the rail
 const FW=109, FH=166, TW=FW+2*MX, TH=FH+2*MY;
 const F={l:MX,r:MX+FW,t:MY,b:MY+FH};
 const CX=(F.l+F.r)/2, CY=(F.t+F.b)/2;
 // a shot can only be announced with the ball in the attacking half; touching the halfway line counts
 const inShotHalf=side=>side===0?G.ball.y-BALLR<=CY:G.ball.y+BALLR>=CY;
 const GW=21, GD=5.5, POSTR=0.7;
+const MAX_TOUCH=3; // the same button can touch the ball at most three times in a row, the shot included
 const BR=3.0, BALLR=1.1, KW=8.5, KH=2.6;
 const SA={w:34,d:9}, PA={w:68,d:27}, SPOT=19, CIRC=15;
 const A_BTN=520, A_BALL=340, DRAG=1.4, AIR_DRAG=.25, VMAX=400, VMIN=40;
@@ -754,11 +757,11 @@ const skinById=id=>SKINS.find(s=>s.id===id)||SKINS[0];
 const unlocked=s=>!s.req||s.req(prefs.stats);
 let lastUnlocked=new Set(SKINS.filter(unlocked).map(s=>s.id));
 /* aim guide levels: line length (cm) and how far off it can drift (radians) */
-const AIM=[{len:14,err:.1,req:null},{len:28,err:.05,req:s=>s.wins>=2},{len:55,err:.02,req:s=>s.semis>=1},{len:999,err:0,req:s=>s.copas>=1}];
-const aimLevel=()=>{let n=1;for(let i=1;i<AIM.length;i++)if(AIM[i].req(prefs.stats))n=i+1;return n};
+const AIM=[{len:42,err:.035}]; // one aim guide for everyone: a medium-length line with a little wobble
+const aimLevel=()=>1;
 let lastAim=aimLevel();
 function newUnlocks(){const now=SKINS.filter(unlocked).map(s=>s.id),fresh=now.filter(id=>!lastUnlocked.has(id));lastUnlocked=new Set(now);
-  const out=fresh.map(id=>skinById(id).n),al=aimLevel();if(al>lastAim)out.push(tr('aimUp',{n:al}));lastAim=al;return out}
+  const out=fresh.map(id=>skinById(id).n);return out}
 
 /* ---------- sound: everything synthesised with Web Audio ---------- */
 const VOL=.28; // master volume, kept low so the table sounds stay in the background
@@ -860,8 +863,6 @@ function renderHome(){
     sg.appendChild(b)});
   $('#skinCount').textContent=tr('skinCount',{n,m:SKINS.length});
   $('#skinHint').innerHTML=`${tr('inUse')}: <span class="val">${skinById(prefs.skin).n}</span>`;
-  const al=aimLevel();$('#aimPips').innerHTML=AIM.map((_,i)=>`<i class="${i<al?'on':''}"></i>`).join('');
-  $('#aimText').innerHTML=`<span class="val">${tr('aimLevel',{n:al,m:AIM.length})}</span> · ${al<AIM.length?tr('aimNext',{x:STR[prefs.lang].aimReq[al]}):tr('aimMax')}`;
   for(const [id,key] of [['#diffSeg','diff'],['#formSeg','form']])
     for(const b of $(id).children){b.setAttribute('aria-pressed',String(b.dataset.v)===String(prefs[key]));
       b.onclick=()=>{prefs[key]=key==='half'?+b.dataset.v:b.dataset.v;save();renderHome()}}
@@ -981,7 +982,7 @@ function setFormation(kicker){
   G.ball=newBall(CX,CY);
 }
 function kickoff(side,first){
-  setFormation(side);G.lock=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;
+  setFormation(side);G.lock=null;G.streak=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;
   const who=side===0?tr('youKick'):tr('cpuKick',{c:cpuC()});
   const kicker=G.buttons.find(b=>b.side===side&&b.num===9);
   const go=()=>{
@@ -999,7 +1000,7 @@ function beginTurn(side,msg){
   const koBlock=G.mode==='match'&&(G.koTouches||0)<2;
   G.turn=side;G.announced=false;G.move=null;G.event=null;G.cpuAim=null;G.setup=null;G.cam.manual=false;
   const pre=[msg,G.note].filter(Boolean).join(' ');G.note='';
-  if(side===0){G.phase='aim';setStatus(`${pre?pre+' ':''}${tr('yourBall')}${G.lock&&G.lock.side===0?' '+tr('lockNote'):''}${koBlock?' '+tr('koNote'):''}`)}
+  if(side===0){G.phase='aim';setStatus(`${pre?pre+' ':''}${tr('yourBall')}${G.lock&&G.lock.side===0?' '+tr(G.lock.streak?'streakNote':'lockNote'):''}${koBlock?' '+tr('koNote'):''}`)}
   else{G.phase='cpuThink';setStatus(`${pre?pre+' ':''}${tr('cpuBall',{c:cpuC()})}`);later(cpuTurn,650+rand()*500)}
   hud();
 }
@@ -1007,6 +1008,7 @@ function bodies(){return G.mode==='match'?G.buttons:(G.pkBtn?[G.pkBtn]:[])}
 
 function flick(btn,vx,vy,loft){
   if(G.lock&&btn!==G.lock.b)G.lock=null;
+  if(G.mode==='match'){if(!G.streak||G.streak.b!==btn)G.streak={b:btn,n:0};G.streak.n++}
   if(G.pendingLock){G.lock={b:btn,side:btn.side};G.pendingLock=false}
   const pen=!!G.penKick;G.penKick=false;
   Snd.tension(0);Snd.hit('flick',.3+.7*hyp(vx,vy)/VMAX);
@@ -1015,7 +1017,7 @@ function flick(btn,vx,vy,loft){
 }
 
 /* ---------- physics ---------- */
-function touchBall(btn){const m=G.move;if(!m||!G.ball.live)return;m.lastTouch=btn.side;if(btn===m.btn)m.moverTouched=true}
+function touchBall(btn){const m=G.move;if(!m||!G.ball.live)return;m.lastTouch=btn.side;if(btn===m.btn)m.moverTouched=true;else if(btn.side===m.side)m.mate=true}
 function collide(a,b){
   const ball=a.isBall?a:b.isBall?b:null;
   if(ball&&ball.z>BTN_H)return;
@@ -1135,7 +1137,9 @@ function resolve(){
   if(G.mode==='pens')return resolvePen();
   const mover=m.side;
   if(m.lastTouch!=null||m.moverTouched)G.koTouches=(G.koTouches||0)+1;
-  rescueButtons();
+  // the ball reached a teammate: the flicker's touches reset, and a restart taker may play again
+  if(m.mate){G.streak=null;if(G.lock&&G.lock.side===mover)G.lock=null}
+  else if(G.streak&&G.streak.n>=MAX_TOUCH&&G.streak.b.side===mover)G.lock={b:G.streak.b,side:mover,streak:true};
   if(m.foul){
     // free kick where the buttons touched; inside the box the fouled side attacks, a penalty
     const opp=1-mover,fp=m.foulAt||m.ballStart;Snd.whistle(false);
@@ -1174,7 +1178,7 @@ function goalFor(sc,label,lob){
 /* ---------- penalty during the match ---------- */
 function penaltyKick(side){
   G.koTouches=Math.max(2,G.koTouches||0);
-  G.lock=null;G.pendingLock=true;G.penKick=true;
+  G.lock=null;G.streak=null;G.pendingLock=true;G.penKick=true;
   const gy=side===0?F.t:F.b,dir=side===0?1:-1;
   G.ball=newBall(CX,gy+dir*SPOT);
   let taker=null,bd=1e9;for(const o of G.buttons)if(o.side===side){const d=hyp(o.x-G.ball.x,o.y-G.ball.y);if(d<bd){bd=d;taker=o}}
@@ -1217,7 +1221,7 @@ function setPiece(kind,side,ev,msg){
   // every opponent leaves the ring; teammates only step off the ball
   for(const o of G.buttons){if(o===taker)continue;const R=o.side!==side?RING+.6:BR+BALLR+1,d=hyp(o.x-bx,o.y-by);
     if(d<R){const k=d||1;moveTo(o,nearestOk(bx+(o.x-bx)/k*R,by+(o.y-by)/k*R,o,R),false)}}
-  G.sp={kind,side,taker,msg};G.lock=null;G.pendingLock=true;G.cam.manual=false;
+  G.sp={kind,side,taker,msg};G.lock=null;G.streak=null;G.pendingLock=true;G.cam.manual=false;
   if(side===1)startSetup(false);
   else{G.phase='pause';setStatus(tr('cpuRepo',{c:cpuC()}));hud();cpuSetup(false);later(()=>{snapAll();setupTaker()},750)}
 }
