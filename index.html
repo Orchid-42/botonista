@@ -204,6 +204,32 @@ button{touch-action:manipulation}
 .board{height:58px;box-sizing:border-box}
 #status strong{color:var(--ink);font-weight:600}
 .champ{font-size:clamp(24px,4.6vh,40px)}
+
+/* broadcast score bug */
+.bugwrap{position:absolute;z-index:3;top:max(10px,env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.bug{display:flex;align-items:stretch;height:30px;border-radius:5px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08)}
+.bug .tm{position:relative;display:flex;align-items:center;gap:7px;padding:0 11px;background:linear-gradient(180deg,#ffffff,#e4e8f1);color:#0a1430}
+.bug .tm b{font:800 14px/1 Geist,system-ui,sans-serif;letter-spacing:.07em}
+.bug .tm::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--accent);transform:scaleX(0);transition:transform .25s}
+.bug .tm.on::after{transform:scaleX(1)}
+.bug .flag{width:20px;height:14px;border-radius:2px;box-shadow:0 0 0 1px rgba(10,20,48,.25)}
+.bug .sc{display:flex;align-items:center;gap:9px;padding:0 11px;background:linear-gradient(180deg,#13214d,#0a1430);color:#fff;font:600 18px/1 var(--mono);font-variant-numeric:tabular-nums}
+.bug .sc i{width:1px;height:15px;background:rgba(255,255,255,.28)}
+.bug .sc .pop{animation:pop2 .7s cubic-bezier(.2,1.6,.4,1)}
+.bugtag{margin-top:-1px;padding:3px 10px 3px;border-radius:0 0 5px 5px;background:var(--accent);color:#0a1430;font:800 9.5px/1 Geist,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.bugtag:empty{display:none}
+.bugwrap .pens{margin-top:4px;padding:3px 8px;border-radius:4px;background:rgba(5,12,32,.8)}
+/* floating controls and a fading status line */
+#match .stage{flex:1}
+.hudbot{position:absolute;z-index:3;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;justify-content:space-between;gap:10px;pointer-events:none}
+.hudbot>*{pointer-events:auto}
+.hudbot .row{display:flex;gap:8px;flex-wrap:nowrap;margin-left:auto}
+.hudbot .btn{box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.hudbot .btn.ghost{background:rgba(5,12,32,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hudbot .btn.go:disabled{opacity:0;pointer-events:none}
+#status{margin:0;max-width:min(460px,100%);height:auto;font-size:13px;line-height:1.35;color:var(--muted);padding:8px 12px;border-radius:10px;background:rgba(5,12,32,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:block;-webkit-line-clamp:unset;overflow:visible;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s;pointer-events:none}
+#status.show{opacity:1;transform:none}
+@media (max-width:480px){.bug{height:27px}.bug .tm{padding:0 8px;gap:6px}.bug .tm b{font-size:12.5px}.bug .sc{font-size:16px;padding:0 9px}.bug .flag{width:17px;height:12px}#status{font-size:12px}}
 </style>
 
 <div id="app">
@@ -258,21 +284,31 @@ button{touch-action:manipulation}
 
   <!-- MATCH -->
   <section id="match" class="screen" hidden>
-    <header class="board">
-      <div class="side home"><span class="disc" id="hDisc"></span><div><small><span data-i="you"></span> <span class="poss" id="possA"></span></small><b id="hName"></b></div></div>
-      <div class="mid">
-        <div class="score"><span id="sA">0</span><span class="dash">:</span><span id="sB">0</span></div>
-        <div class="clock" id="clock"></div>
-        <div class="pens" id="pens" hidden></div>
-      </div>
-      <div class="side away"><div style="text-align:right"><small><span class="poss" id="possB"></span> CPU</small><b id="aName"></b></div><span class="disc" id="aDisc"></span></div>
-    </header>
     <div class="stage" id="stage">
       <canvas id="cv"></canvas>
+      <div class="bugwrap">
+        <div class="bug" aria-live="polite">
+          <span class="tm" id="possA"><span class="disc" id="hDisc"></span><b id="hName"></b></span>
+          <span class="sc"><span id="sA">0</span><i></i><span id="sB">0</span></span>
+          <span class="tm away" id="possB"><b id="aName"></b><span class="disc" id="aDisc"></span></span>
+        </div>
+        <div class="bugtag" id="clock"></div>
+        <div class="pens" id="pens" hidden></div>
+      </div>
       <div class="shotui" id="shotUi" hidden>
         <div class="loft"><span class="label" data-i="height"></span><div class="ltrack" id="loftTrack" tabindex="0" role="slider" data-ia="height"><i id="loftFill"></i><b id="loftKnob"></b></div><span class="mono" id="loftNum">0%</span></div>
         <div class="pow"><span class="label" data-i="power"></span><div class="ptrack"><i id="powFill"></i></div><span class="mono" id="powNum">0%</span></div>
         <div class="shotbtns"><button class="btn ghost" id="swapBtn" data-i="swap"></button><button class="btn ghost" id="topBtn" data-i="topView"></button></div>
+      </div>
+      <div class="hudbot">
+        <p id="status"></p>
+        <div class="row">
+          <button class="btn go" id="btnShoot"></button>
+          <button class="btn icon ghost" id="btnRotL" hidden data-ia="rotL">↺</button>
+          <button class="btn icon ghost" id="btnRotR" hidden data-ia="rotR">↻</button>
+          <button class="btn solid" id="btnReady" hidden></button>
+          <button class="btn icon ghost" id="btnPause" data-ia="pause"></button>
+        </div>
       </div>
       <div class="zoom"><button id="zIn" data-ia="zoomIn">+</button><button id="zOut" data-ia="zoomOut">−</button></div>
       <div class="overlay" id="banner" hidden><div class="card"><h2 id="bTitle"></h2><p id="bSub"></p><div class="row" id="bRow" hidden><button class="btn go" id="bBtn" data-i="continue"></button></div></div></div>
@@ -280,16 +316,6 @@ button{touch-action:manipulation}
         <div class="row"><button class="btn go" id="resumeMatch" data-i="resume"></button><button class="btn ghost" id="soundToggle"></button></div>
         <div class="row"><button class="btn ghost" data-open="help" data-i="howto"></button><button class="btn ghost" id="leaveMatch" data-i="leave"></button></div></div></div>
     </div>
-    <footer class="controls">
-      <p id="status"></p>
-      <div class="row">
-        <button class="btn go" id="btnShoot"></button>
-        <button class="btn icon ghost" id="btnRotL" hidden data-ia="rotL">↺</button>
-        <button class="btn icon ghost" id="btnRotR" hidden data-ia="rotR">↻</button>
-        <button class="btn solid" id="btnReady" hidden></button>
-        <button class="btn ghost" id="btnPause" data-i="pause"></button>
-      </div>
-    </footer>
   </section>
 </div>
 
@@ -762,6 +788,7 @@ const Snd={ctx:null,
     this.sBall.g.gain.setTargetAtTime(Math.min(.16,lv/1700),t,.03);this.sBall.fl.frequency.setTargetAtTime(1600+lv*2.2,t,.05)},
   tension(){},
   hit(type,v){
+    if(SIM)return;
     const c=this.ctx;if(!c||!prefs.sound)return;v=clamp(v,0,1);if(v<.04)return;
     const now=c.currentTime;if(this.last[type]&&now-this.last[type]<.035)return;this.last[type]=now;
     // [noise band, Q, length, tone Hz, wave, volume]
@@ -800,7 +827,7 @@ function applyLang(){
   if(!$('#home').hidden)renderHome();
   if(!$('#bracket').hidden&&T)renderBracket(true);
   if(typeof acctBtn==='function')acctBtn();
-  if(G){$('#hName').textContent=tn(TEAMS[G.teams[0]]);$('#aName').textContent=tn(TEAMS[G.teams[1]]);lastClock='';hud()}
+  if(G){lastClock='';hud()}
 }
 let lastFocus=null;
 function openModal(id){lastFocus=document.activeElement;for(const m of document.querySelectorAll('.modal'))m.hidden=true;const m=$('#'+id+'Modal');m.hidden=false;m.querySelector('[data-close]').focus()}
@@ -918,7 +945,7 @@ const FORMS={
 };
 
 /* ================= MATCH ================= */
-let G=null, matchId=0;
+let G=null, matchId=0, SIM=false;
 const cv=$('#cv'), ctx=cv.getContext('2d');
 let S=3, FIT=3, DPR=1, CW=300, CH=300, stageBg='#071029';
 const newBall=(x,y)=>({x,y,vx:0,vy:0,z:0,vz:0,r:BALLR,m:1,isBall:true,live:true});
@@ -935,7 +962,7 @@ function startMatch(home,away){
      phase:'pause',turn:0,mode:'match',move:null,event:null,announced:false,
      aim:null,kdrag:null,sdrag:null,pan:null,cpuAim:null,pens:null,pkBtn:null,setup:null,sp:null,note:'',
      cam:{x:CX,y:CY,manual:false},hat:0,cpuForm:Object.keys(FORMS)[Math.floor(rand()*4)]};
-  $('#hName').textContent=tn(TEAMS[home]);$('#aName').textContent=tn(TEAMS[away]);
+  $('#hName').textContent=TEAMS[home].c;$('#aName').textContent=TEAMS[away].c;$('#possA').title=tn(TEAMS[home]);$('#possB').title=tn(TEAMS[away]);
   $('#hDisc').outerHTML=flag(TEAMS[home]).replace('class="flag"','class="flag" id="hDisc"');$('#aDisc').outerHTML=flag(TEAMS[away]).replace('class="flag"','class="flag" id="aDisc"');
   $('#pens').hidden=true;$('#pauseOv').hidden=true;$('#btnPause').textContent=tr('pause');
   show('match');hideBanner();
@@ -965,7 +992,7 @@ function kickoff(side,first){
   if(first){Snd.whistle(true);banner(G.half===1?tr('kickoff'):tr('second'),`${tn(TEAMS[G.teams[0]])} × ${cpuC()}`,1400,go)}
   else go();
 }
-function setStatus(html){$('#status').innerHTML=html}
+let statusT=0;function setStatus(html){const el=$('#status');if(el.innerHTML===html&&el.classList.contains('show'))return;el.innerHTML=html;el.classList.add('show');clearTimeout(statusT);statusT=setTimeout(()=>el.classList.remove('show'),Math.min(9000,2600+html.replace(/<[^>]+>/g,'').length*38))}
 function beginTurn(side,msg){
   G.pickShot=false;
   if(G.lock&&G.lock.side!==side)G.lock=null;
@@ -1284,6 +1311,8 @@ function finishMatch(){
 
 /* ---------- CPU ---------- */
 function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;const t=l?clamp(((px-ax)*vx+(py-ay)*vy)/l,0,1):0;return [hyp(px-ax-vx*t,py-ay-vy*t),t]}
+// launch speed needed to cover dist (cm) and still be moving at vEnd, with friction a and drag (the same model as step())
+function speedFor(dist,a,vEnd=0){let v=Math.max(vEnd,1);const n=Math.ceil(dist/.5),ds=dist/n;for(let i=0;i<n;i++){v+=(a+DRAG*v)/v*ds;if(v>2000)break}return v}
 function evalFlick(b,T,D,lob){
   const ball=G.ball,dx=T.x-ball.x,dy=T.y-ball.y,dl=hyp(dx,dy);if(dl<.1)return null;
   const ddx=dx/dl,ddy=dy/dl,cx=ball.x-ddx*(BR+BALLR),cy=ball.y-ddy*(BR+BALLR);
@@ -1292,8 +1321,8 @@ function evalFlick(b,T,D,lob){
   const [bd,bt]=segDist(ball.x,ball.y,b.x,b.y,cx,cy);if(bd<BR+BALLR-.1&&bt<.97)return null;
   let block=0,foul=0;for(const o of bodies())if(o!==b&&segDist(o.x,o.y,b.x,b.y,cx,cy)[0]<BR*2-.3){block++;if(o.side!==b.side)foul++}
   for(const k of G.keepers){const [kd]=segDist(k.x,k.y,b.x,b.y,cx,cy);if(kd<BR+KW/2-1)block++}
-  const vb=lob?495:Math.min(LIFT_T-15,Math.sqrt(2*A_BALL*1.5*D)),vc=vb/(1.41*cos);
-  let v0=Math.sqrt(vc*vc+2*A_BTN*1.4*s),weak=false;if(v0>VMAX){v0=VMAX;weak=true}
+  const vb=lob?495:Math.min(LIFT_T-15,speedFor(D,A_BALL)),vc=vb/(1.41*cos);
+  let v0=speedFor(s,A_BTN,vc),weak=false;if(v0>VMAX){v0=VMAX;weak=true}
   return {b,ux,uy,v0,s,cos,score:25*cos-.22*s-30*block-40*foul-(weak?12:0)};
 }
 function keeperShadow(k,bx,by,gy){
@@ -1305,7 +1334,7 @@ function keeperShadow(k,bx,by,gy){
 function cpuPlan(side,forceShot){
   const ball=G.ball,dirY=side===1?1:-1,gy=side===1?F.b:F.t,mine=bodies().filter(b=>b.side===side&&!(G.lock&&G.lock.side===side&&G.lock.b===b)),opp=bodies().filter(b=>b.side!==side);
   const distGoal=hyp(ball.x-CX,ball.y-gy);
-  let bestPass=null,bestShot=null;
+  let bestPass=null,bestShot=null;const shots=[],passes=[];
   const lo=CX-GW/2+BALLR+.8,hi=CX+GW/2-BALLR-.8;let tx=[],lob=false;
   if(forceShot||G.mode==='pens'){
     const [kl,kr]=keeperShadow(G.keepers[1-side],ball.x,ball.y,gy),gl=kl-BALLR-lo,gr=hi-(kr+BALLR);
@@ -1317,11 +1346,11 @@ function cpuPlan(side,forceShot){
   for(const x of tx){const Tg={x,y:gy+dirY*2};let lane=0;
     if(!lob)for(const o of opp)if(segDist(o.x,o.y,ball.x,ball.y,Tg.x,Tg.y)[0]<BR+BALLR+.2)lane++;
     for(const b of mine){const f=evalFlick(b,Tg,hyp(Tg.x-ball.x,Tg.y-ball.y)+25,lob);if(!f)continue;
-      f.total=45-(distGoal-25)*.45+f.score-35*lane;f.shot=true;if(!bestShot||f.total>bestShot.total)bestShot=f}}
-  if(forceShot&&bestShot)return bestShot;
+      f.total=45-(distGoal-25)*.45+f.score-35*lane;f.shot=true;shots.push(f);if(!bestShot||f.total>bestShot.total)bestShot=f}}
+  if(forceShot&&bestShot)return G.mode==='match'?simPick(side,shots,true)||bestShot:bestShot;
   if(G.mode==='match'&&((G.koTouches||0)<2||!inShotHalf(side)))bestShot=null; // no shots straight from kick-off
   const base=Math.atan2(gy-ball.y,CX-ball.x);
-  for(const a of [-110,-80,-55,-30,-12,0,12,30,55,80,110])for(const L of [16,30,46]){
+  for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [8,16,28,42,58]){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
     let ts=(Tp.y-ball.y)*dirY*.55;
     if(Tp.x<F.l+3||Tp.x>F.r-3)ts-=40; if(Tp.y<F.t+2||Tp.y>F.b-2)ts-=40;
@@ -1329,12 +1358,79 @@ function cpuPlan(side,forceShot){
     let dn=1e9;for(const o of mine)dn=Math.min(dn,hyp(o.x-Tp.x,o.y-Tp.y));ts+=Math.max(0,18-dn)*.7;
     ts+=Math.max(0,70-hyp(Tp.x-CX,Tp.y-gy))*.25;
     const ownY=side===1?F.t:F.b,dOwn=hyp(Tp.x-CX,Tp.y-ownY);if(dOwn<35)ts-=(35-dOwn)*.8;
-    for(const b of mine){const f=evalFlick(b,Tp,L+3,false);if(!f)continue;f.total=ts+f.score;if(!bestPass||f.total>bestPass.total)bestPass=f}}
+    for(const b of mine){const f=evalFlick(b,Tp,L+3,false);if(!f)continue;f.total=ts+f.score;f.L=L;passes.push(f);if(!bestPass||f.total>bestPass.total)bestPass=f}}
+  if(G.mode==='match'){const pick=simPick(side,bestShot?passes.concat(shots):passes,false);if(pick)return pick}
   if(bestShot&&distGoal<75&&(!bestPass||bestShot.total>bestPass.total+4))return bestShot;
   if(bestPass)return bestPass;
   if(bestShot)return bestShot;
   let nb=null,nd=1e9;for(const b of mine){const d=hyp(b.x-ball.x,b.y-ball.y);if(d<nd){nd=d;nb=b}}
   const ux=(ball.x-nb.x)/nd,uy=(ball.y-nb.y)/nd;return {b:nb,ux,uy,v0:Math.min(VMAX,120+nd*3),s:nd,cos:1,score:0};
+}
+/* ---------- CPU: try candidate flicks in the real physics, then pick the best outcome ---------- */
+function simFlick(btn,vx,vy,shot,keepers){
+  const real=G,bi=real.buttons.indexOf(btn);if(bi<0)return null;
+  const g=Object.assign({},real,{buttons:real.buttons.map(b=>Object.assign({},b)),ball:Object.assign({},real.ball),keepers:(keepers||real.keepers).map(k=>Object.assign({},k)),event:null});
+  const b=g.buttons[bi];let out=null;
+  G=g;SIM=true;
+  try{
+    G.move={side:b.side,btn:b,announced:shot,moverTouched:false,lastTouch:null,foul:false,t:0,pen:false,loft:null,lofted:false,ballStart:{x:G.ball.x,y:G.ball.y}};
+    G.ball.live=true;b.vx=vx;b.vy=vy;
+    const dt=1/240;
+    for(let i=0;i<240*6;i++){step(dt);if(G.event||G.move.foul&&i>40)break;if(i%8===0&&stopped())break}
+    out={m:G.move,ev:G.event,ball:{x:G.ball.x,y:G.ball.y},buttons:G.buttons,kh:G.event?-1:keeperHolds()};
+  }finally{G=real;SIM=false}
+  return out;
+}
+function rateOutcome(o,side,shot){
+  const opp=1-side,gy=side===1?F.b:F.t,ownGy=side===1?F.t:F.b,m=o.m,ev=o.ev,bl=o.ball;
+  const dGoal=hyp(bl.x-CX,bl.y-gy),dOwn=hyp(bl.x-CX,bl.y-ownGy);
+  const loss=-80-Math.max(0,90-dOwn)*.9; // losing the ball hurts more near our own goal
+  if(m.foul){const fp=m.foulAt||m.ballStart,inBox=Math.abs(fp.x-CX)<PA.w/2&&Math.abs(fp.y-ownGy)<PA.d;return inBox?-700:loss-40}
+  if(ev&&ev.type==='goal')return ev.side===side?(shot?1000:-40):-900;
+  if(!m.moverTouched)return loss-30;
+  if(ev&&ev.type==='side'){const t=(shot||m.lastTouch==null)?opp:1-m.lastTouch;return t===side?10:loss}
+  if(ev&&ev.type==='end'){const def=ev.side,lt=shot?side:(m.lastTouch==null?side:m.lastTouch);
+    if(def===side)return lt===def?-250:loss;  // our own goal line: corner against us, or our goal kick
+    return lt===def?60:loss}
+  if(o.kh>=0)return o.kh===side?20:loss;
+  const next=shot?opp:m.lastTouch;if(next!==side)return loss;
+  // we keep the ball: value where it is and whether one of our buttons can play it on
+  let v=Math.max(0,(FH-dGoal))/FH*110+((bl.y-o.m.ballStart.y)*(side===1?1:-1))*.6;
+  let play=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d>34)continue;
+    const ux=(bl.x-b.x)/d,uy=(bl.y-b.y)/d,gx=(CX-bl.x)/(dGoal||1),gyy=(gy-bl.y)/(dGoal||1),c=ux*gx+uy*gyy;
+    play=Math.max(play,(34-d)*.6+c*14)}
+  v+=play;
+  if(dGoal<70&&(side===1?bl.y>CY-BALLR:bl.y<CY+BALLR))v+=(70-dGoal)*.35; // a shooting chance next
+  if(bl.x<F.l+4||bl.x>F.r-4)v-=10;if(bl.y<F.t+4||bl.y>F.b-4)v-=6;
+  return v;
+}
+function idealKeeper(def){const sk=G.skill;G.skill=1;const k=faceBall(def);G.skill=sk;return k}
+function simPick(side,cands,forced){
+  if(!cands.length)return null;
+  const sk=G.skill,hard=sk>.75,easy=sk<.4;
+  // the best few by the quick estimate, at most two per target button so the list stays varied
+  // shortlist: the buttons closest to the ball, a few options each (far buttons rarely flick cleanly)
+  const by=new Map();for(const f of cands){if(f.shot)continue;if(!by.has(f.b))by.set(f.b,[]);by.get(f.b).push(f)}
+  const near=[...by.keys()].sort((a,b)=>hyp(a.x-G.ball.x,a.y-G.ball.y)-hyp(b.x-G.ball.x,b.y-G.ball.y)).slice(0,hard?6:easy?3:5),pool=[];
+  for(const b of near){const best=new Map();for(const f of by.get(b)){const o=best.get(f.L);if(!o||f.total>o.total)best.set(f.L,f)}
+    pool.push(...[...best.values()].sort((x,y)=>y.total-x.total).slice(0,hard?5:4))}
+  for(const f of cands.filter(f=>f.shot).sort((a,b)=>b.total-a.total).slice(0,4))if(!pool.includes(f))pool.push(f);
+  const kp=G.keepers.slice();kp[1-side]=forced?G.keepers[1-side]:idealKeeper(1-side);
+  const noise=1-sk,rated=[];
+  for(const f of pool){
+    const runs=hard?5:4;let sum=0;
+    for(let i=0;i<runs;i++){
+      // judge each option with the same aiming error the flick will really have
+      const a=Math.atan2(f.uy,f.ux)+gauss()*(.012+noise*.05+f.s*.0006),v=clamp(f.v0*(1+gauss()*(.04+noise*.1)),VMIN,VMAX);
+      const o=simFlick(f.b,Math.cos(a)*v,Math.sin(a)*v,!!f.shot,kp);if(o)sum+=rateOutcome(o,side,!!f.shot)}
+    rated.push({f,val:sum/runs});
+  }
+  rated.sort((a,b)=>b.val-a.val);
+  if(forced)return rated[0].f;
+  // easier sides sometimes take a lesser option; normal only rarely, and never a clearly bad one
+  let k=0;if(easy&&rand()<.45)k=Math.min(rated.length-1,1+Math.floor(rand()*3));else if(!hard&&rand()<.15)k=1;
+  if(k&&rated[k].val<rated[0].val-60)k=0;
+  return rated[k].f;
 }
 function cpuTurn(){
   if(G.phase!=='cpuThink'||G.turn!==1)return;
@@ -1400,7 +1496,7 @@ cv.addEventListener('pointerdown',e=>{
       G.aim={b:V3.btn,mode3:true,sx,sy,raw:0,tpw:0,pw:0,ang:V3.ang,tang:V3.ang,base:V3.ang,seed:rand()*6.3,fx:0,fy:0};cv.setPointerCapture(e.pointerId);Snd.hit('press',.45)}
     e.preventDefault();return}
   const {sx,sy}=evPos(e),p=toWorld(sx,sy);
-  const mr=miniRect();if(sx>=mr.x&&sx<=mr.x+mr.w&&sy>=mr.y&&sy<=mr.y+mr.h){G.cam.manual=true;const c=camClamp((sx-mr.x)/mr.w*TW,(sy-mr.y)/mr.h*TH);G.cam.x=c.x;G.cam.y=c.y;return}
+  const mr=miniRect();if(S>FIT*1.12&&sx>=mr.x&&sx<=mr.x+mr.w&&sy>=mr.y&&sy<=mr.y+mr.h){G.cam.manual=true;const c=camClamp((sx-mr.x)/mr.w*TW,(sy-mr.y)/mr.h*TH);G.cam.x=c.x;G.cam.y=c.y;return}
   let took=false;
   if(G.phase==='aim'&&G.turn===0){
     const locked=G.lock&&G.lock.side===0?G.lock.b:null;
@@ -1492,14 +1588,14 @@ function hud(){
   const ks=G.phase==='keeperSet';
   $('#btnReady').hidden=!(ks||G.phase==='setup');$('#btnReady').textContent=ks?tr('ready'):tr('done');
   $('#btnRotL').hidden=!ks;$('#btnRotR').hidden=!ks;
-  $('#btnPause').textContent=G.paused?tr('resume'):tr('pause');
+  $('#btnPause').textContent=G.paused?'▶':'❚❚';$('#btnPause').setAttribute('aria-label',G.paused?tr('resume'):tr('pause'));
   if(G.pens){const dots=k=>{let s=k.map(x=>x?'●':'○').join(' ');for(let i=k.length;i<5;i++)s+=' ·';return s};
     $('#pens').innerHTML=`<span>${dots(G.pens.k[0])}</span><span>${dots(G.pens.k[1])}</span>`}
   drawClock();
 }
 let lastClock='';
 function drawClock(){
-  const s=G.mode==='pens'?tr('pensClock'):'';
+  const s=G.mode==='pens'?tr('pensClock'):(typeof T!=='undefined'&&T&&!T.done&&G.mode==='match'?`${cupName(T.cup)} · ${tr('roundsShort')[T.r]}`:'');
   if(s!==lastClock){$('#clock').textContent=s;lastClock=s}
 }
 
@@ -1731,7 +1827,7 @@ function resize(){
   const w=st.clientWidth,h=st.clientHeight,d=Math.min(2.5,window.devicePixelRatio||1);
   if(w===CW&&h===CH&&d===DPR&&cv.width===Math.round(w*d))return; // same size: never clear the canvas for nothing
   CW=w;CH=h;DPR=d;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);
-  FIT=Math.max(.5,Math.min(CW/TW,CH/TH)*.96);if(!S||!isFinite(S)||!resize.done)S=FIT*prefs.zoom;resize.done=true;
+  FIT=Math.max(.5,Math.min(CW/TW*.995,(CH-104)/TH)); // keep a band free for the score bug (top) and the buttons (bottom)if(!S||!isFinite(S)||!resize.done)S=FIT*prefs.zoom;resize.done=true;
   stageBg=getComputedStyle(st).backgroundColor||stageBg;
   // a resized canvas is blank: draw straight away instead of waiting for the next frame
   if(G&&!$('#match').hidden){try{if(V3.on&&V3.pose)render3D(performance.now());else render(performance.now())}catch(e){}}
@@ -1828,11 +1924,11 @@ function drawTable(c){
    LENS maps each radius on screen to the radius on the printed disc seen through the dome, with its transmission;
    SHINE is the dome's reflection of the overhead light, turned toward the lamp when drawn. */
 const LENS={src:[0.0024, 0.0086, 0.0169, 0.0249, 0.0328, 0.0408, 0.0487, 0.0566, 0.0645, 0.0724, 0.0804, 0.0883, 0.0964, 0.1045, 0.1124, 0.1202, 0.1281, 0.1361, 0.1442, 0.1522, 0.1602, 0.168, 0.1761, 0.1842, 0.1921, 0.1998, 0.2077, 0.216, 0.2242, 0.2321, 0.2398, 0.2475, 0.2555, 0.2637, 0.2719, 0.2797, 0.2873, 0.2949, 0.303, 0.3113, 0.3193, 0.3271, 0.3348, 0.3426, 0.3506, 0.3586, 0.3666, 0.3745, 0.3821, 0.3899, 0.3978, 0.4058, 0.4138, 0.4215, 0.4291, 0.4369, 0.4448, 0.4527, 0.4607, 0.4684, 0.476, 0.4838, 0.4915, 0.4994, 0.5073, 0.5151, 0.5226, 0.5302, 0.538, 0.5459, 0.5537, 0.5613, 0.5687, 0.5764, 0.5844, 0.5924, 0.5999, 0.6072, 0.6147, 0.6227, 0.6307, 0.6381, 0.645, 0.6522, 0.6603, 0.6684, 0.6756, 0.6825, 0.6904, 0.6991, 0.707, 0.7134, 0.7198, 0.7277, 0.7357, 0.7424, 0.7491, 0.7576, 0.7663, 0.7727, 0.7787, 0.7871, 0.796, 0.8024, 0.8084, 0.816, 0.8233, 0.8296, 0.8372, 0.8453, 0.8523, 0.8593, 0.8662, 0.873, 0.8805, 0.8883, 0.8952, 0.9022, 0.9093, 0.9163, 0.9237, 0.9318, 0.9393, 0.9464, 0.9549, 0.9667, 0.9829, 1.0018, 1.0134],T:[0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.9599, 0.9598, 0.9597, 0.9594, 0.9588, 0.958, 0.9557, 0.9482, 0.9305, 0.9005, 0.8732, 0.8991, 0.9495],edge:[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0]};
-// lighting: one warm lamp hanging over the centre of the table, the room around it in shade
+// lighting: one neutral lamp hanging over the centre of the table, the room around it in shade
 const LIGHT={
-  shadows:(b,L)=>[[L.x*.35,L.y*.35+.22,.55,.9,1.2],[L.x*1.1+.1,L.y*1.1+.45,.3,.7,1.4]], // contact shadow + short cast shadow
-  overlay:c=>{const g=c.createRadialGradient(CX,CY-10,10,CX,CY,Math.max(TW,TH)*.75);g.addColorStop(0,'rgba(255,200,120,.10)');g.addColorStop(.55,'rgba(40,20,0,.12)');g.addColorStop(1,'rgba(0,0,0,.5)');c.fillStyle=g;c.fillRect(0,0,TW,TH)}};
-const SHINE=new Image();SHINE.src='data:image/png;base64,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';
+  shadows:(b,L)=>[[L.x*.35,L.y*.35+.22,.55,.9,1.2],[L.x*.7+.05,L.y*.7+.3,.3,.7,1.3]], // contact shadow + short cast shadow
+  overlay:c=>{const g=c.createRadialGradient(CX,CY-10,10,CX,CY,Math.max(TW,TH)*.75);g.addColorStop(0,'rgba(255,255,255,.07)');g.addColorStop(.55,'rgba(0,8,0,.12)');g.addColorStop(1,'rgba(0,0,0,.5)');c.fillStyle=g;c.fillRect(0,0,TW,TH)}};
+const SHINE=new Image();SHINE.src='data:image/png;base64,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';
 const lensAt=(a,x)=>{const f=Math.min(x,1)*128,i=Math.min(127,f|0),t=f-i;return a[i]+(a[i+1]-a[i])*t};
 const SPRITES=new Map(),SPR_N=192;
 function btnSprite(team,num){
@@ -1969,14 +2065,14 @@ function render(ts){
     const top=G.turn===0;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
   }
   c.setTransform(DPR,0,0,DPR,0,0);vignette(c);
-  const m=miniRect(),k=m.w/TW;
+  if(S>FIT*1.12){const m=miniRect(),k=m.w/TW;
   c.globalAlpha=.92;c.fillStyle='#060d22';rr(c,m.x-3,m.y-3,m.w+6,m.h+6,6);c.fill();
   c.fillStyle='#c3c9cf';c.fillRect(m.x,m.y,m.w,m.h);c.fillStyle=FELT.base;c.fillRect(m.x+RAIL*k,m.y+RAIL*k,m.w-2*RAIL*k,m.h-2*RAIL*k);c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=.6;c.strokeRect(m.x+F.l*k,m.y+F.t*k,FW*k,FH*k);
   c.beginPath();c.moveTo(m.x+F.l*k,m.y+CY*k);c.lineTo(m.x+F.r*k,m.y+CY*k);c.stroke();
   for(const b of bodies()){c.fillStyle=b.side===0?tA.dome:tB.dome;c.beginPath();c.arc(m.x+b.x*k,m.y+b.y*k,Math.max(1.3,BR*k),0,2*PI);c.fill()}
   c.fillStyle='#141618';c.strokeStyle='#ffffff';c.lineWidth=1;c.beginPath();c.arc(m.x+bl.x*k,m.y+bl.y*k,2,0,2*PI);c.fill();c.stroke();
   const vw=CW/S*k,vh=CH/S*k;c.strokeStyle='#ffd23f';c.lineWidth=1;c.strokeRect(m.x+(G.cam.x*k-vw/2),m.y+(G.cam.y*k-vh/2),vw,vh);
-  c.globalAlpha=1;
+  c.globalAlpha=1;}
 }
 
 /* ---------- boot ---------- */
