@@ -618,7 +618,7 @@ const MAX_TOUCH=3; // the same button can touch the ball at most three times in 
 const BR=3.0, BALLR=1.1, KW=8.5, KH=2.6;
 const SA={w:34,d:9}, PA={w:68,d:27}, SPOT=19, CIRC=15;
 const A_BTN=520, A_BALL=340, DRAG=1.4, AIR_DRAG=.25, VMAX=400, VMIN=40;
-const LIFT_T=300, LIFT_K=.35, GRAV=500, BAR=5.5, BTN_H=1.6, KEEP_H=3.2, BOUNCE=.35;
+const LIFT_T=300, LIFT_K=.35, GRAV=500, BAR=5.5, BTN_H=1.6, KEEP_H=3.8, BOUNCE=.35;
 /* power 0..1 -> flick speed. The ball's roll distance grows with power^1.6, so small pulls give
    small, controllable touches and full power still reaches the far end of the table. */
 const BALL_K=1.41, PW_EXP=1.6;                       // ball speed from a square hit; curve shape
@@ -2316,7 +2316,7 @@ function drawButton(c,b,team,glow){
 function drawKeeper(c,k,team,edit,pulse){
   const L=lampVec(k.x,k.y);
   c.save();c.translate(k.x,k.y);
-  c.save();c.translate(L.x*.8+.15,L.y*.8+.6);c.rotate(k.a);
+  c.save();c.translate(L.x*.95+.15,L.y*.95+.7);c.rotate(k.a);
   for(const [g,al] of [[1.2,.06],[.7,.08],[.25,.12]]){c.fillStyle=`rgba(5,20,0,${al})`;rr(c,-KW/2-g,-KH/2-g,KW+2*g,KH+2*g,.6+g);c.fill()}c.restore();
   c.save();c.translate(0,.32);c.rotate(k.a);rr(c,-KW/2,-KH/2,KW,KH,.6);c.fillStyle=shade(team.ring,-.3);c.fill();c.restore();
   c.rotate(k.a);
