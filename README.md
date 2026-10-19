@@ -4,6 +4,7 @@ Futebol de botão na mesa. Pick a cup, then your team and formation, then flick 
 
 - **Copa do Mundo:** 16 national teams.
 - **Copa do Brasil:** 16 Brazilian clubs.
+- **Champions League:** 16 of Europe's biggest clubs.
 - **1 contra 1:** two players on one device.
 
 Portuguese (BR) by default, with English in the settings.
