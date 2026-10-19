@@ -1240,7 +1240,7 @@ function saveMatch(at,extra){
   const bi=b=>G.buttons.indexOf(b);
   prefs.match=Object.assign({v:1,at,pvp:G.pvp,cup:G.pvp?G.cup:(T&&T.cup)||'wc',tkey:G.tkey||'',flipped:G.flipped,teams:G.teams.slice(),score:G.score.slice(),forms:G.forms.slice(),
     half:G.half,mode:G.mode,kickFirst:G.kickFirst,skill:G.skill,cpuForm:G.cpuForm,hat:G.hat,turn:G.turn,koTouches:G.koTouches||0,pendingLock:!!G.pendingLock,
-    buttons:G.buttons.map(b=>({x:+b.x.toFixed(3),y:+b.y.toFixed(3),side:b.side,num:b.num})),ball:{x:+G.ball.x.toFixed(3),y:+G.ball.y.toFixed(3)},
+    buttons:G.buttons.map(b=>({x:+b.x.toFixed(3),y:+b.y.toFixed(3),side:b.side,num:b.num,rot:+(b.rot||0).toFixed(3)})),ball:{x:+G.ball.x.toFixed(3),y:+G.ball.y.toFixed(3)},
     keepers:cl(G.keepers),kt:cl(G.kt),pens:G.pens?cl(G.pens):null,
     lock:G.lock&&bi(G.lock.b)>=0?{i:bi(G.lock.b),side:G.lock.side,streak:!!G.lock.streak}:null,
     streak:G.streak&&bi(G.streak.b)>=0?{i:bi(G.streak.b),n:G.streak.n}:null,t:Date.now()},extra||{});
@@ -1254,7 +1254,7 @@ function resumeSaved(){const m=prefs.match;if(!matchValid(m)){clearMatch();retur
 function restoreMatch(m){
   if(m.flipped)flipView();
   Object.assign(G,{score:m.score.slice(),forms:m.forms.slice(),half:m.half,mode:m.mode,skill:m.skill,cpuForm:m.cpuForm,hat:m.hat,koTouches:m.koTouches,pendingLock:m.pendingLock,kickFirst:m.kickFirst});
-  G.buttons=m.buttons.map(b=>({x:b.x,y:b.y,vx:0,vy:0,r:BR,m:3,side:b.side,num:b.num}));
+  G.buttons=m.buttons.map(b=>({x:b.x,y:b.y,vx:0,vy:0,r:BR,m:3,side:b.side,num:b.num,rot:b.rot||0,w:0}));
   G.ball=newBall(m.ball.x,m.ball.y);G.keepers=cl(m.keepers);G.kt=cl(m.kt);G.pens=m.pens?cl(m.pens):null;
   G.lock=m.lock?{b:G.buttons[m.lock.i],side:m.lock.side,streak:m.lock.streak}:null;
   G.streak=m.streak?{b:G.buttons[m.streak.i],n:m.streak.n}:null;
@@ -1273,7 +1273,7 @@ function setFormation(kicker){
   for(const side of [0,1])for(const [fx,fy,num] of FORMS[G.forms[side]]){
     let x=F.l+fx*FW,y=F.t+fy*FH; if(side===1){x=F.l+(1-fx)*FW;y=F.t+(1-fy)*FH}
     if(num===9&&side===kicker){x=CX;y=CY+(side===0?1:-1)*(BR+BALLR+1.4)}
-    G.buttons.push({x,y,vx:0,vy:0,r:BR,m:3,side,num});
+    G.buttons.push({x,y,vx:0,vy:0,r:BR,m:3,side,num,rot:(Math.random()-.5)*.6,w:0});
   }
   G.keepers=[homeKeeper(0),homeKeeper(1)];G.kt=[null,null];
   G.ball=newBall(CX,CY);
@@ -1330,6 +1330,7 @@ function flick(btn,vx,vy,loft){
   const pen=!!G.penKick;G.penKick=false;
   Snd.tension(0);Snd.hit('flick',.3+.7*hyp(vx,vy)/VMAX);
   G.move={side:btn.side,btn,announced:G.announced,moverTouched:false,lastTouch:null,foul:false,t:0,pen,loft:loft==null?null:loft,lofted:false,ballStart:{x:G.ball.x,y:G.ball.y}};
+  btn.w=(btn.w||0)+(Math.random()-.5)*2*(2+7*hyp(vx,vy)/VMAX);
   G.event=null;G.ball.live=true;btn.vx=vx;btn.vy=vy;G.phase='moving';G.aim=null;G.cpuAim=null;G.cam.manual=false;hud();
 }
 
@@ -1345,6 +1346,7 @@ function collide(a,b){
   if(vr<0){
     const before=ball?hyp(ball.vx,ball.vy):0;
     const e=ball?E_BALL:E_BB,j=-(1+e)*vr/im;a.vx-=j*ia*nx;a.vy-=j*ia*ny;b.vx+=j*ib*nx;b.vy+=j*ib*ny;
+    {const vt=(b.vx-a.vx)*-ny+(b.vy-a.vy)*nx;for(const q of [a,b])if(!q.isBall)q.w=(q.w||0)+clamp(vt,-300,300)/q.r*.12}
     if(ball){const sp=hyp(ball.vx,ball.vy),m=G.move,mine=m&&(a===m.btn||b===m.btn);
       if(m&&m.loft!=null){if(mine&&!m.lofted&&ball.z<.5){m.lofted=true;ball.vz=m.loft*LOFT_K*sp;const k=1-.3*m.loft;ball.vx*=k;ball.vy*=k}}
       else if(sp>LIFT_T&&sp-before>40&&ball.z<.5)ball.vz=Math.max(ball.vz,(sp-LIFT_T)*LIFT_K)}
@@ -1397,6 +1399,7 @@ function step(dt){
     const sp=hyp(b.vx,b.vy);
     if(sp>0){let ns;if(b.isBall&&b.z>0)ns=sp-sp*AIR_DRAG*dt;else ns=Math.max(0,sp-((b.isBall?A_BALL:A_BTN)+sp*DRAG)*dt);b.vx*=ns/sp;b.vy*=ns/sp}
     b.x+=b.vx*dt;b.y+=b.vy*dt;b.spin=(b.spin||0)+hyp(b.vx,b.vy)*dt/b.r*.35;
+    if(b.w){b.rot=(b.rot||0)+b.w*dt;b.w*=1-(sp>2?2.2:7)*dt;if(Math.abs(b.w)<.02)b.w=0}
     if(b.isBall&&(b.z>0||b.vz>0)){b.vz-=GRAV*dt;b.z+=b.vz*dt;if(b.z<=0){b.z=0;if(b.vz<-40){Snd.hit('land',-b.vz/160);b.vz=-b.vz*BOUNCE}else b.vz=0}}
   }
   for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++)collide(all[i],all[j]);
@@ -2037,6 +2040,7 @@ function frame(ts){
       if(stopped()||G.move.t>10)resolve()}
     if(G){
       for(const s of [0,1])if(G.kt[s]){const k=G.keepers[s],t=G.kt[s],f=Math.min(1,dt*9);k.x+=(t.x-k.x)*f;k.y+=(t.y-k.y)*f;k.a+=(t.a-k.a)*f;if(hyp(t.x-k.x,t.y-k.y)<.05&&Math.abs(t.a-k.a)<.01)G.kt[s]=null}
+      if(G.phase!=='moving')for(const b of G.buttons)if(b.w){b.rot=(b.rot||0)+b.w*dt;b.w*=1-Math.min(1,7*dt);if(Math.abs(b.w)<.02)b.w=0} // a spin finishing after the move
       for(const b of G.buttons)if(b.tx!=null){const f=Math.min(1,dt*7);b.x+=(b.tx-b.x)*f;b.y+=(b.ty-b.y)*f;if(hyp(b.tx-b.x,b.ty-b.y)<.05){b.x=b.tx;b.y=b.ty;b.tx=b.ty=null}}
       if(G.aim){const a=G.aim;a.pw+=(a.tpw-a.pw)*Math.min(1,dt*20);a.ang=angLerp(a.ang,a.tang,Math.min(1,dt*16));Snd.tension(a.pw)}
       if(G.cpuAim){const a=G.cpuAim;a.pw+=(a.tpw-a.pw)*Math.min(1,dt*5);Snd.tension(a.pw*.7)}
@@ -2370,7 +2374,7 @@ function drawButton(c,b,team,glow){
   // soft shadow, cast away from the lamp
   for(const q of LIGHT.shadows(b,L))softShadow(c,b.x+q[0],b.y+q[1],r*q[3],r*q[4],q[2]);
   const sp=btnSprite(team,b.num);
-  if(sp)c.drawImage(sp,b.x-r,b.y-r,2*r,2*r);
+  if(sp){if(b.rot){c.save();c.translate(b.x,b.y);c.rotate(b.rot);c.drawImage(sp,-r,-r,2*r,2*r);c.restore()}else c.drawImage(sp,b.x-r,b.y-r,2*r,2*r)}
   else{c.fillStyle=team.ring;disc(b.x,b.y,r);c.fill();c.fillStyle=team.dome;disc(b.x,b.y,r*DOME);c.fill();
     c.fillStyle=team.num;c.font=`700 ${r*.5}px Geist, system-ui, sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(b.num,b.x,b.y+r*.38)}
   // the dome's reflection of the lamp, turned toward it (straight under the lamp it sits at the top)
