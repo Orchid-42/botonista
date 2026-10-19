@@ -1724,9 +1724,12 @@ function evalFlick(b,T,D,lob){
   const [bd,bt]=segDist(ball.x,ball.y,b.x,b.y,cx,cy);if(bd<BR+BALLR-.1&&bt<.97)return null;
   let block=0,foul=0;for(const o of bodies())if(o!==b&&segDist(o.x,o.y,b.x,b.y,cx,cy)[0]<BR*2-.3){block++;if(o.side!==b.side)foul++}
   for(const k of G.keepers){const [kd]=segDist(k.x,k.y,b.x,b.y,cx,cy);if(kd<BR+KW/2-1)block++}
-  const vb=lob?495:Math.min(LIFT_T-15,speedFor(D,A_BALL)),vc=vb/(1.41*cos);
-  let v0=speedFor(s,A_BTN,vc),weak=false;if(v0>VMAX){v0=VMAX;weak=true}
-  return {b,ux,uy,v0,s,cos,score:25*cos-.22*s-30*block-40*foul-(weak?12:0)};
+  const vb=lob?495:Math.min(LIFT_T-15,speedFor(D,A_BALL)),vc=Math.max(vb/(1.41*cos),70);
+  let v0=speedFor(s,A_BTN,vc),weak=false;if(v0>VMAX){if(v0>VMAX*1.08)return null;v0=VMAX;weak=true}
+  // crowding: opponents beside the button's path or just past the contact point (where the button carries on) mean likely fouls
+  let crowd=0;const ex=cx+ddx*8,ey=cy+ddy*8;
+  for(const o of bodies())if(o.side!==b.side&&(segDist(o.x,o.y,b.x,b.y,cx,cy)[0]<BR*2+1.5||segDist(o.x,o.y,cx,cy,ex,ey)[0]<BR*2+1))crowd++;
+  return {b,ux,uy,v0,s,cos,crowd,score:25*cos-.55*s-30*block-40*foul-15*crowd-(weak?12:0)};
 }
 function keeperShadow(k,bx,by,gy){
   const c=Math.cos(k.a),s=Math.sin(k.a),xs=[];
@@ -1755,12 +1758,12 @@ function cpuPlan(side,forceShot){
   if(forceShot&&bestShot)return G.mode==='match'?simPick(side,shots,true)||bestShot:bestShot;
   if(G.mode==='match'&&((G.koTouches||0)<2||!inShotHalf(side)||G.rKind==='throw'))bestShot=null; // no shots straight from kick-off or a throw-in
   // only shoot with a real view of the goal: close enough and not from a tight angle (build the chance first)
-  if(G.mode==='match'&&!forceShot&&bestShot&&(distGoal>72||Math.abs(ball.x-CX)>Math.max(14,distGoal*.42)))bestShot=null;
+  if(G.mode==='match'&&!forceShot&&bestShot&&(distGoal>56||Math.abs(ball.x-CX)>Math.max(14,distGoal*.42)))bestShot=null;
   const base=Math.atan2(gy-ball.y,CX-ball.x);
   for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [6,11,17,25,36,52]){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
     let ts=(Tp.y-ball.y)*dirY*.4-Math.max(0,L-36)*.5;
-    if(Tp.x<F.l+3||Tp.x>F.r-3)ts-=40; if(Tp.y<F.t+2||Tp.y>F.b-2)ts-=40;
+    if(Tp.x<F.l+7||Tp.x>F.r-7)ts-=40; if(Tp.y<F.t+4||Tp.y>F.b-4)ts-=40;
     for(const o of opp)if(segDist(o.x,o.y,ball.x,ball.y,Tp.x,Tp.y)[0]<BR+BALLR+.3)ts-=22;
     let dn=1e9;for(const o of mine)dn=Math.min(dn,hyp(o.x-Tp.x,o.y-Tp.y));ts+=Math.max(0,18-dn)*.7;
     ts+=Math.max(0,70-hyp(Tp.x-CX,Tp.y-gy))*.25;
@@ -1792,10 +1795,10 @@ function rateOutcome(o,side,shot){
   const opp=1-side,gy=side===1?F.b:F.t,ownGy=side===1?F.t:F.b,m=o.m,ev=o.ev,bl=o.ball;
   const dGoal=hyp(bl.x-CX,bl.y-gy),dOwn=hyp(bl.x-CX,bl.y-ownGy);
   const loss=-100-Math.max(0,90-dOwn)*.9; // losing the ball hurts more near our own goal
-  if(m.foul){const fp=m.foulAt||m.ballStart,inBox=Math.abs(fp.x-CX)<PA.w/2&&Math.abs(fp.y-ownGy)<PA.d;return inBox?-700:loss-40}
+  if(m.foul){const fp=m.foulAt||m.ballStart,inBox=Math.abs(fp.x-CX)<PA.w/2&&Math.abs(fp.y-ownGy)<PA.d;return inBox?-700:loss-90}
   if(ev&&ev.type==='goal')return ev.side===side?(shot?1000:-40):-900;
   if(shot)return loss-40;
-  if(!m.moverTouched)return loss-30;
+  if(!m.moverTouched)return loss-80;
   if(ev&&ev.type==='side'){const t=(shot||m.lastTouch==null)?opp:1-m.lastTouch;return t===side?10:loss}
   if(ev&&ev.type==='end'){const def=ev.side,lt=shot?side:(m.lastTouch==null?side:m.lastTouch);
     if(def===side)return lt===def?-250:loss;  // our own goal line: corner against us, or our goal kick
@@ -1808,7 +1811,7 @@ function rateOutcome(o,side,shot){
   // we keep the ball: value where it is and whether one of our buttons can play it on
   let v=Math.max(0,(FH-dGoal))/FH*95+((bl.y-o.m.ballStart.y)*(side===1?1:-1))*.45;
   // rammed balls are hard to control: long runs of the ball cost, short controlled moves are free
-  const travel=hyp(bl.x-o.m.ballStart.x,bl.y-o.m.ballStart.y);v-=Math.max(0,travel-30)*1.2;
+  const travel=hyp(bl.x-o.m.ballStart.x,bl.y-o.m.ballStart.y);v-=Math.max(0,travel-30)*1.2;if(travel<4)v-=25;
   // space around the ball: nobody of theirs close enough to nick it
   let dOpp=1e9;for(const q of o.buttons)if(q.side!==side)dOpp=Math.min(dOpp,hyp(q.x-bl.x,q.y-bl.y));v+=clamp((dOpp-8)/18,0,1)*22;
   let play=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d>34)continue;
@@ -1833,7 +1836,7 @@ function simPick(side,cands,forced){
   // the best few by the quick estimate, at most two per target button so the list stays varied
   // shortlist: the buttons closest to the ball, a few options each (far buttons rarely flick cleanly)
   const by=new Map();for(const f of cands){if(f.shot)continue;if(!by.has(f.b))by.set(f.b,[]);by.get(f.b).push(f)}
-  const roleD=b=>{const sp=roleSpot(side,b.num,G.ball.x,G.ball.y);return hyp(b.x-G.ball.x,b.y-G.ball.y)+(sp?(.5+sp.depth)*Math.max(0,hyp(sp.x-G.ball.x,sp.y-G.ball.y)-20)*.5:0)};
+  const roleD=b=>{const sp=roleSpot(side,b.num,G.ball.x,G.ball.y);return hyp(b.x-G.ball.x,b.y-G.ball.y)+(sp?(.5+sp.depth)*Math.max(0,hyp(sp.x-G.ball.x,sp.y-G.ball.y)-20)*.2:0)};
   const near=[...by.keys()].sort((a,b)=>roleD(a)-roleD(b)).slice(0,hard?6:easy?3:5),pool=[];
   for(const b of near){const best=new Map();for(const f of by.get(b)){const o=best.get(f.L);if(!o||f.total>o.total)best.set(f.L,f)}
     pool.push(...[...best.values()].sort((x,y)=>y.total-x.total).slice(0,hard?6:5))}
@@ -1846,7 +1849,10 @@ function simPick(side,cands,forced){
       // judge each option with the same aiming error the flick will really have
       const a=Math.atan2(f.uy,f.ux)+gauss()*(.006+noise*.05+f.s*.0005*(1.4-sk)),v=clamp(f.v0*(1+gauss()*(.04+noise*.1)),VMIN,VMAX);
       const o=simFlick(f.b,Math.cos(a)*v,Math.sin(a)*v,!!f.shot,kp);if(o){const n=(G.streak&&G.streak.b===f.b?G.streak.n:0)+1;if(n>=MAX_TOUCH)o.excl=o.buttons[G.buttons.indexOf(f.b)];sum+=rateOutcome(o,side,!!f.shot)-(f.shot?0:shapeCost(o,side)*(.6+sk*.7))}}
-    rated.push({f,val:sum/runs});
+    // a few noisy trial runs flatter long-range flicks (the lucky ones look great): charge the risk measured in self-play,
+    // where flicks from 30-45 cm missed or fouled ~18% of the time, 45-70 cm ~40%, beyond that ~70%
+    const risk=200*Math.pow(clamp((f.s-22)/60,0,1),1.2)+(f.shot?0:28*(f.crowd||0));
+    rated.push({f,val:sum/runs-risk});
   }
   rated.sort((a,b)=>b.val-a.val);
   if(forced)return rated[0].f;
