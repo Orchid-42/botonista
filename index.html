@@ -519,11 +519,6 @@ button{touch-action:manipulation}
   </div>
   <button class="btn go big" id="pvpGo" data-i="pvpStart"></button>
 </div></div>
-    <div class="pvpcol"><div class="bhead"><p class="label" data-i="p2"></p><p class="label val" id="pvpN1"></p></div><div class="teams" id="pvpT1"></div>
-      <div class="seg small" id="pvpF1"></div></div>
-  </div>
-  <button class="btn go big" id="pvpGo" data-i="pvpStart"></button>
-</div></div>
 <div class="modal" id="helpModal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
   <div class="sheet-head"><h2 id="helpTitle" data-i="howto"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
   <ul class="rules" id="rulesList"></ul>
@@ -548,7 +543,7 @@ pt:{
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],roundsTiny:['Oit.','Qua.','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
  shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'Visão de cima',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
- firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
+ firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',takerNote:'A reposição é com o botão posicionado na bola.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
  penGoal:'Gol',penOver:'Por cima',penSaved:'Defendeu',youScore:'Você marca.',youMiss:'Você erra.',cpuScore:'A CPU marca.',cpuMiss:'A CPU erra.',
@@ -592,7 +587,7 @@ en:{
  rounds:['Round of 16','Quarter-finals','Semi-finals','Final'],roundsShort:['Last 16','Quarters','Semis','Final'],roundsTiny:['R16','QF','SF','Final'],tbd:'To be decided',nextMatch:'{round} · next match',play:'Kick off',
  champs:'World champions',lifts:'{t} lift the cup',outIn:'Out in the {round}',wonCopa:'{t} won the Copa',newCopa:'New Copa',newSkin:'Unlocked: {x}',
  shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'Top view',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
- firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
+ firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',takerNote:'The button placed at the ball takes the restart.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
  kickoff:'Kick-off',second:'Second half',goal:'Goal!',own:'Own goal',penalty:'Penalty!',penFor:'Your penalty.',penForCpu:'{c} penalty.',outOfTime:'Out of time. Their ball.',noGoal:'No goal',noGoalSub:'The shot wasn\'t announced. Goal kick.',
  foul:'Foul',foulYou:'Your free kick.',foulCpu:'{c} free kick.',halfTime:'Half-time',pens:'Penalties',pensSub:'Level at full time. Five kicks each.',
  penGoal:'Goal',penOver:'Over the bar',penSaved:'Saved',youScore:'You score.',youMiss:'You miss.',cpuScore:'CPU scores.',cpuMiss:'CPU misses.',
@@ -1314,7 +1309,7 @@ function kickoff(side,first){
   if(G.pvp&&side===1){flipView();side=0}
   setFormation(side);G.lock=null;G.streak=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;saveMatch('kickoff',{kside:side});
   const who=side===0?tr('youKick'):tr('cpuKick',{c:cpuC()});
-  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);G.koTaker=kicker||null;
+  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);G.koTaker=kicker||null;G.rTaker=kicker||null;G.rKind='kickoff';
   const go=()=>{
     if(side===0&&G.mode==='match'&&kicker){G.sp={kind:'kickoff',side:0,taker:kicker,msg:who};startSetup(true)}
     else{ // the CPU sets its kicker at a slight angle so the first pass goes to a teammate
@@ -1489,7 +1484,7 @@ function resolve(){
   if(V3.on)exitView();
   freeze();Snd.slide(0,0);G.phase='pause';const m=G.move,ev=G.event;
   if(G.mode==='pens')return resolvePen();
-  const mover=m.side;G.koTaker=null;
+  const mover=m.side;G.koTaker=null;G.rTaker=null;G.rKind=null;
   if(m.lastTouch!=null||m.moverTouched)G.koTouches=(G.koTouches||0)+1;
   // the ball reached a teammate: the flicker's touches reset, and a restart taker may play again
   if(m.mate){G.streak=null;if(G.lock&&G.lock.side===mover)G.lock=null}
@@ -1579,7 +1574,7 @@ function setPiece(kind,side,ev,msg){
   // every opponent leaves the ring; teammates only step off the ball
   for(const o of G.buttons){if(o===taker)continue;const R=o.side!==side?RING+.6:BR+BALLR+1,d=hyp(o.x-bx,o.y-by);
     if(d<R){const k=d||1;moveTo(o,nearestOk(bx+(o.x-bx)/k*R,by+(o.y-by)/k*R,o,R),false)}}
-  G.sp={kind,side,taker,msg};G.lock=null;G.streak=null;G.pendingLock=true;G.cam.manual=false;
+  G.sp={kind,side,taker,msg};G.rTaker=taker;G.rKind=kind;G.lock=null;G.streak=null;G.pendingLock=true;G.cam.manual=false;
   if(side===1)startSetup(false);
   else if(G.pvp){flipView('pvpSetup');startSetup(false)}
   else{G.phase='pause';setStatus(tr('cpuRepo',{c:cpuC()}));hud();cpuSetup(false);later(()=>{snapAll();setupTaker()},750)}
@@ -1718,7 +1713,9 @@ function shapeCost(o,side){
 }
 function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;const t=l?clamp(((px-ax)*vx+(py-ay)*vy)/l,0,1):0;return [hyp(px-ax-vx*t,py-ay-vy*t),t]}
 // launch speed needed to cover dist (cm) and still be moving at vEnd, with friction a and drag (the same model as step())
-function speedFor(dist,a,vEnd=0){let v=Math.max(vEnd,1);const n=Math.ceil(dist/.5),ds=dist/n;for(let i=0;i<n;i++){v+=(a+DRAG*v)/v*ds;if(v>2000)break}return v}
+// exact: with dv/ds = -(a+D v)/v the distance from speed v down to w is F(v)-F(w), F(v)=v/D - a/D² ln(a+D v)
+function speedFor(dist,a,vEnd=0){const D=DRAG,Fv=v=>v/D-a/(D*D)*Math.log(a+D*v),need=dist+Fv(vEnd);
+  let lo=vEnd,hi=4000;for(let i=0;i<50;i++){const m=(lo+hi)/2;if(Fv(m)<need)lo=m;else hi=m}return (lo+hi)/2}
 function evalFlick(b,T,D,lob){
   const ball=G.ball,dx=T.x-ball.x,dy=T.y-ball.y,dl=hyp(dx,dy);if(dl<.1)return null;
   const ddx=dx/dl,ddy=dy/dl,cx=ball.x-ddx*(BR+BALLR),cy=ball.y-ddy*(BR+BALLR);
@@ -1740,7 +1737,7 @@ function keeperShadow(k,bx,by,gy){
 function cpuPlan(side,forceShot){
   const ball=G.ball,dirY=side===1?1:-1,gy=side===1?F.b:F.t,opp=bodies().filter(b=>b.side!==side);
   let mine=bodies().filter(b=>b.side===side&&!(G.lock&&G.lock.side===side&&G.lock.b===b));
-  if(G.mode==='match'&&G.koTaker&&G.koTaker.side===side&&mine.includes(G.koTaker))mine=[G.koTaker]; // kick-off: the centre forward takes it
+  if(G.mode==='match'&&G.rTaker&&G.rTaker.side===side&&mine.includes(G.rTaker))mine=[G.rTaker]; // restarts: the button placed for it takes it
   const distGoal=hyp(ball.x-CX,ball.y-gy);
   let bestPass=null,bestShot=null;const shots=[],passes=[];
   const lo=CX-GW/2+BALLR+.8,hi=CX+GW/2-BALLR-.8;let tx=[],lob=false;
@@ -1756,11 +1753,13 @@ function cpuPlan(side,forceShot){
     for(const b of mine){const f=evalFlick(b,Tg,hyp(Tg.x-ball.x,Tg.y-ball.y)+25,lob);if(!f)continue;
       f.total=45-(distGoal-25)*.45+f.score-35*lane;f.shot=true;shots.push(f);if(!bestShot||f.total>bestShot.total)bestShot=f}}
   if(forceShot&&bestShot)return G.mode==='match'?simPick(side,shots,true)||bestShot:bestShot;
-  if(G.mode==='match'&&((G.koTouches||0)<2||!inShotHalf(side)))bestShot=null; // no shots straight from kick-off
+  if(G.mode==='match'&&((G.koTouches||0)<2||!inShotHalf(side)||G.rKind==='throw'))bestShot=null; // no shots straight from kick-off or a throw-in
+  // only shoot with a real view of the goal: close enough and not from a tight angle (build the chance first)
+  if(G.mode==='match'&&!forceShot&&bestShot&&(distGoal>72||Math.abs(ball.x-CX)>Math.max(14,distGoal*.42)))bestShot=null;
   const base=Math.atan2(gy-ball.y,CX-ball.x);
-  for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [8,16,28,42,58]){
+  for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [6,11,17,25,36,52]){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
-    let ts=(Tp.y-ball.y)*dirY*.55;
+    let ts=(Tp.y-ball.y)*dirY*.4-Math.max(0,L-36)*.5;
     if(Tp.x<F.l+3||Tp.x>F.r-3)ts-=40; if(Tp.y<F.t+2||Tp.y>F.b-2)ts-=40;
     for(const o of opp)if(segDist(o.x,o.y,ball.x,ball.y,Tp.x,Tp.y)[0]<BR+BALLR+.3)ts-=22;
     let dn=1e9;for(const o of mine)dn=Math.min(dn,hyp(o.x-Tp.x,o.y-Tp.y));ts+=Math.max(0,18-dn)*.7;
@@ -1795,6 +1794,7 @@ function rateOutcome(o,side,shot){
   const loss=-100-Math.max(0,90-dOwn)*.9; // losing the ball hurts more near our own goal
   if(m.foul){const fp=m.foulAt||m.ballStart,inBox=Math.abs(fp.x-CX)<PA.w/2&&Math.abs(fp.y-ownGy)<PA.d;return inBox?-700:loss-40}
   if(ev&&ev.type==='goal')return ev.side===side?(shot?1000:-40):-900;
+  if(shot)return loss-40;
   if(!m.moverTouched)return loss-30;
   if(ev&&ev.type==='side'){const t=(shot||m.lastTouch==null)?opp:1-m.lastTouch;return t===side?10:loss}
   if(ev&&ev.type==='end'){const def=ev.side,lt=shot?side:(m.lastTouch==null?side:m.lastTouch);
@@ -1804,9 +1804,13 @@ function rateOutcome(o,side,shot){
   const next=shot?opp:m.lastTouch;if(next!==side)return loss;
   // keeping the ball only helps if one of our buttons can actually play it next turn (the mover too, unless it is out of touches)
   let reach=0;for(const b of o.buttons){if(b.side!==side||(o.excl&&b===o.excl&&!m.mate))continue;
-    reach=Math.max(reach,clamp((34-hyp(b.x-bl.x,b.y-bl.y))/22,0,1))}
+    reach=Math.max(reach,clamp((32-hyp(b.x-bl.x,b.y-bl.y))/18,0,1))}
   // we keep the ball: value where it is and whether one of our buttons can play it on
-  let v=Math.max(0,(FH-dGoal))/FH*110+((bl.y-o.m.ballStart.y)*(side===1?1:-1))*.6;
+  let v=Math.max(0,(FH-dGoal))/FH*95+((bl.y-o.m.ballStart.y)*(side===1?1:-1))*.45;
+  // rammed balls are hard to control: long runs of the ball cost, short controlled moves are free
+  const travel=hyp(bl.x-o.m.ballStart.x,bl.y-o.m.ballStart.y);v-=Math.max(0,travel-30)*1.2;
+  // space around the ball: nobody of theirs close enough to nick it
+  let dOpp=1e9;for(const q of o.buttons)if(q.side!==side)dOpp=Math.min(dOpp,hyp(q.x-bl.x,q.y-bl.y));v+=clamp((dOpp-8)/18,0,1)*22;
   let play=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d>34)continue;
     const ux=(bl.x-b.x)/d,uy=(bl.y-b.y)/d,gx=(CX-bl.x)/(dGoal||1),gyy=(gy-bl.y)/(dGoal||1),c=ux*gx+uy*gyy;
     play=Math.max(play,(34-d)*.6+c*14)}
@@ -1816,7 +1820,9 @@ function rateOutcome(o,side,shot){
     for(const q of o.buttons)if(q.side!==side&&segDist(q.x,q.y,bl.x,bl.y,CX,gy)[0]<BR+BALLR+.4)lane*=.45;
     let sh=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d>22)continue;
       const c=((bl.x-b.x)*gx+(bl.y-b.y)*g2)/(d||1);if(c>.6)sh=Math.max(sh,(c-.6)/.4*(1-d/22))}
-    v+=70*sh*lane*(1-dGoal/75)}
+    const central=1-clamp(Math.abs(bl.x-CX)/(FW*.45),0,1);   // a central ball gives the widest view of the goal
+    v+=central*(75-dGoal)*.5;
+    v+=120*sh*lane*(1-dGoal/75)*(.5+.5*central)}
   if(bl.x<F.l+4||bl.x>F.r-4)v-=10;if(bl.y<F.t+4||bl.y>F.b-4)v-=6;
   return reach*v+(1-reach)*loss*.8;
 }
@@ -1830,7 +1836,7 @@ function simPick(side,cands,forced){
   const roleD=b=>{const sp=roleSpot(side,b.num,G.ball.x,G.ball.y);return hyp(b.x-G.ball.x,b.y-G.ball.y)+(sp?(.5+sp.depth)*Math.max(0,hyp(sp.x-G.ball.x,sp.y-G.ball.y)-20)*.5:0)};
   const near=[...by.keys()].sort((a,b)=>roleD(a)-roleD(b)).slice(0,hard?6:easy?3:5),pool=[];
   for(const b of near){const best=new Map();for(const f of by.get(b)){const o=best.get(f.L);if(!o||f.total>o.total)best.set(f.L,f)}
-    pool.push(...[...best.values()].sort((x,y)=>y.total-x.total).slice(0,hard?5:4))}
+    pool.push(...[...best.values()].sort((x,y)=>y.total-x.total).slice(0,hard?6:5))}
   for(const f of cands.filter(f=>f.shot).sort((a,b)=>b.total-a.total).slice(0,4))if(!pool.includes(f))pool.push(f);
   const kp=G.keepers.slice();kp[1-side]=forced?G.keepers[1-side]:idealKeeper(1-side);
   const noise=1-sk,rated=[];
@@ -1924,8 +1930,10 @@ cv.addEventListener('pointerdown',e=>{
   let took=false;
   if(G.phase==='aim'&&G.turn===0){
     const locked=G.lock&&G.lock.side===0?G.lock.b:null;
-    if(G.pickShot){const sb=nearestOwn(p,BR+3.5,o=>o!==locked);if(sb){Snd.hit('press',.4);enterShot(sb);cv.setPointerCapture(e.pointerId);e.preventDefault();return}}
-    const b=G.pickShot?null:nearestOwn(p,BR+3.5,o=>o!==locked);
+    if(G.pickShot){const sb=nearestOwn(p,BR+3.5,o=>o!==locked&&!(G.rTaker&&G.rTaker.side===0&&o!==G.rTaker));if(sb){Snd.hit('press',.4);enterShot(sb);cv.setPointerCapture(e.pointerId);e.preventDefault();return}}
+    const rt=G.mode==='match'&&G.rTaker&&G.rTaker.side===0?G.rTaker:null;
+    const b=G.pickShot?null:nearestOwn(p,BR+3.5,o=>o!==locked&&(!rt||o===rt));
+    if(!b&&rt&&nearestOwn(p,BR+3.5))setStatus(tr('takerNote'));
     if(!b&&locked&&hyp(locked.x-p.x,locked.y-p.y)<BR+3.5)setStatus(`${tr('yourBall')} ${tr('lockNote')}`);
     if(b){const a=Math.atan2(b.y-p.y,b.x-p.x);G.aim={b,fx:p.x,fy:p.y,pw:0,tpw:0,raw:0,ang:a,tang:a,seed:rand()*6.3};took=true;Snd.hit('press',.45)}
   }else if(G.phase==='setup'){
@@ -2010,7 +2018,7 @@ function hud(){
   if(!G)return;
   const fo=G.flipped?1:0;$('#sA').textContent=G.score[fo];$('#sB').textContent=G.score[1-fo];
   const own=(G.flipped?1-G.turn:G.turn)===0,live=G.phase!=='over';$('#possA').classList.toggle('on',own&&live);$('#possB').classList.toggle('on',!own&&live);
-  const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2&&inShotHalf(0),canAim=false;
+  const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2&&inShotHalf(0)&&G.rKind!=='throw',canAim=false;
   $('#btnShoot').disabled=!(canAnn||canAim);
   $('#btnShoot').textContent=G.announced&&G.turn===0?tr('shotOn'):tr('shoot');
   const ks=G.phase==='keeperSet';
@@ -2503,7 +2511,7 @@ function renderView(ts){
   const myTurn=G.phase==='aim'&&G.turn===0;
   for(const b of bodies()){
     const team=b.side===0?tA:tB;let glow=null;
-    if(myTurn&&b.side===0&&!(G.lock&&G.lock.b===b))glow=G.pickShot?`rgba(255,210,63,${.45+.5*pulse})`:G.aim&&G.aim.b===b?'#ffd23f':`rgba(255,255,255,${.18+.32*pulse})`;
+    if(myTurn&&b.side===0&&!(G.lock&&G.lock.b===b)&&!(G.mode==='match'&&G.rTaker&&G.rTaker.side===0&&b!==G.rTaker))glow=G.pickShot?`rgba(255,210,63,${.45+.5*pulse})`:G.aim&&G.aim.b===b?'#ffd23f':`rgba(255,255,255,${.18+.32*pulse})`;
     if(G.phase==='setup'&&b.side===0){const s=G.setup;
       if(b===G.sp.taker){if(s.taking)glow=`rgba(255,210,63,${.5+.5*pulse})`}
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
