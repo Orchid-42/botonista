@@ -477,6 +477,7 @@ button{touch-action:manipulation}
       <div class="hudbot">
         <p id="status"></p>
         <div class="row">
+          <button class="btn ghost" id="btn3D" hidden>3D</button>
           <button class="btn go" id="btnShoot"></button>
           <button class="btn icon ghost" id="btnRotL" hidden data-ia="rotL">↺</button>
           <button class="btn icon ghost" id="btnRotR" hidden data-ia="rotR">↻</button>
@@ -558,7 +559,7 @@ pt:{
  soundOn:'Som: ligado',soundOff:'Som: desligado',
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],roundsTiny:['Oit.','Qua.','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
- shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'Visão de cima',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
+ shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'2D',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
  firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',possLeft:'{n}',possTip:'Toques restantes nesta posse (máximo 10, incluindo o chute)',possOver:'Acabaram os 10 toques',possOverYou:'A posse passa para a CPU.',possOverCpu:'A bola é sua.',takerNote:'A reposição é com o botão posicionado na bola.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
@@ -594,7 +595,7 @@ en:{
  soundOn:'Sound: on',soundOff:'Sound: off',
  rounds:['Round of 16','Quarter-finals','Semi-finals','Final'],roundsShort:['Last 16','Quarters','Semis','Final'],roundsTiny:['R16','QF','SF','Final'],tbd:'To be decided',nextMatch:'{round} · next match',play:'Kick off',
  champs:'World champions',lifts:'{t} lift the cup',outIn:'Out in the {round}',wonCopa:'{t} won the Copa',newCopa:'New Copa',newSkin:'Unlocked: {x}',
- shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'Top view',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
+ shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'2D',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
  firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',possLeft:'{n}',possTip:'Flicks left in this possession (10 max, shot included)',possOver:'10 flicks used up',possOverYou:'The ball goes to the CPU.',possOverCpu:'Your ball.',takerNote:'The button placed at the ball takes the restart.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
  kickoff:'Kick-off',second:'Second half',goal:'Goal!',own:'Own goal',penalty:'Penalty!',penFor:'Your penalty.',penForCpu:'{c} penalty.',outOfTime:'Out of time. Their ball.',noGoal:'No goal',noGoalSub:'The shot wasn\'t announced. Goal kick.',
  foul:'Foul',foulYou:'Your free kick.',foulCpu:'{c} free kick.',halfTime:'Half-time',pens:'Penalties',pensSub:'Level at full time. Five kicks each.',
@@ -2367,18 +2368,20 @@ function render3D(ts){
   if(V3.btn&&(V3.mode==='shot'||V3.mode==='shotIn')&&!A){const b=V3.btn;poly3(circ(b.x,b.y,b.r+.8,0,2*PI,28).map(p=>[p[0],p[1],.1]),.22,`rgba(255,210,63,${.5+.4*pulse})`)}
   c.setTransform(DPR,0,0,DPR,0,0);vignette(c);
 }
-function shotCands(){const bl=G.ball;return bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b)).sort((a,b)=>hyp(a.x-bl.x,a.y-bl.y)-hyp(b.x-bl.x,b.y-bl.y)).slice(0,5)}
+function shotCands(){const bl=G.ball;if(G.rTaker&&G.rTaker.side===0)return [G.rTaker];return bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b)).sort((a,b)=>hyp(a.x-bl.x,a.y-bl.y)-hyp(b.x-bl.x,b.y-bl.y)).slice(0,5)}
 const angTo=(b,t)=>Math.atan2(t.y-b.y,t.x-b.x);
-function enterShot(btn){return;
+function enterShot(btn){
   if(!G||G.phase!=='aim'||G.turn!==0||(V3.on&&V3.mode!=='out'))return;
-  V3.list=shotCands();const b=btn||V3.list[0];if(!b)return;G.pickShot=false;V3.btn=b;V3.ang=angTo(b,G.ball);
+  V3.list=shotCands();V3.idx=0;const b=btn||V3.list[0];if(!b)return;G.pickShot=false;V3.btn=b;V3.ang=angTo(b,G.ball);
   const from=V3.on&&V3.pose?V3.pose:topPose();V3.on=true;V3.mode='shotIn';
   V3.anim={from,t:0,dur:1.05,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}};
   setStatus(tr('shotHelp'));hud();
 }
 function pickShooter(){return;if(!G||G.phase!=='aim'||G.turn!==0)return;const own=bodies().filter(b=>b.side===0&&!(G.lock&&G.lock.b===b));
   if(own.length===1)return enterShot(own[0]);G.pickShot=true;setStatus(tr('pickShooter'));hud()}
-function cycleShooter(){if(!V3.on||V3.mode!=='shot'||G.aim)return;exitView(pickShooter)}
+function cycleShooter(){if(!V3.on||V3.mode!=='shot'||G.aim||V3.list.length<2)return;
+  V3.idx=(V3.idx+1)%V3.list.length;V3.btn=V3.list[V3.idx];V3.ang=angTo(V3.btn,G.ball);V3.mode='shotIn';
+  V3.anim={from:V3.pose,t:0,dur:.8,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}}}
 function exitView(after){if(!V3.on)return;G.aim=G.aim&&G.aim.mode3?null:G.aim;V3.mode='out';
   V3.anim={from:V3.pose,t:0,dur:.95,to:topPose,done:()=>{V3.on=false;V3.mode=null;V3.pose=null;hud();after&&after()}};hud()}
 function v3Update(dt){
@@ -2397,10 +2400,11 @@ function v3Update(dt){
 function shotUiTick(){
   const on=!!(G&&V3.on&&(V3.mode==='shot'||V3.mode==='shotIn')&&G.phase==='aim'&&G.turn===0&&!G.paused),ui=$('#shotUi');
   if(ui.hidden===on)ui.hidden=!on;$('#stage').classList.toggle('v3',!!(G&&V3.on));
+  {const b3=$('#btn3D'),can=!!(G&&!V3.on&&G.announced&&G.phase==='aim'&&G.turn===0&&!G.paused&&!G.aim&&(G.mode==='match'||G.mode==='pens'));if(b3.hidden===can)b3.hidden=!can}
   if(!on)return;const pw=G.aim&&G.aim.mode3&&G.aim.raw>=CANCEL_PX?G.aim.pw:0;
   $('#powFill').style.transform=`scaleX(${pw})`;$('#powNum').textContent=Math.round(pw*100)+'%';
   $('#loftFill').style.transform=`scaleY(${V3.loft})`;$('#loftKnob').style.bottom=`calc(${V3.loft*100}% - 9px)`;$('#loftNum').textContent=Math.round(V3.loft*100)+'%';
-  $('#swapBtn').disabled=V3.mode!=='shot'||bodies().filter(b=>b.side===0).length<2;
+  $('#swapBtn').disabled=V3.mode!=='shot'||V3.list.length<2;
 }
 (()=>{const tr0=$('#loftTrack');let drag=false;
   const set=e=>{const r=tr0.getBoundingClientRect();V3.loft=clamp(1-(e.clientY-r.top)/r.height,0,1)};
@@ -2409,6 +2413,7 @@ function shotUiTick(){
   tr0.addEventListener('pointerup',()=>{drag=false});tr0.addEventListener('pointercancel',()=>{drag=false});
   tr0.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowRight'){V3.loft=clamp(V3.loft+.05,0,1);e.preventDefault()}if(e.key==='ArrowDown'||e.key==='ArrowLeft'){V3.loft=clamp(V3.loft-.05,0,1);e.preventDefault()}});
   $('#swapBtn').onclick=cycleShooter;
+  $('#btn3D').onclick=()=>{if(G){G.pickShot=false;enterShot()}};
   $('#topBtn').onclick=()=>{if(G&&V3.on){G.pickShot=false;exitView();setStatus(tr('announced'))}};
 })();
 
