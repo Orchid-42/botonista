@@ -573,7 +573,7 @@ pt:{
   ['Vez','Quem tocou por último na bola joga. Errou a bola, ou anunciou o chute e não fez o gol, a vez passa.'],
   ['Toques','O mesmo botão toca no máximo três vezes seguidas, contando o chute. Se a bola passar por um companheiro, a contagem zera. Em saídas, tiros de meta e faltas, quem bateu volta a jogar depois que a bola tocar num companheiro.'],
   ['Chute','Toque em Pro gol antes de bater e chute com qualquer botão seu. Só dá para chutar com a bola no campo de ataque (tocando a linha do meio já vale). Gol sem anunciar não vale.'],
-  ['Goleiro','Quando a CPU anuncia, arraste seu goleiro, gire pelas pontas ou com ↺ ↻ e toque em Pronto.'],
+  ['Goleiro','Na sua vez, arraste o goleiro pela pequena área a qualquer momento. Empurre-o contra a bola para afastar (conta como toque). Quando a CPU anuncia, posicione e gire pelas pontas ou com ↺ ↻ e toque em Pronto.'],
   ['Bola parada','Pela linha de fundo: se o último toque foi do ataque, tiro de meta do canto da pequena área; se foi da defesa, escanteio. Os adversários ficam fora do círculo. Cada lado move até quatro botões e o cobrador vai em qualquer ponto do círculo.'],
   ['Mira','Uma linha clara mostra para onde a bola vai, com um pouco de imprecisão.'],
   ['Falta','Acertar um botão adversário antes da bola é falta. A cobrança é no local do toque; dentro da área, é pênalti.'],
@@ -617,7 +617,7 @@ en:{
   ['Turns','Last touch plays next. Miss the ball, or announce a shot and fail to score, and the turn passes.'],
   ['Touches','The same button can touch the ball at most three times in a row, the shot included. If the ball reaches a teammate, the count resets. At kick-offs, goal kicks and free kicks, the taker can play again once the ball has touched a teammate.'],
   ['Shooting','Press Announce shot before you shoot, then flick with any of your buttons. You can only shoot with the ball in the attacking half (touching the halfway line counts). Unannounced goals don\'t count.'],
-  ['Keeper','When the CPU announces, drag your keeper, angle it by its ends or with ↺ ↻, then press Ready.'],
+  ['Keeper','On your turn you can drag your keeper around the six-yard box at any time. Push it into the ball to clear it (counts as a flick). When the CPU announces, set it, angle it by its ends or with ↺ ↻, then press Ready.'],
   ['Dead ball','Over the goal line: a goal kick from the nearest small-box corner if the attack touched it last, a corner if the defence did. Opponents stay outside the circle. Each side moves up to four buttons and the taker goes anywhere in the circle.'],
   ['Aim','A faint line shows where the ball will go, with a little uncertainty.'],
   ['Foul','Hitting an opponent\'s button before the ball is a foul. The free kick is taken where the buttons touched; inside the box it\'s a penalty.'],
@@ -1370,8 +1370,23 @@ function flick(btn,vx,vy,loft){
   G.event=null;G.ball.live=true;btn.vx=vx;btn.vy=vy;G.phase='moving';G.aim=null;G.cpuAim=null;G.cam.manual=false;hud();
 }
 
+function keeperKick(side,vx,vy){
+  if(G.lock)G.lock=null;G.streak=null;
+  if(G.mode==='match'){if(!G.poss||G.poss.side!==side)G.poss={side,n:0};G.poss.n++}
+  Snd.tension(0);Snd.hit('keeper',.4+.6*hyp(vx,vy)/VMAX);
+  G.move={side,btn:null,keeper:true,announced:false,moverTouched:true,lastTouch:side,foul:false,t:0,pen:false,loft:null,lofted:false,ballStart:{x:G.ball.x,y:G.ball.y}};
+  G.kt[side]=null;G.event=null;G.ball.live=true;G.ball.vx=vx;G.ball.vy=vy;G.phase='moving';G.aim=null;G.cpuAim=null;G.kdrag=null;G.cam.manual=false;hud();
+}
+const keeperFree=side=>G.mode==='match'&&!G.announced&&!(G.rTaker&&G.rTaker.side===side);
+// the keeper pose that touches the ball from the goal side, pushing it along (ux,uy); null if out of the keeper's box
+function keeperPoseFor(side,ux,uy){
+  const b=G.ball;let a=Math.atan2(-ux,uy);while(a>PI/2)a-=PI;while(a<-PI/2)a+=PI;
+  const nx=-Math.sin(a),ny=Math.cos(a),s=(nx*ux+ny*uy)>0?1:-1,off=KH/2+BALLR+.05;
+  const k={x:b.x-nx*s*off,y:b.y-ny*s*off,a},c=clampK(side,k);
+  return hyp(c.x-k.x,c.y-k.y)<.3&&Math.abs(c.a-k.a)<.01?c:null;
+}
 /* ---------- physics ---------- */
-function touchBall(btn){const m=G.move;if(!m||!G.ball.live)return;m.lastTouch=btn.side;if(btn===m.btn)m.moverTouched=true;else if(btn.side===m.side)m.mate=true}
+function touchBall(btn){const m=G.move;if(!m||!G.ball.live)return;m.lastTouch=btn.side;if(btn.side!==m.side)m.oppTouch=true;if(btn===m.btn)m.moverTouched=true;else if(btn.side===m.side)m.mate=true}
 function collide(a,b){
   const ball=a.isBall?a:b.isBall?b:null;
   if(ball&&ball.z>BTN_H)return;
@@ -1410,7 +1425,7 @@ function keeperHit(b,k,side){
   else{d=Math.sqrt(d2);nx=ex/d;ny=ey/d}
   const wx=nx*c-ny*s,wy=nx*s+ny*c,ov=b.r-d;b.x+=wx*ov;b.y+=wy*ov;
   const vn=b.vx*wx+b.vy*wy;
-  if(vn<0){b.vx-=(1+E_KEEP)*vn*wx;b.vy-=(1+E_KEEP)*vn*wy;if(vn<-.5)Snd.hit('keeper',-vn/330);if(b.isBall&&vn<-.5&&G.move&&G.ball.live)G.move.lastTouch=side}
+  if(vn<0){b.vx-=(1+E_KEEP)*vn*wx;b.vy-=(1+E_KEEP)*vn*wy;if(vn<-.5)Snd.hit('keeper',-vn/330);if(b.isBall&&vn<-.5&&G.move&&G.ball.live){G.move.lastTouch=side;if(side!==G.move.side)G.move.oppTouch=true}}
 }
 function railHit(b,v){if(v>20)Snd.hit(b.isBall?'wood':'thud',v/320)}
 function statics(b){
@@ -1513,9 +1528,9 @@ function resolve(){
     Snd.whistle(false);
     banner(tr('noGoal'),tr('noGoalSub'),1700,()=>proceed(()=>setPiece('goalkick',1-sc,ev,'')));return;
   }
-  if(ev&&ev.type==='side'){const t=(m.announced||m.lastTouch==null)?1-mover:1-m.lastTouch;return proceed(()=>setPiece('throw',t,ev,tr('throwMsg')))}
-  if(ev&&ev.type==='end'){const def=ev.side,lt=m.announced?mover:(m.lastTouch==null?mover:m.lastTouch);
-    if(ev.over)return proceed(()=>setPiece('goalkick',def,ev,tr('overMsg')));
+  if(ev&&ev.type==='side'){const t=m.announced?(m.oppTouch?mover:1-mover):m.lastTouch==null?1-mover:1-m.lastTouch;return proceed(()=>setPiece('throw',t,ev,tr('throwMsg')))}
+  if(ev&&ev.type==='end'){const def=ev.side,lt=m.announced?(m.oppTouch&&def!==mover?def:mover):(m.lastTouch==null?mover:m.lastTouch);
+    if(ev.over&&lt!==def)return proceed(()=>setPiece('goalkick',def,ev,tr('overMsg')));
     return proceed(()=>lt===def?setPiece('corner',1-def,ev,tr('cornerMsg')):setPiece('goalkick',def,ev,tr('goalkickMsg')))}
   const kh=keeperHolds();
   if(kh>=0)return proceed(()=>setPiece('goalkick',kh,{x:G.ball.x},tr('keeperMsg')));
@@ -1784,7 +1799,10 @@ function cpuPlan(side,forceShot){
     ts+=Math.max(0,70-hyp(Tp.x-CX,Tp.y-gy))*.25;
     const ownY=side===1?F.t:F.b,dOwn=hyp(Tp.x-CX,Tp.y-ownY);if(dOwn<35)ts-=(35-dOwn)*.8;
     for(const b of mine){const f=evalFlick(b,Tp,L+3,false);if(!f)continue;f.total=ts+f.score;f.L=L;passes.push(f);if(!bestPass||f.total>bestPass.total)bestPass=f}}
-  if(G.mode==='match'){const pick=simPick(side,bestShot?passes.concat(shots):passes,false);if(pick)return pick}
+  if(G.mode==='match'){let pick=simPick(side,bestShot?passes.concat(shots):passes,false);
+    const kc=keeperFree(side)?cpuKeeperClear(side):null;
+    if(kc&&(!pick||kc.val>(pick._val==null?-1e9:pick._val)+5))return kc;
+    if(pick)return pick}
   if(bestShot&&distGoal<75&&(!bestPass||bestShot.total>bestPass.total+4))return bestShot;
   if(bestPass)return bestPass;
   if(bestShot)return bestShot;
@@ -1806,13 +1824,36 @@ function simFlick(btn,vx,vy,shot,keepers){
   }finally{G=real;SIM=false}
   return out;
 }
+function simKeeperKick(side,pose,vx,vy){
+  const real=G,g=Object.assign({},real,{buttons:real.buttons.map(b=>Object.assign({},b)),ball:Object.assign({},real.ball),keepers:real.keepers.map(k=>Object.assign({},k)),event:null});
+  let out=null;G=g;SIM=true;
+  try{G.keepers[side]=Object.assign({},pose);
+    G.move={side,btn:null,keeper:true,announced:false,moverTouched:true,lastTouch:side,foul:false,t:0,pen:false,loft:null,lofted:false,ballStart:{x:G.ball.x,y:G.ball.y}};
+    G.ball.live=true;G.ball.vx=vx;G.ball.vy=vy;const dt=1/240;
+    for(let i=0;i<240*6;i++){step(dt);if(G.event)break;if(i%8===0&&stopped())break}
+    out={m:G.move,ev:G.event,ball:{x:G.ball.x,y:G.ball.y},buttons:G.buttons,kh:G.event?-1:keeperHolds(),mi:-1,start:{x:pose.x,y:pose.y},left:(real.poss&&real.poss.side===side?POSS_MAX-real.poss.n:POSS_MAX)-1};
+  }finally{G=real;SIM=false}
+  return out;
+}
+function cpuKeeperClear(side){
+  const b=G.ball,k=G.keepers[side],dirY=side===1?1:-1;
+  if(keeperDist(k,b.x,b.y)>SA.d+4)return null;
+  const sk=G.skill;let best=null;
+  for(const deg of [-65,-45,-25,-10,0,10,25,45,65]){const a=Math.atan2(dirY,0)+deg*PI/180,ux=Math.cos(a),uy=Math.sin(a);
+    const pose=keeperPoseFor(side,ux,uy);if(!pose)continue;
+    for(const sp of [140,210,280,350]){let sum=0;const runs=3;
+      for(let i=0;i<runs;i++){const aa=a+gauss()*(.02+(1-sk)*.06),vv=sp*(1+gauss()*(.05+(1-sk)*.08));
+        const o=simKeeperKick(side,pose,Math.cos(aa)*vv,Math.sin(aa)*vv);if(o)sum+=rateOutcome(o,side,false)-shapeCost(o,side)*(.6+sk*.7)}
+      const val=sum/runs;if(!best||val>best.val)best={keeper:true,side,pose,ux,uy,v0:sp,val,s:0,b:null}}}
+  return best;
+}
 function rateOutcome(o,side,shot){
   const opp=1-side,gy=side===1?F.b:F.t,ownGy=side===1?F.t:F.b,m=o.m,ev=o.ev,bl=o.ball;
   const dGoal=hyp(bl.x-CX,bl.y-gy),dOwn=hyp(bl.x-CX,bl.y-ownGy);
   let loss=-100-Math.max(0,90-dOwn)*.9; // losing the ball hurts more near our own goal
   if(m.foul){const fp=m.foulAt||m.ballStart,inBox=Math.abs(fp.x-CX)<PA.w/2&&Math.abs(fp.y-ownGy)<PA.d;return inBox?-700:loss-90}
   if(ev&&ev.type==='goal')return ev.side===side?(shot?1000:-40):-900;
-  if(shot)return loss-40;
+  if(shot){if(m.oppTouch&&ev&&ev.type==='side')return 10;if(m.oppTouch&&ev&&ev.type==='end'&&ev.side===opp)return 60;return loss-40}
   if(o.left!=null&&o.left<=0)loss-=70;  // the 10th flick without a shot gives the ball away: worse than any try at goal
   if(!m.moverTouched)return loss-80;
   if(ev&&ev.type==='side'){const t=(shot||m.lastTouch==null)?opp:1-m.lastTouch;return t===side?10:loss}
@@ -1880,6 +1921,7 @@ function simPick(side,cands,forced){
     rated.push({f,val:sum/runs-risk});
   }
   rated.sort((a,b)=>b.val-a.val);
+  for(const r of rated)r.f._val=r.val;
   if(forced)return rated[0].f;
   // easier sides sometimes take a lesser option; normal only rarely, and never a clearly bad one
   let k=0;if(easy&&rand()<.45)k=Math.min(rated.length-1,1+Math.floor(rand()*3));else if(!hard&&rand()<.15)k=1;
@@ -1893,6 +1935,9 @@ function cpuTurn(){
   else execPlan(plan);
 }
 function execPlan(p){
+  if(p.keeper){const sk=G.skill,a=Math.atan2(p.uy,p.ux)+gauss()*(.02+(1-sk)*.06),v=p.v0*(1+gauss()*(.05+(1-sk)*.08));
+    G.phase='cpuAim';G.kt[p.side]={x:p.pose.x,y:p.pose.y,a:p.pose.a};hud();
+    later(()=>{G.keepers[p.side]=Object.assign({},p.pose);G.kt[p.side]=null;keeperKick(p.side,Math.cos(a)*v,Math.sin(a)*v)},700);return}
   const sk=G.skill,sig=.006+(1-sk)*.05+p.s*.0005*(1.4-sk),a=Math.atan2(p.uy,p.ux)+gauss()*sig;
   const v=clamp(p.v0*(1+gauss()*(.04+(1-sk)*.1)),VMIN,VMAX);
   G.phase='cpuAim';G.cpuAim={b:p.b,ux:Math.cos(a),uy:Math.sin(a),pw:0,tpw:pwOf(v)};hud();Snd.hit('press',.5);
@@ -1958,8 +2003,11 @@ cv.addEventListener('pointerdown',e=>{
     e.preventDefault();return}
   const {sx,sy}=evPos(e),p=toWorld(sx,sy);
   const mr=miniRect();if(S>FIT*1.12&&sx>=mr.x&&sx<=mr.x+mr.w&&sy>=mr.y&&sy<=mr.y+mr.h){G.cam.manual=true;let mx=(sx-mr.x)/mr.w*TW,my=(sy-mr.y)/mr.h*TH;if(G.flipped){mx=2*CX-mx;my=2*CY-my}const c=camClamp(mx,my);G.cam.x=c.x;G.cam.y=c.y;return}
-  let took=false;
-  if(G.phase==='aim'&&G.turn===0){
+  let took=false;const nearBall=k=>keeperDist(k,G.ball.x,G.ball.y)<BALLR+2;
+  if(G.phase==='aim'&&G.turn===0&&G.mode==='match'&&!G.pickShot&&!took){const k=G.keepers[0],{lx,ly}=keeperLocal(k,p.x,p.y);
+    if(Math.abs(lx)<KW/2+.6&&Math.abs(ly)<KH/2+1.2){const rot=Math.abs(lx)>KW/2-1.3&&!nearBall(k);
+      G.kt[0]=null;G.kdrag=rot?{rot:true,end:Math.sign(lx)||1,free:true}:{rot:false,ox:k.x-p.x,oy:k.y-p.y,free:true,hist:[{t:performance.now(),x:k.x,y:k.y}]};took=true;Snd.hit('press',.3)}}
+  if(G.phase==='aim'&&G.turn===0&&!took){
     const locked=G.lock&&G.lock.side===0?G.lock.b:null;
     if(G.pickShot){const sb=nearestOwn(p,BR+3.5,o=>o!==locked&&!(G.rTaker&&G.rTaker.side===0&&o!==G.rTaker));if(sb){Snd.hit('press',.4);enterShot(sb);cv.setPointerCapture(e.pointerId);e.preventDefault();return}}
     const rt=G.mode==='match'&&G.rTaker&&G.rTaker.side===0?G.rTaker:null;
@@ -1993,9 +2041,24 @@ cv.addEventListener('pointermove',e=>{
     a.raw=px;a.tpw=px<CANCEL_PX?0:Math.min(1,(px-CANCEL_PX)/RANGE_PX);
     if(px>4)a.tang=Math.atan2(dy,dx)}
   if(G.pan){G.cam.manual=true;const f=G.flipped?-1:1,c=camClamp(G.pan.cx-f*(sx-G.pan.sx)/S,G.pan.cy-f*(sy-G.pan.sy)/S);G.cam.x=c.x;G.cam.y=c.y}
-  if(G.kdrag){const k=G.keepers[0];
-    if(G.kdrag.rot){let a=Math.atan2(p.y-k.y,p.x-k.x);if(G.kdrag.end<0)a+=PI;while(a>PI/2)a-=PI;while(a<-PI/2)a+=PI;G.keepers[0]=clampK(0,{x:k.x,y:k.y,a})}
-    else G.keepers[0]=clampK(0,{x:p.x+G.kdrag.ox,y:p.y+G.kdrag.oy,a:k.a})}
+  if(G.kdrag){const k=G.keepers[0],kd=G.kdrag;let nk;
+    if(kd.rot){let a=Math.atan2(p.y-k.y,p.x-k.x);if(kd.end<0)a+=PI;while(a>PI/2)a-=PI;while(a<-PI/2)a+=PI;nk=clampK(0,{x:k.x,y:k.y,a})}
+    else nk=clampK(0,{x:p.x+kd.ox,y:p.y+kd.oy,a:k.a});
+    if(kd.free&&G.phase==='aim'){const b=G.ball;
+      if(keeperDist(nk,b.x,b.y)<BALLR){
+        // fast drags can jump past the ball: find where along the drag the keeper first meets it
+        {const L=t=>({x:k.x+(nk.x-k.x)*t,y:k.y+(nk.y-k.y)*t,a:k.a+(nk.a-k.a)*t});let lo=0,hi=1;
+          if(keeperDist(k,b.x,b.y)>=BALLR){for(let i=0;i<20;i++){const m=(lo+hi)/2;if(keeperDist(L(m),b.x,b.y)<BALLR)hi=m;else lo=m}nk=L(hi)}}
+        // pushed into the ball: a clearance if it was a real push, otherwise the ball just stops the keeper
+        const now=performance.now(),h=kd.hist||[],o=h.find(q=>now-q.t<90)||h[h.length-1];
+        const dtt=o?Math.max(.016,(now-o.t)/1000):1,vx=o?(nk.x-o.x)/dtt:0,vy=o?(nk.y-o.y)/dtt:0;
+        const {lx,ly,c,s:sn}=keeperLocal(nk,b.x,b.y),qx=clamp(lx,-KW/2,KW/2),qy=clamp(ly,-KH/2,KH/2);
+        let ex=lx-qx,ey=ly-qy,ed=hyp(ex,ey);if(ed<1e-4){ex=0;ey=Math.sign(ly)||1;ed=1}
+        const wx=(ex*c-ey*sn)/ed,wy=(ex*sn+ey*c)/ed,vn=vx*wx+vy*wy;
+        if(vn>25&&keeperFree(0)){G.keepers[0]=nk;const sp=clamp(vn*1.7,90,360);keeperKick(0,wx*sp+vx*.25,wy*sp+vy*.25);return}
+        nk=k}
+      if(kd.hist){kd.hist.push({t:performance.now(),x:nk.x,y:nk.y});if(kd.hist.length>8)kd.hist.shift()}}
+    G.keepers[0]=nk}
   if(G.sdrag){const d=G.sdrag,b=d.b,ball=G.ball;let x=p.x+d.ox,y=p.y+d.oy;
     const ex=x-ball.x,ey=y-ball.y,ed=hyp(ex,ey)||1;
     if(d.taker){const dd=clamp(ed,BR+BALLR+.4,RING);x=ball.x+ex/ed*dd;y=ball.y+ey/ed*dd;if(G.sp.kind==='kickoff')y=Math.max(y,CY+.2)}
