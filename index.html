@@ -470,7 +470,7 @@ button{touch-action:manipulation}
         <div class="pens" id="pens" hidden></div>
       </div>
       <div class="shotui" id="shotUi" hidden>
-        <div class="loft"><span class="label" data-i="height"></span><div class="ltrack" id="loftTrack" tabindex="0" role="slider" data-ia="height"><i id="loftFill"></i><b id="loftKnob"></b></div><span class="mono" id="loftNum">0%</span></div>
+        <div class="loft" style="display:none"><span class="label" data-i="height"></span><div class="ltrack" id="loftTrack" tabindex="0" role="slider" data-ia="height"><i id="loftFill"></i><b id="loftKnob"></b></div><span class="mono" id="loftNum">0%</span></div>
         <div class="pow"><span class="label" data-i="power"></span><div class="ptrack"><i id="powFill"></i></div><span class="mono" id="powNum">0%</span></div>
         <div class="shotbtns"><button class="btn ghost" id="swapBtn" data-i="swap"></button><button class="btn ghost" id="topBtn" data-i="topView"></button></div>
       </div>
@@ -559,7 +559,7 @@ pt:{
  soundOn:'Som: ligado',soundOff:'Som: desligado',
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],roundsTiny:['Oit.','Qua.','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
- shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'2D',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
+ shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'2D',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. Com força suficiente a bola sobe.',ready:'Pronto',done:'Feito',
  firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',possLeft:'{n}',possTip:'Toques restantes nesta posse (máximo 10, incluindo o chute)',possOver:'Acabaram os 10 toques',possOverYou:'A posse passa para a CPU.',possOverCpu:'A bola é sua.',takerNote:'A reposição é com o botão posicionado na bola.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
@@ -595,7 +595,7 @@ en:{
  soundOn:'Sound: on',soundOff:'Sound: off',
  rounds:['Round of 16','Quarter-finals','Semi-finals','Final'],roundsShort:['Last 16','Quarters','Semis','Final'],roundsTiny:['R16','QF','SF','Final'],tbd:'To be decided',nextMatch:'{round} · next match',play:'Kick off',
  champs:'World champions',lifts:'{t} lift the cup',outIn:'Out in the {round}',wonCopa:'{t} won the Copa',newCopa:'New Copa',newSkin:'Unlocked: {x}',
- shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'2D',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
+ shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'2D',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Hit it hard enough and the ball lifts.',ready:'Ready',done:'Done',
  firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',possLeft:'{n}',possTip:'Flicks left in this possession (10 max, shot included)',possOver:'10 flicks used up',possOverYou:'The ball goes to the CPU.',possOverCpu:'Your ball.',takerNote:'The button placed at the ball takes the restart.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
  kickoff:'Kick-off',second:'Second half',goal:'Goal!',own:'Own goal',penalty:'Penalty!',penFor:'Your penalty.',penForCpu:'{c} penalty.',outOfTime:'Out of time. Their ball.',noGoal:'No goal',noGoalSub:'The shot wasn\'t announced. Goal kick.',
  foul:'Foul',foulYou:'Your free kick.',foulCpu:'{c} free kick.',halfTime:'Half-time',pens:'Penalties',pensSub:'Level at full time. Five kicks each.',
@@ -2101,7 +2101,7 @@ cv.addEventListener('pointermove',e=>{
 const endPtr=()=>{
   if(!G)return;
   if(G.aim){const a=G.aim;G.aim=null;Snd.tension(0);
-    if(G.phase==='aim'&&a.raw>=CANCEL_PX&&a.tpw>0){const v=vOf(a.pw);if(a.mode3){V3.ang=a.ang;V3.mode='chase';const b0=a.b,p0=shotPose(b0,a.ang);V3.chaseBase={x:p0.x-Math.cos(a.ang)*6,y:p0.y-Math.sin(a.ang)*6,z:p0.z+5,yaw:a.ang,pitch:p0.pitch-.06};V3.chaseYaw=a.ang}flick(a.b,Math.cos(a.ang)*v,Math.sin(a.ang)*v,a.mode3?V3.loft:null)}else if(a.raw>4)setStatus(tr('cancelled'))}
+    if(G.phase==='aim'&&a.raw>=CANCEL_PX&&a.tpw>0){const v=vOf(a.pw);if(a.mode3){V3.ang=a.ang;V3.mode='chase';const b0=a.b,p0=shotPose(b0,a.ang);V3.chaseBase={x:p0.x-Math.cos(a.ang)*6,y:p0.y-Math.sin(a.ang)*6,z:p0.z+5,yaw:a.ang,pitch:p0.pitch-.06};V3.chaseYaw=a.ang}flick(a.b,Math.cos(a.ang)*v,Math.sin(a.ang)*v,null)}else if(a.raw>4)setStatus(tr('cancelled'))}
   G.kdrag=null;G.sdrag=null;G.pan=null;
 };
 cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',()=>{if(G){G.aim=null;G.kdrag=null;G.sdrag=null;G.pan=null;Snd.tension(0)}});
@@ -2360,7 +2360,7 @@ function render3D(ts){
     if(it.o&&it.o!==sh&&shS&&it.d<shC[2]){const q=toC(it.o.x,it.o.y,.3);if(q[2]>NEAR){const p=scr(q),rad=CV.F*(it.o.r||3)/q[2]+CV.F*sh.r/shC[2];if(hyp(p[0]-shS[0],p[1]-shS[1])<rad)al=Math.min(al,.32)}}
     if(al<=.02)continue;c.globalAlpha=al;it.f();c.globalAlpha=1}
   // predicted flight of the ball, with its height
-  if(A&&A.raw>=CANCEL_PX&&A.pw>.005){const pr=predictBall(A.b,A.ang,A.pw,A.seed,ts,V3.loft,70);
+  if(A&&A.raw>=CANCEL_PX&&A.pw>.005){const pr=predictBall(A.b,A.ang,A.pw,A.seed,ts,null,70);
     if(pr){for(let i=1;i<pr.length;i++){const t=i/pr.length,[x0,y0,z0]=pr[i-1],[x1,y1,z1]=pr[i];c.setLineDash(z0>BTN_H?[4,4]:[]);seg3([x0,y0,z0+.3],[x1,y1,z1+.3],.22,`rgba(255,255,255,${.75*(1-t)+.15})`)}
       c.setLineDash([]);const e=pr[pr.length-1];poly3(circ(e[0],e[1],BALLR*1.3,0,2*PI,14).map(p=>[p[0],p[1],e[2]+.05]),.15,'rgba(255,255,255,.5)')}}
   if(A&&A.raw>4&&A.raw<CANCEL_PX){const b=A.b;c.setLineDash([5,4]);poly3(circ(b.x,b.y,b.r+1.4,0,2*PI,28).map(p=>[p[0],p[1],.1]),.25,'rgba(255,120,100,.9)');c.setLineDash([])}
@@ -2403,7 +2403,7 @@ function shotUiTick(){
   {const b3=$('#btn3D'),can=!!(G&&!V3.on&&G.announced&&G.phase==='aim'&&G.turn===0&&!G.paused&&!G.aim&&(G.mode==='match'||G.mode==='pens'));if(b3.hidden===can)b3.hidden=!can}
   if(!on)return;const pw=G.aim&&G.aim.mode3&&G.aim.raw>=CANCEL_PX?G.aim.pw:0;
   $('#powFill').style.transform=`scaleX(${pw})`;$('#powNum').textContent=Math.round(pw*100)+'%';
-  $('#loftFill').style.transform=`scaleY(${V3.loft})`;$('#loftKnob').style.bottom=`calc(${V3.loft*100}% - 9px)`;$('#loftNum').textContent=Math.round(V3.loft*100)+'%';
+  $('#powFill').style.background=powerColor(pw); // like the top view: yellow lifts the ball, red usually clears the bar
   $('#swapBtn').disabled=V3.mode!=='shot'||V3.list.length<2;
 }
 (()=>{const tr0=$('#loftTrack');let drag=false;
