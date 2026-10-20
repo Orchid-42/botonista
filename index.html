@@ -355,6 +355,11 @@ button{touch-action:manipulation}
 #qMode button,#qDiff button,#qGoals button{white-space:nowrap;padding-inline:14px}
 #qGoals button{min-width:48px}
 #qHint{margin:4px 0 14px!important;line-height:1.45}
+.possctr{display:flex;align-items:center;gap:6px;margin-top:4px;padding:2px 8px;border-radius:999px;background:rgba(5,12,32,.55);color:#dfe6f5;font:600 10.5px/1 var(--mono);letter-spacing:.04em;align-self:center}
+.possctr #possDots{display:flex;gap:2.5px}
+.possctr i{width:5px;height:5px;border-radius:50%;background:var(--pc,#ffd23f)}
+.possctr i.u{opacity:.22}
+.possctr.low b{color:#ff8a6b}
 </style>
 
 <div id="fade"></div>
@@ -452,6 +457,7 @@ button{touch-action:manipulation}
           <span class="tm away" id="possB"><b id="aName"></b><span class="disc" id="aDisc"></span></span>
         </div>
         <div class="bugtag" id="clock"></div>
+        <div class="possctr" id="possCtr" hidden><span id="possDots"></span><b id="possN"></b></div>
         <div class="pens" id="pens" hidden></div>
       </div>
       <div class="shotui" id="shotUi" hidden>
@@ -543,7 +549,7 @@ pt:{
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],roundsTiny:['Oit.','Qua.','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
  shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'Visão de cima',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força e arraste para os lados para mirar. A altura fica à direita.',ready:'Pronto',done:'Feito',
- firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',takerNote:'A reposição é com o botão posicionado na bola.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
+ firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',possLeft:'{n}',possTip:'Toques restantes nesta posse (máximo 10, incluindo o chute)',possOver:'Acabaram os 10 toques',possOverYou:'A posse passa para a CPU.',possOverCpu:'A bola é sua.',takerNote:'A reposição é com o botão posicionado na bola.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
  penGoal:'Gol',penOver:'Por cima',penSaved:'Defendeu',youScore:'Você marca.',youMiss:'Você erra.',cpuScore:'A CPU marca.',cpuMiss:'A CPU erra.',
@@ -587,7 +593,7 @@ en:{
  rounds:['Round of 16','Quarter-finals','Semi-finals','Final'],roundsShort:['Last 16','Quarters','Semis','Final'],roundsTiny:['R16','QF','SF','Final'],tbd:'To be decided',nextMatch:'{round} · next match',play:'Kick off',
  champs:'World champions',lifts:'{t} lift the cup',outIn:'Out in the {round}',wonCopa:'{t} won the Copa',newCopa:'New Copa',newSkin:'Unlocked: {x}',
  shoot:'Announce shot',shotOn:'Shot announced',aimView:'Aim',height:'Height',power:'Power',swap:'Pick another',pickShooter:'<strong>Who\'s shooting?</strong> Tap the button that will take the shot.',topView:'Top view',shotHelp:'<strong>Line up the shot.</strong> Drag down for power and sideways to aim. Height is on the right.',ready:'Ready',done:'Done',
- firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',takerNote:'The button placed at the ball takes the restart.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
+ firstTo:'First to {n}',lockNote:'The button that restarted play can\'t touch it again until a teammate has.',possLeft:'{n}',possTip:'Flicks left in this possession (10 max, shot included)',possOver:'10 flicks used up',possOverYou:'The ball goes to the CPU.',possOverCpu:'Your ball.',takerNote:'The button placed at the ball takes the restart.',streakNote:'That button has touched it three times in a row: play another.',koNote:'After kick-off the ball needs two touches before a shot.',cancelled:'Flick cancelled.',h1:'1ST',h2:'2ND',pensClock:'PENALTIES',half1:'1st half',half2:'2nd half',pensWord:'penalties',
  kickoff:'Kick-off',second:'Second half',goal:'Goal!',own:'Own goal',penalty:'Penalty!',penFor:'Your penalty.',penForCpu:'{c} penalty.',outOfTime:'Out of time. Their ball.',noGoal:'No goal',noGoalSub:'The shot wasn\'t announced. Goal kick.',
  foul:'Foul',foulYou:'Your free kick.',foulCpu:'{c} free kick.',halfTime:'Half-time',pens:'Penalties',pensSub:'Level at full time. Five kicks each.',
  penGoal:'Goal',penOver:'Over the bar',penSaved:'Saved',youScore:'You score.',youMiss:'You miss.',cpuScore:'CPU scores.',cpuMiss:'CPU misses.',
@@ -634,7 +640,7 @@ const inShotHalf=side=>side===0?G.ball.y-BALLR<=CY:G.ball.y+BALLR>=CY;
 const GW=21, GD=5.5, POSTR=0.7;
 const MAX_TOUCH=3; // the same button can touch the ball at most three times in a row, the shot included
 const BR=3.0, BALLR=1.1, KW=8.5, KH=2.6;
-const SA={w:34,d:9}, PA={w:68,d:27}, SPOT=19, CIRC=15;
+const SA={w:34,d:9}, PA={w:68,d:27}, SPOT=19, CIRC=15, POSS_MAX=10;
 const A_BTN=520, A_BALL=340, DRAG=1.4, AIR_DRAG=.25, VMAX=400, VMIN=40;
 const LIFT_T=300, LIFT_K=.35, GRAV=500, BAR=5.5, BTN_H=1.6, KEEP_H=3.8, BOUNCE=.35;
 /* power 0..1 -> flick speed. The ball's roll distance grows with power^1.6, so small pulls give
@@ -1266,7 +1272,7 @@ function saveMatch(at,extra){
   if(!G||G.phase==='over'||SIM)return;
   const bi=b=>G.buttons.indexOf(b);
   prefs.match=Object.assign({v:1,at,pvp:G.pvp,quick:G.quick,cpu:G.cpuDiff,goals:G.goals,cup:G.quick?G.cup:(T&&T.cup)||'wc',tkey:G.tkey||'',flipped:G.flipped,teams:G.teams.slice(),score:G.score.slice(),forms:G.forms.slice(),
-    half:G.half,mode:G.mode,kickFirst:G.kickFirst,skill:G.skill,cpuForm:G.cpuForm,hat:G.hat,turn:G.turn,koTouches:G.koTouches||0,pendingLock:!!G.pendingLock,
+    poss:G.poss||null,half:G.half,mode:G.mode,kickFirst:G.kickFirst,skill:G.skill,cpuForm:G.cpuForm,hat:G.hat,turn:G.turn,koTouches:G.koTouches||0,pendingLock:!!G.pendingLock,
     buttons:G.buttons.map(b=>({x:+b.x.toFixed(3),y:+b.y.toFixed(3),side:b.side,num:b.num,rot:+(b.rot||0).toFixed(3)})),ball:{x:+G.ball.x.toFixed(3),y:+G.ball.y.toFixed(3)},
     keepers:cl(G.keepers),kt:cl(G.kt),pens:G.pens?cl(G.pens):null,
     lock:G.lock&&bi(G.lock.b)>=0?{i:bi(G.lock.b),side:G.lock.side,streak:!!G.lock.streak}:null,
@@ -1280,6 +1286,7 @@ function resumeSaved(){const m=prefs.match;if(!matchValid(m)){clearMatch();retur
   goFade(()=>startMatch(o[0],o[1],(m.pvp||m.quick)?{cup:m.cup,forms:of,cpu:m.cpu||null,goals:m.goals||3}:null,m));return true}
 function restoreMatch(m){
   if(m.flipped)flipView();
+  if(m.poss)G.poss={side:m.poss.side,n:m.poss.n};
   Object.assign(G,{score:m.score.slice(),forms:m.forms.slice(),half:m.half,mode:m.mode,skill:m.skill,cpuForm:m.cpuForm,hat:m.hat,koTouches:m.koTouches,pendingLock:m.pendingLock,kickFirst:m.kickFirst});
   G.buttons=m.buttons.map(b=>({x:b.x,y:b.y,vx:0,vy:0,r:BR,m:3,side:b.side,num:b.num,rot:b.rot||0,w:0}));
   G.ball=newBall(m.ball.x,m.ball.y);G.keepers=cl(m.keepers);G.kt=cl(m.kt);G.pens=m.pens?cl(m.pens):null;
@@ -1309,7 +1316,7 @@ function kickoff(side,first){
   if(G.pvp&&side===1){flipView();side=0}
   setFormation(side);G.lock=null;G.streak=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;saveMatch('kickoff',{kside:side});
   const who=side===0?tr('youKick'):tr('cpuKick',{c:cpuC()});
-  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);G.koTaker=kicker||null;G.rTaker=kicker||null;G.rKind='kickoff';
+  const kicker=G.buttons.find(b=>b.side===side&&b.num===9);G.koTaker=kicker||null;G.rTaker=kicker||null;G.rKind='kickoff';G.poss={side,n:0};
   const go=()=>{
     if(side===0&&G.mode==='match'&&kicker){G.sp={kind:'kickoff',side:0,taker:kicker,msg:who};startSetup(true)}
     else{ // the CPU sets its kicker at a slight angle so the first pass goes to a teammate
@@ -1328,6 +1335,7 @@ function flipView(label){
   G.turn=1-G.turn;if(G.lock)G.lock.side=1-G.lock.side;if(G.sp)G.sp.side=1-G.sp.side;
   if(G.pkBtn){G.pkBtn.x=2*CX-G.pkBtn.x;G.pkBtn.y=2*CY-G.pkBtn.y;G.pkBtn.side=1-G.pkBtn.side}
   if(G.pens){G.pens.k.reverse();G.pens.shooter=1-G.pens.shooter}
+  if(G.poss)G.poss={side:1-G.poss.side,n:G.poss.n};
   if(G.event){G.event.x=2*CX-G.event.x;G.event.y=2*CY-G.event.y;if(G.event.side!=null)G.event.side=1-G.event.side}
   G.kickFirst=1-G.kickFirst;G.cam.x=2*CX-G.cam.x;G.cam.y=2*CY-G.cam.y;G.cam.vx=0;G.cam.vy=0;G.cam.manual=false;
   G.flipped=!G.flipped;G.aim=null;G.sdrag=null;G.kdrag=null;G.pan=null;
@@ -1354,6 +1362,7 @@ function flick(btn,vx,vy,loft){
   if(G.lock&&btn!==G.lock.b)G.lock=null;
   if(G.mode==='match'){if(!G.streak||G.streak.b!==btn)G.streak={b:btn,n:0};G.streak.n++}
   if(G.pendingLock){G.lock={b:btn,side:btn.side};G.pendingLock=false}
+  if(G.mode==='match'){if(!G.poss||G.poss.side!==btn.side)G.poss={side:btn.side,n:0};G.poss.n++}
   const pen=!!G.penKick;G.penKick=false;
   Snd.tension(0);Snd.hit('flick',.3+.7*hyp(vx,vy)/VMAX);
   G.move={side:btn.side,btn,announced:G.announced,moverTouched:false,lastTouch:null,foul:false,t:0,pen,loft:loft==null?null:loft,lofted:false,ballStart:{x:G.ball.x,y:G.ball.y}};
@@ -1517,6 +1526,9 @@ function resolve(){
   if(m.announced){next=1-mover;msg=mover===0?tr('shotMissYou'):tr('shotMissCpu')}
   else if(!m.moverTouched){next=1-mover;msg=mover===0?tr('missYou'):tr('missCpu')}
   else{next=m.lastTouch;if(next!==mover)msg=tr('deflect')}
+  if(next===mover&&G.poss&&G.poss.side===mover&&G.poss.n>=POSS_MAX){
+    const t=TEAMS[G.teams[1-mover]];
+    return banner(tr('possOver'),G.pvp?tn(t):mover===0?tr('possOverYou'):tr('possOverCpu'),1300,()=>proceed(()=>{G.poss={side:1-mover,n:0};beginTurn(1-mover,'')}))}
   proceed(()=>beginTurn(next,msg));
 }
 function goalFor(sc,label,lob){
@@ -1574,7 +1586,7 @@ function setPiece(kind,side,ev,msg){
   // every opponent leaves the ring; teammates only step off the ball
   for(const o of G.buttons){if(o===taker)continue;const R=o.side!==side?RING+.6:BR+BALLR+1,d=hyp(o.x-bx,o.y-by);
     if(d<R){const k=d||1;moveTo(o,nearestOk(bx+(o.x-bx)/k*R,by+(o.y-by)/k*R,o,R),false)}}
-  G.sp={kind,side,taker,msg};G.rTaker=taker;G.rKind=kind;G.lock=null;G.streak=null;G.pendingLock=true;G.cam.manual=false;
+  G.sp={kind,side,taker,msg};G.rTaker=taker;G.rKind=kind;G.poss={side,n:0};G.lock=null;G.streak=null;G.pendingLock=true;G.cam.manual=false;
   if(side===1)startSetup(false);
   else if(G.pvp){flipView('pvpSetup');startSetup(false)}
   else{G.phase='pause';setStatus(tr('cpuRepo',{c:cpuC()}));hud();cpuSetup(false);later(()=>{snapAll();setupTaker()},750)}
@@ -1716,7 +1728,7 @@ function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;const 
 // exact: with dv/ds = -(a+D v)/v the distance from speed v down to w is F(v)-F(w), F(v)=v/D - a/D² ln(a+D v)
 function speedFor(dist,a,vEnd=0){const D=DRAG,Fv=v=>v/D-a/(D*D)*Math.log(a+D*v),need=dist+Fv(vEnd);
   let lo=vEnd,hi=4000;for(let i=0;i<50;i++){const m=(lo+hi)/2;if(Fv(m)<need)lo=m;else hi=m}return (lo+hi)/2}
-function evalFlick(b,T,D,lob){
+function evalFlick(b,T,D,lob,vbo){
   const ball=G.ball,dx=T.x-ball.x,dy=T.y-ball.y,dl=hyp(dx,dy);if(dl<.1)return null;
   const ddx=dx/dl,ddy=dy/dl,cx=ball.x-ddx*(BR+BALLR),cy=ball.y-ddy*(BR+BALLR);
   const sx=cx-b.x,sy=cy-b.y,s=hyp(sx,sy);if(s<.4)return null;
@@ -1724,7 +1736,7 @@ function evalFlick(b,T,D,lob){
   const [bd,bt]=segDist(ball.x,ball.y,b.x,b.y,cx,cy);if(bd<BR+BALLR-.1&&bt<.97)return null;
   let block=0,foul=0;for(const o of bodies())if(o!==b&&segDist(o.x,o.y,b.x,b.y,cx,cy)[0]<BR*2-.3){block++;if(o.side!==b.side)foul++}
   for(const k of G.keepers){const [kd]=segDist(k.x,k.y,b.x,b.y,cx,cy);if(kd<BR+KW/2-1)block++}
-  const vb=lob?495:Math.min(LIFT_T-15,speedFor(D,A_BALL)),vc=Math.max(vb/(1.41*cos),70);
+  const vb=vbo||(lob?495:Math.min(LIFT_T-15,speedFor(D,A_BALL))),vc=Math.max(vb/(1.41*cos),70);
   let v0=speedFor(s,A_BTN,vc),weak=false;if(v0>VMAX){if(v0>VMAX*1.08)return null;v0=VMAX;weak=true}
   // crowding: opponents beside the button's path or just past the contact point (where the button carries on) mean likely fouls
   let crowd=0;const ex=cx+ddx*8,ey=cy+ddy*8;
@@ -1753,12 +1765,15 @@ function cpuPlan(side,forceShot){
   }else tx=[lo+2,hi-2];
   for(const x of tx){const Tg={x,y:gy+dirY*2};let lane=0;
     if(!lob)for(const o of opp)if(segDist(o.x,o.y,ball.x,ball.y,Tg.x,Tg.y)[0]<BR+BALLR+.2)lane++;
-    for(const b of mine){const f=evalFlick(b,Tg,hyp(Tg.x-ball.x,Tg.y-ball.y)+25,lob);if(!f)continue;
-      f.total=45-(distGoal-25)*.45+f.score-35*lane;f.shot=true;shots.push(f);if(!bestShot||f.total>bestShot.total)bestShot=f}}
+    for(const b of mine)for(const vbo of (distGoal>34&&!lob?[0,430,470,500]:[0])){const f=evalFlick(b,Tg,hyp(Tg.x-ball.x,Tg.y-ball.y)+25,lob,vbo||0);if(!f)continue;
+      f.total=45-(distGoal-25)*.45+f.score-(vbo?8:35*lane);f.shot=true;f.lift=vbo;shots.push(f);if(!bestShot||f.total>bestShot.total)bestShot=f}}
   if(forceShot&&bestShot)return G.mode==='match'?simPick(side,shots,true)||bestShot:bestShot;
   if(G.mode==='match'&&((G.koTouches||0)<2||!inShotHalf(side)||G.rKind==='throw'))bestShot=null; // no shots straight from kick-off or a throw-in
   // only shoot with a real view of the goal: close enough and not from a tight angle (build the chance first)
-  if(G.mode==='match'&&!forceShot&&bestShot&&(distGoal>56||Math.abs(ball.x-CX)>Math.max(14,distGoal*.42)))bestShot=null;
+  const flicksLeft=G.poss&&G.poss.side===side?POSS_MAX-G.poss.n:POSS_MAX;
+  if(G.mode==='match'&&!forceShot&&bestShot&&flicksLeft>1&&(distGoal>92||Math.abs(ball.x-CX)>Math.max(14,distGoal*.42)))bestShot=null;
+  // last flick of the attack: it has to be a try at goal (pick the best one in trial runs)
+  if(G.mode==='match'&&flicksLeft===1&&bestShot)return simPick(side,shots.filter(f=>f.total>-1e8),true)||bestShot;
   const base=Math.atan2(gy-ball.y,CX-ball.x);
   for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [6,11,17,25,36,52]){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
@@ -1787,17 +1802,18 @@ function simFlick(btn,vx,vy,shot,keepers){
     G.ball.live=true;b.vx=vx;b.vy=vy;
     const dt=1/240;
     for(let i=0;i<240*6;i++){step(dt);if(G.event||G.move.foul&&i>40)break;if(i%8===0&&stopped())break}
-    out={m:G.move,ev:G.event,ball:{x:G.ball.x,y:G.ball.y},buttons:G.buttons,kh:G.event?-1:keeperHolds(),mi:bi,start:{x:btn.x,y:btn.y}};
+    out={m:G.move,ev:G.event,ball:{x:G.ball.x,y:G.ball.y},buttons:G.buttons,kh:G.event?-1:keeperHolds(),mi:bi,start:{x:btn.x,y:btn.y},left:(real.poss&&real.poss.side===b.side?POSS_MAX-real.poss.n:POSS_MAX)-1};
   }finally{G=real;SIM=false}
   return out;
 }
 function rateOutcome(o,side,shot){
   const opp=1-side,gy=side===1?F.b:F.t,ownGy=side===1?F.t:F.b,m=o.m,ev=o.ev,bl=o.ball;
   const dGoal=hyp(bl.x-CX,bl.y-gy),dOwn=hyp(bl.x-CX,bl.y-ownGy);
-  const loss=-100-Math.max(0,90-dOwn)*.9; // losing the ball hurts more near our own goal
+  let loss=-100-Math.max(0,90-dOwn)*.9; // losing the ball hurts more near our own goal
   if(m.foul){const fp=m.foulAt||m.ballStart,inBox=Math.abs(fp.x-CX)<PA.w/2&&Math.abs(fp.y-ownGy)<PA.d;return inBox?-700:loss-90}
   if(ev&&ev.type==='goal')return ev.side===side?(shot?1000:-40):-900;
   if(shot)return loss-40;
+  if(o.left!=null&&o.left<=0)loss-=70;  // the 10th flick without a shot gives the ball away: worse than any try at goal
   if(!m.moverTouched)return loss-80;
   if(ev&&ev.type==='side'){const t=(shot||m.lastTouch==null)?opp:1-m.lastTouch;return t===side?10:loss}
   if(ev&&ev.type==='end'){const def=ev.side,lt=shot?side:(m.lastTouch==null?side:m.lastTouch);
@@ -1805,6 +1821,7 @@ function rateOutcome(o,side,shot){
     return lt===def?60:loss}
   if(o.kh>=0)return o.kh===side?20:loss;
   const next=shot?opp:m.lastTouch;if(next!==side)return loss;
+  if(o.left!=null&&o.left<=0)return loss;
   // keeping the ball only helps if one of our buttons can actually play it next turn (the mover too, unless it is out of touches)
   let reach=0;for(const b of o.buttons){if(b.side!==side||(o.excl&&b===o.excl&&!m.mate))continue;
     reach=Math.max(reach,clamp((32-hyp(b.x-bl.x,b.y-bl.y))/18,0,1))}
@@ -1826,6 +1843,13 @@ function rateOutcome(o,side,shot){
     const central=1-clamp(Math.abs(bl.x-CX)/(FW*.45),0,1);   // a central ball gives the widest view of the goal
     v+=central*(75-dGoal)*.5;
     v+=120*sh*lane*(1-dGoal/75)*(.5+.5*central)}
+  // 10 flicks per attack: by the 9th, the ball (and a shooter behind it) should be in the shooting zone,
+  // between the big box and a little past halfway, not too wide
+  if(o.left!=null){const dy=Math.abs(bl.y-gy),wide=Math.abs(bl.x-CX);
+    const zoneD=dy<PA.d+3?PA.d+3-dy:dy>FH/2+12?dy-(FH/2+12):0,zoneW=Math.max(0,wide-FW*.32),off=zoneD+zoneW;
+    const urg=clamp((6-o.left)/5,0,1);   // grows from 5 flicks left
+    v+=urg*(off===0?45:-off*1.6);
+    if(o.left<=1&&off===0){let sh2=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d<16)sh2=Math.max(sh2,1-d/16)}v+=40*sh2}}
   if(bl.x<F.l+4||bl.x>F.r-4)v-=10;if(bl.y<F.t+4||bl.y>F.b-4)v-=6;
   return reach*v+(1-reach)*loss*.8;
 }
@@ -1840,7 +1864,8 @@ function simPick(side,cands,forced){
   const near=[...by.keys()].sort((a,b)=>roleD(a)-roleD(b)).slice(0,hard?6:easy?3:5),pool=[];
   for(const b of near){const best=new Map();for(const f of by.get(b)){const o=best.get(f.L);if(!o||f.total>o.total)best.set(f.L,f)}
     pool.push(...[...best.values()].sort((x,y)=>y.total-x.total).slice(0,hard?6:5))}
-  for(const f of cands.filter(f=>f.shot).sort((a,b)=>b.total-a.total).slice(0,4))if(!pool.includes(f))pool.push(f);
+  for(const f of cands.filter(f=>f.shot&&!f.lift).sort((a,b)=>b.total-a.total).slice(0,3))if(!pool.includes(f))pool.push(f);
+  for(const f of cands.filter(f=>f.shot&&f.lift).sort((a,b)=>b.total-a.total).slice(0,3))if(!pool.includes(f))pool.push(f);
   const kp=G.keepers.slice();kp[1-side]=forced?G.keepers[1-side]:idealKeeper(1-side);
   const noise=1-sk,rated=[];
   for(const f of pool){
@@ -2026,6 +2051,10 @@ function hud(){
   const own=(G.flipped?1-G.turn:G.turn)===0,live=G.phase!=='over';$('#possA').classList.toggle('on',own&&live);$('#possB').classList.toggle('on',!own&&live);
   const canAnn=G.mode==='match'&&G.phase==='aim'&&G.turn===0&&!G.announced&&(G.koTouches||0)>=2&&inShotHalf(0)&&G.rKind!=='throw',canAim=false;
   $('#btnShoot').disabled=!(canAnn||canAim);
+  {const pc=$('#possCtr'),P=G.poss,show=G.mode==='match'&&P&&P.side!=null&&G.phase!=='over';pc.hidden=!show;
+    if(show){const left=Math.max(0,POSS_MAX-P.n),k=G.kit[P.side];pc.style.setProperty('--pc',k.dome==='#ffffff'||k.dome==='#fefefe'?'#e8edf6':k.dome);
+      $('#possDots').innerHTML=Array.from({length:POSS_MAX},(_,i)=>`<i class="${i<P.n?'u':''}"></i>`).join('');
+      $('#possN').textContent=tr('possLeft',{n:left});pc.classList.toggle('low',left<=2);pc.title=tr('possTip')}}
   $('#btnShoot').textContent=G.announced&&G.turn===0?tr('shotOn'):tr('shoot');
   const ks=G.phase==='keeperSet';
   $('#btnReady').hidden=!(ks||G.phase==='setup');$('#btnReady').textContent=ks?tr('ready'):tr('done');
