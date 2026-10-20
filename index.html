@@ -2193,6 +2193,7 @@ function champCelebration(t,k,sub,done){
 let last=0;
 const angLerp=(a,b,f)=>{let d=b-a;while(d>PI)d-=2*PI;while(d<-PI)d+=2*PI;return a+d*f};
 function frame(ts){
+  requestAnimationFrame(frame);
   const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
   if(G&&!G.paused){
     const due=[],keep=[];for(const t of G.timers){t.t-=dt;(t.t<=0?due:keep).push(t)}G.timers=keep;
@@ -2224,11 +2225,10 @@ function frame(ts){
       G.cam.vx=(G.cam.vx||0)+(w*w*(t.x-G.cam.x)-2*w*(G.cam.vx||0))*dt;G.cam.vy=(G.cam.vy||0)+(w*w*(t.y-G.cam.y)-2*w*(G.cam.vy||0))*dt;
       const c=camClamp(G.cam.x+G.cam.vx*dt,G.cam.y+G.cam.vy*dt);G.cam.x=c.x;G.cam.y=c.y}
     if(!G.paused)v3Update(dt);
-    if(V3.on&&V3.pose)render3D(ts);else render(ts);
+    try{if(V3.on&&V3.pose)render3D(ts);else render(ts)}catch(e){if(!frame.err){frame.err=1;console.error(e)}} // a drawing error must never stop play
     fxTick(dt);{const fc=$('#fxc'),fx=fc.getContext('2d');if(FX.length||fc.dirty){fx.setTransform(1,0,0,1,0,0);fx.clearRect(0,0,fc.width,fc.height);drawFx(fx);fc.dirty=FX.length>0}}
     shotUiTick();
   }
-  requestAnimationFrame(frame);
 }
 
 
@@ -2597,13 +2597,14 @@ function drawPrediction(c,pts,pw){
   c.strokeStyle=`rgba(${rgb},.3)`;c.lineWidth=.2;c.beginPath();c.arc(ex,ey-ez*.9,BALLR,0,2*PI);c.stroke();
 }
 const powerColor=pw=>pw<LIFT_P?'#ffffff':pw<HIGH_P?'#ffd23f':'#ff5a3d';
-function drawAim(c,b,ang,pw,finger,skin){
+function drawAim(c,b,ang,pw,finger,skin,arrowOnly){
   const ux=Math.cos(ang),uy=Math.sin(ang),col=powerColor(pw),L=5+pw*22,d=b.r+PAL_R*.7+pw*7;
   if(finger){c.setLineDash([.7,.8]);c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=.22;c.beginPath();c.moveTo(b.x-ux*d,b.y-uy*d);c.lineTo(finger.x,finger.y);c.stroke();c.setLineDash([])}
   c.strokeStyle=col;c.lineWidth=.7;
   const ex=b.x+ux*(b.r+L),ey=b.y+uy*(b.r+L);
   c.beginPath();c.moveTo(b.x+ux*(b.r+.5),b.y+uy*(b.r+.5));c.lineTo(ex,ey);c.stroke();
   c.fillStyle=col;c.beginPath();c.moveTo(ex+ux*2,ey+uy*2);c.lineTo(ex-uy*1.2,ey+ux*1.2);c.lineTo(ex+uy*1.2,ey-ux*1.2);c.closePath();c.fill();
+  if(arrowOnly)return;
   drawPalheta(c,b.x-ux*d,b.y-uy*d,PAL_R,skin);
   const mx=b.x+uy*(b.r+2.4)-.6,my=b.y-ux*(b.r+2.4)-4.5;
   c.fillStyle='rgba(6,13,34,.7)';rr(c,mx,my,1.2,9,.5);c.fill();
@@ -2660,7 +2661,7 @@ function renderView(ts){
     c.lineWidth=.45;const k=1.1,cx=b.x+b.r+2.6,cy=b.y-b.r-1.6;c.beginPath();c.moveTo(cx-k,cy-k);c.lineTo(cx+k,cy+k);c.moveTo(cx+k,cy-k);c.lineTo(cx-k,cy+k);c.stroke()}
   if(G.aim&&G.aim.pw>.005&&G.aim.raw>=CANCEL_PX){const pr=predictBall(G.aim.b,G.aim.ang,G.aim.pw,G.aim.seed,ts);if(pr)drawPrediction(c,pr,G.aim.pw);
     drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},curPal())}
-  if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,{mat:'plastic',base:'#16181b'})}
+  if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,null,true)}
   if(G.announced&&G.phase!=='moving'&&G.mode==='match'){
     const top=(G.turn===0)!==!!G.flipped;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
   }
