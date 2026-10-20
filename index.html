@@ -2478,7 +2478,9 @@ function drawTable(c){
   // felt
   rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.fillStyle=FELT.margin;c.fill();
   const PT=pitchImg();
-  if(PT){c.save();rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.clip();c.drawImage(PT,0,0,TW,TH);c.restore()}else{
+  if(PT){c.save();rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.clip();c.drawImage(PT,0,0,TW,TH);c.restore();
+    try{if(!noisePat)noisePat=c.createPattern(NOISE,'repeat');noisePat.setTransform(new DOMMatrix([GRAIN,0,0,GRAIN,0,0]));
+      c.save();c.globalAlpha=.26;c.globalCompositeOperation='overlay';c.fillStyle=noisePat;rr(c,RAIL,RAIL,TW-2*RAIL,TH-2*RAIL,2.6);c.fill();c.restore()}catch(e){}}else{
   c.fillStyle=FELT.base;c.fillRect(F.l,F.t,FW,FH);
   const n=14,sh=FH/n;c.fillStyle=FELT.band;for(let i=1;i<n;i+=2)c.fillRect(F.l,F.t+i*sh,FW,sh);
   printName(c);
