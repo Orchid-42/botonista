@@ -779,7 +779,7 @@ function palSprite(m,hex){const key=m+hex;if(PAL_CACHE[key])return PAL_CACHE[key
   g.putImageData(im,0,0);return PAL_CACHE[key]=cv}
 const curPal=()=>{const p=prefs.pal||{},m=PAL_MATS.find(q=>q.id===p.m)||PAL_MATS[0],c=PAL_COLS.find(q=>q.id===p.c&&unlocked(q))||PAL_COLS[0];return {mat:m.id,col:c,base:c.hex}};
 function drawPalheta(c,x,y,r,pal){
-  pal=pal||curPal();c.save();
+  if(!pal||!pal.mat||!pal.base)pal=curPal();c.save();
   c.fillStyle=pal.mat==='glass'?'rgba(0,0,0,.13)':'rgba(0,0,0,.28)';c.beginPath();c.arc(x+r*.12,y+r*.2,r,0,2*PI);c.fill();
   c.imageSmoothingEnabled=true;c.drawImage(palSprite(pal.mat,pal.base),x-r,y-r,2*r,2*r);c.restore();
 }
@@ -2660,7 +2660,7 @@ function renderView(ts){
     c.lineWidth=.45;const k=1.1,cx=b.x+b.r+2.6,cy=b.y-b.r-1.6;c.beginPath();c.moveTo(cx-k,cy-k);c.lineTo(cx+k,cy+k);c.moveTo(cx+k,cy-k);c.lineTo(cx-k,cy+k);c.stroke()}
   if(G.aim&&G.aim.pw>.005&&G.aim.raw>=CANCEL_PX){const pr=predictBall(G.aim.b,G.aim.ang,G.aim.pw,G.aim.seed,ts);if(pr)drawPrediction(c,pr,G.aim.pw);
     drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},curPal())}
-  if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,SKINS[0])}
+  if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,{mat:'plastic',base:'#16181b'})}
   if(G.announced&&G.phase!=='moving'&&G.mode==='match'){
     const top=(G.turn===0)!==!!G.flipped;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
   }
