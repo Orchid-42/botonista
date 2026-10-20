@@ -578,7 +578,7 @@ pt:{
   ['Chute','Toque em "Pro gol" antes de chutar, do campo de ataque. Gol sem anunciar não vale.'],
   ['Placar','Vence quem fizer 3 gols primeiro. Em 2 a 2, precisa de 4; 3 a 3 vai para os pênaltis.']],
  aim:'Mira',aimLevel:'Nível {n} de {m}',aimNext:'próximo: {x}',aimMax:'completa',aimUp:'Mira nível {n}',aimReq:['','Vença 2 partidas','Chegue à semifinal','Ganhe a Copa'],
- skinReq:['Inicial','Vença uma partida','Faça um gol de cobertura','Marque 10 gols','Vença 3 partidas','Marque de pênalti','Vença por 3 a 0','Chegue à semifinal','Vença no Difícil','Ganhe a Copa']
+ skinReq:['Inicial','Vença uma partida','Faça um gol de cobertura','Marque 10 gols','Vença 3 partidas','Marque de pênalti','Vença por 3 a 0','Chegue à semifinal','Vença no Difícil','Faça um hat-trick','Ganhe a Copa']
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
@@ -614,7 +614,7 @@ en:{
   ['Shooting','Press "Announce shot" before shooting, from the attacking half. Unannounced goals don\'t count.'],
   ['Score','First to 3 goals wins. At 2–2 you need 4; 3–3 goes to penalties.']],
  aim:'Aim guide',aimLevel:'Level {n} of {m}',aimNext:'next: {x}',aimMax:'complete',aimUp:'Aim guide level {n}',aimReq:['','Win 2 matches','Reach a semi-final','Win the Copa'],
- skinReq:['Starter','Win a match','Score a lob','Score 10 goals','Win 3 matches','Score a penalty','Win 3–0','Reach a semi-final','Win on Hard','Win the Copa']
+ skinReq:['Starter','Win a match','Score a lob','Score 10 goals','Win 3 matches','Score a penalty','Win 3–0','Reach a semi-final','Win on Hard','Score a hat-trick','Win the Copa']
 }};
 const tr=(k,v)=>{let s=STR[prefs.lang][k];if(typeof s==='string'&&v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s};
 
@@ -721,36 +721,69 @@ const cupName=c=>c==='br'?tr('cupBR'):c==='cl'?tr('cupCL'):tr('cupWC');
 const discStyle=t=>`--dome:${t.dome};--ring:${t.ring}`+(t.src?`;background-image:url(${t.src});background-size:cover;box-shadow:none`:'');
 
 /* ---------- palheta skins ---------- */
+/* Three palheta materials, matched to the Blender file: plastic (glossy, roughness .2), glass (clear,
+   transmissive) and metal (roughness .45). A skin is a material + a colour + an optional graphic. */
+const PAL_MATS={plastic:{rough:.21},glass:{rough:0},metal:{rough:.45}};
 const SKINS=[
- {id:'classica',n:'Clássica',req:null,kind:'plain',base:'#1a1e22',edge:'#4b545b'},
- {id:'cristal',n:'Cristal',req:s=>s.wins>=1,kind:'glass',base:'#bfe3ef',edge:'#f1fbff'},
- {id:'chapeu',n:'Cobertura',req:s=>s.lobs>=1,kind:'rings',base:'#efe6cf',edge:'#a8823f'},
- {id:'neon',n:'Neon',req:s=>s.goals>=10,kind:'neon',base:'#0c0e1a',edge:'#36f1cd'},
- {id:'carbono',n:'Carbono',req:s=>s.wins>=3,kind:'carbon',base:'#1f2124',edge:'#5b6066'},
- {id:'marmore',n:'Mármore',req:s=>s.pens>=1,kind:'marble',base:'#f2f0ea',edge:'#9b9b98'},
- {id:'setenta',n:'Setenta',req:s=>s.clean>=1,kind:'stripes',base:'#f5d20f',edge:'#0b8a3a'},
- {id:'madeira',n:'Madeira',req:s=>s.semis>=1,kind:'wood',base:'#a8703a',edge:'#6d4321'},
- {id:'obsidiana',n:'Obsidiana',req:s=>s.hard>=1,kind:'obsidian',base:'#0b0b10',edge:'#8d6bff'},
- {id:'ouro',n:'Ouro',req:s=>s.copas>=1,kind:'gold',base:'#d4a017',edge:'#fff1b0'}
+ {id:'classica',n:'Clássica',req:null,mat:'plastic',kind:'plain',base:'#1a1e22',edge:'#4b545b'},
+ {id:'cristal',n:'Cristal',req:s=>s.wins>=1,mat:'glass',kind:'plain',base:'#bfe3ef',edge:'#f1fbff'},
+ {id:'chapeu',n:'Cobertura',req:s=>s.lobs>=1,mat:'plastic',kind:'rings',base:'#efe6cf',edge:'#a8823f'},
+ {id:'neon',n:'Neon',req:s=>s.goals>=10,mat:'plastic',kind:'neon',base:'#0c0e1a',edge:'#36f1cd'},
+ {id:'carbono',n:'Carbono',req:s=>s.wins>=3,mat:'plastic',kind:'carbon',base:'#1f2124',edge:'#5b6066'},
+ {id:'marmore',n:'Mármore',req:s=>s.pens>=1,mat:'plastic',kind:'marble',base:'#f2f0ea',edge:'#9b9b98'},
+ {id:'setenta',n:'Setenta',req:s=>s.clean>=1,mat:'plastic',kind:'stripes',base:'#f5d20f',edge:'#0b8a3a'},
+ {id:'madeira',n:'Madeira',req:s=>s.semis>=1,mat:'plastic',kind:'wood',base:'#a8703a',edge:'#6d4321'},
+ {id:'obsidiana',n:'Obsidiana',req:s=>s.hard>=1,mat:'glass',kind:'plain',base:'#4a32a8',edge:'#8d6bff'},
+ {id:'aco',n:'Aço',req:s=>s.hat>=1,mat:'metal',kind:'plain',base:'#c3c9d1',edge:'#eef2f6'},
+ {id:'ouro',n:'Ouro',req:s=>s.copas>=1,mat:'metal',kind:'plain',base:'#d4a017',edge:'#fff1b0'}
 ];
-function drawPalheta(c,x,y,r,skin,rot){
-  c.save();c.translate(x,y);c.rotate(rot||0);
-  c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.arc(r*.12,r*.2,r,0,2*PI);c.fill();
-  c.beginPath();c.arc(0,0,r,0,2*PI);c.closePath();c.save();c.clip();
+const hexRGB=h=>{const n=parseInt(h.slice(1),16);return [n>>16,n>>8&255,n&255]};
+const hexA=(h,a)=>{const [r,g,b]=hexRGB(h);return `rgba(${r},${g},${b},${a})`};
+const mixHex=(h,t,k)=>{const a=hexRGB(h),b=hexRGB(t);return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join(',')})`};
+// the printed graphic, in the palheta's own (rotating) frame
+function palGraphic(c,r,skin){
   const k=skin.kind;
-  c.fillStyle=skin.base;c.fillRect(-r,-r,2*r,2*r);
-  if(k==='glass'){c.fillStyle='rgba(255,255,255,.35)';c.fillRect(-r,-r,2*r,r*.8)}
   if(k==='rings'){c.strokeStyle=skin.edge;c.lineWidth=r*.09;for(let i=1;i<5;i++){c.beginPath();c.arc(0,0,r*i/5,0,2*PI);c.stroke()}}
   if(k==='neon'){const g=c.createRadialGradient(0,0,r*.2,0,0,r);g.addColorStop(0,'rgba(54,241,205,0)');g.addColorStop(1,'rgba(54,241,205,.55)');c.fillStyle=g;c.fillRect(-r,-r,2*r,2*r)}
   if(k==='carbon'){const s=r/4;for(let i=-4;i<4;i++)for(let j=-4;j<4;j++){c.fillStyle=(i+j)&1?'#2b2e32':'#17191b';c.fillRect(i*s,j*s,s,s)}}
   if(k==='marble'){c.strokeStyle='rgba(120,120,125,.55)';c.lineWidth=r*.06;for(let i=0;i<4;i++){c.beginPath();c.moveTo(-r,-r*.8+i*r*.5);c.bezierCurveTo(-r*.3,-r+i*r*.6,r*.2,-r*.2+i*r*.4,r,-r*.6+i*r*.55);c.stroke()}}
   if(k==='stripes'){c.fillStyle=skin.edge;for(let i=-3;i<3;i++)c.fillRect(i*r*.66,-r,r*.33,2*r)}
   if(k==='wood'){c.strokeStyle='rgba(70,40,15,.45)';c.lineWidth=r*.05;for(let i=0;i<7;i++){c.beginPath();c.ellipse(r*.25,r*.1,r*(.15+i*.18),r*(.1+i*.12),.3,0,2*PI);c.stroke()}}
-  if(k==='obsidian'){const g=c.createLinearGradient(-r,-r,r,r);g.addColorStop(0,'#2a1f55');g.addColorStop(.5,'#07070b');g.addColorStop(1,'#1b1240');c.fillStyle=g;c.fillRect(-r,-r,2*r,2*r)}
-  if(k==='gold'){const g=c.createLinearGradient(-r,-r,r,r);g.addColorStop(0,'#fff1b0');g.addColorStop(.45,'#d4a017');g.addColorStop(1,'#8a6206');c.fillStyle=g;c.fillRect(-r,-r,2*r,2*r)}
-  c.fillStyle='rgba(255,255,255,.22)';c.beginPath();c.ellipse(-r*.3,-r*.42,r*.55,r*.25,-.4,0,2*PI);c.fill();
+}
+function drawPalheta(c,x,y,r,skin,rot){
+  const mat=skin.mat||'plastic',col=skin.base;
+  c.save();c.translate(x,y);
+  // contact shadow (glass lets light through, so a lighter one)
+  c.fillStyle=mat==='glass'?'rgba(0,0,0,.14)':'rgba(0,0,0,.28)';c.beginPath();c.arc(r*.12,r*.2,r,0,2*PI);c.fill();
+  c.save();c.beginPath();c.arc(0,0,r,0,2*PI);c.clip();
+  // body
+  if(mat==='plastic'){c.fillStyle=col;c.fillRect(-r,-r,2*r,2*r)}
+  else if(mat==='glass'){
+    const g=c.createRadialGradient(-r*.15,-r*.2,r*.1,0,0,r);g.addColorStop(0,hexA(col,.16));g.addColorStop(.75,hexA(col,.3));g.addColorStop(1,hexA(col,.62));
+    c.fillStyle=g;c.fillRect(-r,-r,2*r,2*r)}
+  else{ // metal: a soft reflection of the room, tinted by the metal's colour
+    const g=c.createLinearGradient(-r,-r*.9,r*.7,r);
+    g.addColorStop(0,mixHex(col,'#ffffff',.55));g.addColorStop(.28,mixHex(col,'#ffffff',.15));g.addColorStop(.5,mixHex(col,'#000000',.45));
+    g.addColorStop(.72,mixHex(col,'#000000',.1));g.addColorStop(1,mixHex(col,'#000000',.55));c.fillStyle=g;c.fillRect(-r,-r,2*r,2*r)}
+  // graphic: printed on plastic, inside the glass, engraved on metal
+  c.save();c.rotate(rot||0);c.globalAlpha=mat==='glass'?.55:mat==='metal'?.75:1;palGraphic(c,r,skin);c.restore();
+  // lighting (stays with the room, not with the palheta)
+  if(mat==='plastic'){
+    const g=c.createLinearGradient(-r,-r,r,r);g.addColorStop(0,'rgba(255,255,255,.12)');g.addColorStop(.6,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.2)');c.fillStyle=g;c.fillRect(-r,-r,2*r,2*r);
+    const h=c.createRadialGradient(-r*.38,-r*.42,0,-r*.38,-r*.42,r*.6);h.addColorStop(0,'rgba(255,255,255,.3)');h.addColorStop(.25,'rgba(255,255,255,.1)');h.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=h;c.fillRect(-r,-r,2*r,2*r);
+    c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.ellipse(-r*.4,-r*.45,r*.2,r*.08,-.6,0,2*PI);c.fill()}
+  else if(mat==='glass'){
+    c.fillStyle='rgba(255,255,255,.75)';c.beginPath();c.ellipse(-r*.38,-r*.48,r*.34,r*.07,-.6,0,2*PI);c.fill();
+    c.fillStyle='rgba(255,255,255,.3)';c.beginPath();c.ellipse(r*.45,r*.5,r*.18,r*.05,-.6,0,2*PI);c.fill()}
+  else{const h=c.createRadialGradient(-r*.3,-r*.35,0,-r*.3,-r*.35,r*.9);h.addColorStop(0,'rgba(255,255,255,.38)');h.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=h;c.fillRect(-r,-r,2*r,2*r)}
   c.restore();
-  c.strokeStyle=skin.edge;c.lineWidth=r*.14;c.beginPath();c.arc(0,0,r*.93,0,2*PI);c.stroke();
+  // the rounded rim: lit on the lamp side, in shadow on the other
+  const e=c.createLinearGradient(-r,-r,r,r);
+  if(mat==='glass'){e.addColorStop(0,'rgba(255,255,255,.85)');e.addColorStop(.5,hexA(col,.55));e.addColorStop(1,hexA(col,.9))}
+  else if(mat==='metal'){e.addColorStop(0,mixHex(col,'#ffffff',.7));e.addColorStop(.5,mixHex(col,'#000000',.2));e.addColorStop(1,mixHex(col,'#000000',.6))}
+  else{e.addColorStop(0,shade(col,.35));e.addColorStop(.5,col);e.addColorStop(1,shade(col,-.45))}
+  c.strokeStyle=e;c.lineWidth=r*.09;c.beginPath();c.arc(0,0,r*.955,0,2*PI);c.stroke();
+  c.strokeStyle=mat==='glass'?'rgba(255,255,255,.35)':'rgba(0,0,0,.35)';c.lineWidth=r*.025;c.beginPath();c.arc(0,0,r*.995,0,2*PI);c.stroke();
   c.restore();
 }
 
@@ -2307,7 +2340,7 @@ function render3D(ts){
   items.push({d:toC(bl.x,bl.y,bl.z)[2],f:()=>cyl3(bl.x,bl.y,bl.z,BALLR,.5,'#050607',()=>{const c=ctx,g=c.createRadialGradient(-3,-4,1,0,0,10);g.addColorStop(0,'#3d434a');g.addColorStop(1,'#101214');c.fillStyle=g;c.beginPath();c.arc(0,0,10,0,2*PI);c.fill()})});
   for(const top of [true,false])items.push({d:toC(CX,top?F.t-GD/2:F.b+GD/2,BAR/2)[2],f:()=>goal3(top)});
   if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,sk=skinById(prefs.skin);
-    items.push({d:toC(px,py,0)[2],f:()=>cyl3(px,py,.15,PAL_R,.25,shade(sk.base,-.3),()=>{drawPalheta(ctx,0,0,10,sk,0)})})}
+    items.push({d:toC(px,py,0)[2],f:()=>cyl3(px,py,.1,PAL_R,.15,sk.mat==='glass'?hexA(sk.base,.45):sk.mat==='metal'?shade(sk.base,-.35):shade(sk.base,-.3),()=>{drawPalheta(ctx,0,0,10,sk,0)})})}
   /* Objects close to the camera fade out before they can be cut by it, and anything standing between
      the camera and your shooter turns see-through, so the shot is never hidden. */
   const sh=V3.btn&&V3.mode!=='chase'?V3.btn:null,shC=sh?toC(sh.x,sh.y,.3):null,shS=shC&&shC[2]>NEAR?scr(shC):null;
