@@ -2640,8 +2640,9 @@ function renderView(ts){
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
       else if(s.moved.length<(G.sp.kind==='kickoff'?KO_MOVE:MAX_MOVE))glow=`rgba(255,255,255,${.15+.25*pulse})`;}
     drawButton(c,b,team,glow);
-    if(G.streak&&G.streak.b===b&&G.streak.n===MAX_TOUCH-1&&!(G.lock&&G.lock.b===b)&&G.mode==='match'&&G.phase!=='moving'){const bl=.5+.5*Math.sin(ts/170);c.strokeStyle=`rgba(255,210,63,${.25+.7*bl})`;c.lineWidth=.42;c.beginPath();c.arc(b.x,b.y,b.r+.95,0,2*PI);c.stroke()}
-    if(G.lock&&G.lock.b===b&&G.mode==='match'&&G.phase!=='moving'){c.strokeStyle='rgba(255,90,61,.75)';c.lineWidth=.3;c.setLineDash([.6,.6]);c.beginPath();c.arc(b.x,b.y,b.r+.8,0,2*PI);c.stroke();c.setLineDash([])}
+    const showInd=b.side===0||G.pvp; // the CPU's touch warnings stay hidden
+    if(showInd&&G.streak&&G.streak.b===b&&G.streak.n===MAX_TOUCH-1&&!(G.lock&&G.lock.b===b)&&G.mode==='match'&&G.phase!=='moving'){const bl=.5+.5*Math.sin(ts/170);c.strokeStyle=`rgba(255,210,63,${.25+.7*bl})`;c.lineWidth=.42;c.beginPath();c.arc(b.x,b.y,b.r+.95,0,2*PI);c.stroke()}
+    if(showInd&&G.lock&&G.lock.b===b&&G.mode==='match'&&G.phase!=='moving'){c.strokeStyle='rgba(255,90,61,.75)';c.lineWidth=.3;c.setLineDash([.6,.6]);c.beginPath();c.arc(b.x,b.y,b.r+.8,0,2*PI);c.stroke();c.setLineDash([])}
   }
   const inNet=Math.abs(bl.x-CX)<GW/2+bl.r&&(bl.y<F.t-bl.r*.2||bl.y>F.b+bl.r*.2);
   const z=inNet?0:bl.z,sr=bl.r*Math.max(.55,1-z*.03),BL=lampVec(bl.x,bl.y);
@@ -2661,7 +2662,6 @@ function renderView(ts){
     c.lineWidth=.45;const k=1.1,cx=b.x+b.r+2.6,cy=b.y-b.r-1.6;c.beginPath();c.moveTo(cx-k,cy-k);c.lineTo(cx+k,cy+k);c.moveTo(cx+k,cy-k);c.lineTo(cx-k,cy+k);c.stroke()}
   if(G.aim&&G.aim.pw>.005&&G.aim.raw>=CANCEL_PX){const pr=predictBall(G.aim.b,G.aim.ang,G.aim.pw,G.aim.seed,ts);if(pr)drawPrediction(c,pr,G.aim.pw);
     drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},curPal())}
-  if(G.cpuAim){const a=G.cpuAim;drawAim(c,a.b,Math.atan2(a.uy,a.ux),a.pw,null,null,true)}
   if(G.announced&&G.phase!=='moving'&&G.mode==='match'){
     const top=(G.turn===0)!==!!G.flipped;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
   }
