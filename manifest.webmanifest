@@ -1,7 +1,7 @@
 {
   "name": "Botonista",
   "short_name": "Botonista",
-  "description": "Futebol de botão na mesa.",
+  "description": "Futebol de botão",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

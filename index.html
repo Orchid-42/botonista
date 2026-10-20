@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>Botonista</title>
-<meta name="description" content="Futebol de botão na mesa: Copa do Mundo, Copa do Brasil, Champions League e partidas rápidas contra a CPU ou a dois.">
+<meta name="description" content="Futebol de botão">
+<meta property="og:title" content="Botonista">
+<meta property="og:description" content="Futebol de botão">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Botonista">
+<meta name="twitter:title" content="Botonista">
+<meta name="twitter:description" content="Futebol de botão">
 <meta name="theme-color" content="#08112a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -260,9 +266,8 @@ button{touch-action:manipulation}
 @media (max-width:620px){.cups{grid-template-columns:1fr;gap:10px}}
 .cupcard{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:clamp(14px,3vh,34px);text-align:left;color:var(--ink);padding:clamp(16px,3vh,28px);border-radius:14px;border:1px solid var(--line2);background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.01));min-height:clamp(130px,26vh,260px);transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .2s,box-shadow .25s}
 .cupcard::before{content:"";position:absolute;inset:-40% -20% auto auto;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 65%);opacity:.5;transition:opacity .3s,transform .5s}
-.cupcard[data-cup="wc"]{--glow:rgba(255,210,63,.35)}
-.cupcard[data-cup="cl"]{--glow:rgba(90,140,255,.4)}
-.cupcard[data-cup="br"]{--glow:rgba(40,200,110,.35)}
+.cupcard{--glow:rgba(90,140,255,.4)}
+.cupcard:hover,.cupcard:active,.cupcard:focus-visible{--glow:rgba(255,210,63,.35);border-color:var(--accent)}
 .cupcard:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 14px 34px rgba(0,0,0,.35)}
 .cupcard:hover::before{opacity:.9;transform:scale(1.15)}
 .cupcard:active{transform:scale(.98)}
@@ -344,8 +349,8 @@ button{touch-action:manipulation}
 .hello{margin-top:auto}#pvpBtn.big{margin-bottom:auto}
 @media (max-width:420px){.brand{font-size:32px}.tools{gap:4px}}
 @media (max-width:620px){.cupcard{min-height:0;flex-direction:row;align-items:center;gap:14px;padding:16px}.cuptx{margin-top:0}.cuptx b{font-size:22px}.cupart .flag{width:34px;height:23px}}
-.cupart{width:clamp(52px,9vh,76px);height:clamp(52px,9vh,76px);color:var(--accent)}
-.cupcard[data-cup="br"] .cupart{color:#3ecf8e}.cupcard[data-cup="cl"] .cupart{color:#7aa2ff}
+.cupart{width:clamp(52px,9vh,76px);height:clamp(52px,9vh,76px);color:#7aa2ff;transition:color .2s}
+.cupcard:hover .cupart,.cupcard:active .cupart,.cupcard:focus-visible .cupart{color:var(--accent)}
 .cupart svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round;overflow:visible;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .cupcard:hover .cupart svg{transform:scale(1.06) rotate(-3deg)}
 @media (max-width:620px){.cupart{width:46px;height:46px;flex:none}}
@@ -378,9 +383,9 @@ button{touch-action:manipulation}
       </div>
       <p class="hello" id="hello"></p>
       <div class="cups">
-        <button class="cupcard" data-cup="wc"><span class="cupart wc"></span><span class="cuptx"><b data-i="cupWC"></b><small data-i="cupWCsub"></small></span></button>
-        <button class="cupcard" data-cup="br"><span class="cupart br"></span><span class="cuptx"><b data-i="cupBR"></b><small data-i="cupBRsub"></small></span></button>
-        <button class="cupcard" data-cup="cl"><span class="cupart cl"></span><span class="cuptx"><b data-i="cupCL"></b><small data-i="cupCLsub"></small></span></button>
+        <button class="cupcard" data-cup="wc"><span class="cupart wc"></span><span class="cuptx"><b data-i="cupWC"></b></span></button>
+        <button class="cupcard" data-cup="br"><span class="cupart br"></span><span class="cuptx"><b data-i="cupBR"></b></span></button>
+        <button class="cupcard" data-cup="cl"><span class="cupart cl"></span><span class="cuptx"><b data-i="cupCL"></b></span></button>
       </div>
       <button class="btn ghost big" id="pvpBtn" data-i="pvp"></button>
     </div>
