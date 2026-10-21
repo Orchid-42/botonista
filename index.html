@@ -2445,6 +2445,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
       M.ball=lathe(top.map(([r,z])=>[r*k,(z+H)*k]),40)}
     // the palheta from Botonista_Palheta.blend: 48.4 mm, 1.45 mm thick, concentric creases and a centre dimple on both faces, rounded rim
     M.pal=lathe(PAL_PROF,96);
+    {const zs=PAL_PROF.map(p=>p[1]),zm=(Math.min(...zs)+Math.max(...zs))/2;M.palC=lathe(PAL_PROF.map(([r,z])=>[r,z-zm]),96)}
     M.keeper=rbox(KW,KH,KEEP_H,.35,14);
     M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
     // the table: felt plane under everything, the rail as a raised frame, the sides down to the floor
@@ -2547,8 +2548,10 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
       gl.uniform1f(u.uR,b.r);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(t.ring));draw(M.dome,TR(b.x,b.y,0))}});
     G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({o:{x:k.x,y:k.y,r:KW/2},d:toC(k.x,k.y,1)[2],f:a=>lit(t.dome,.4,false,a,TR(k.x,k.y,0,k.a),M.keeper)})});
     items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#0d0f12',.14,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
-    if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,pal=curPal();
-      items.push({o:null,d:toC(px,py,0)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:pal.mat==='glass'?.02:.21,pal.mat==='metal',a,TR(px,py,.01,A.ang+PI/2),M.pal,null,pal.mat==='glass')})}
+    if(A&&A.raw>=CANCEL_PX){const b=A.b,pal=curPal(),fx=Math.cos(A.ang),fy=Math.sin(A.ang),gap=b.r+.25+A.pw*6,al=.65; // the palheta stands on its edge behind the button, leaning over it, face to the camera
+      const cx=b.x-fx*gap,cy=b.y-fy*gap,ux=fx*Math.sin(al),uy=fy*Math.sin(al),uz=Math.cos(al),nx=-fx*Math.cos(al),ny=-fy*Math.cos(al),nz=Math.sin(al);
+      const M4=new Float32Array([-fy,fx,0,0, ux,uy,uz,0, nx,ny,nz,0, cx+ux*PAL_R,cy+uy*PAL_R,uz*PAL_R+.02,1]);
+      items.push({o:null,d:toC(cx,cy,PAL_R)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:pal.mat==='glass'?.02:.21,pal.mat==='metal',a,M4,M.palC,null,pal.mat==='glass')})}
     items.sort((p,q)=>q.d-p.d);
     for(const it of items){let al=clamp((it.d-2.2)/4,0,1);
       if(it.o&&it.o!==sh&&shS&&it.d<shC[2]){const q=toC(it.o.x,it.o.y,.3);if(q[2]>NEAR){const p=scr(q),rad=CV.F*(it.o.r||3)/q[2]+CV.F*sh.r/shC[2];if(hyp(p[0]-shS[0],p[1]-shS[1])<rad)al=Math.min(al,.3)}}
