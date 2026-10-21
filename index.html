@@ -552,7 +552,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 const STR={
 pt:{
  inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
- pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
+ fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
  zoomIn:'Aproximar',zoomOut:'Afastar',rotL:'Girar goleiro para a esquerda',rotR:'Girar goleiro para a direita',
@@ -588,7 +588,7 @@ pt:{
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
- pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
+ fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
  zoomIn:'Zoom in',zoomOut:'Zoom out',rotL:'Rotate keeper left',rotR:'Rotate keeper right',
@@ -2330,7 +2330,258 @@ function buttonTop(b,team){return ()=>{const c=ctx;c.beginPath();c.arc(0,0,10,0,
   const eg=c.createRadialGradient(-.6,-1,0,0,0,10.05);eg.addColorStop(0,'rgba(0,0,0,0)');eg.addColorStop(.72,'rgba(0,0,0,0)');eg.addColorStop(.82,'rgba(255,255,255,.12)');eg.addColorStop(.9,'rgba(0,0,0,.06)');eg.addColorStop(1,'rgba(0,0,0,.4)');c.fillStyle=eg;c.fillRect(-10,-10,20,20);
   const gg=c.createLinearGradient(0,-9,0,0);gg.addColorStop(0,'rgba(255,255,255,.34)');gg.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gg;c.beginPath();c.ellipse(-1.5,-4,7,4.2,-.2,0,2*PI);c.fill();
   c.restore()}}
+/* ---------- behind-the-button view, in WebGL ----------
+   Real 3D: the button is the BOTAO2.blend dome (a lathe of its profile) with a glass shader that refracts
+   through the shell onto the printed face; the felt is the pitch texture with anisotropic filtering; the
+   goals have frames and a net; soft contact shadows; and the shot's flight is drawn with its height. */
+const GL3=(()=>{
+  let cv=null,gl=null,ok=null,P={},M={},feltKey='',feltTex=null,dyn=null,aniso=null;
+  const ART3=new Map(),PALT=new Map();
+  // the dome's profile from BOTAO2.blend (radius 1 at the rim), subdivided like its Subdivision modifier
+  const CAGE=[[0,.2088],[.1951,.2125],[.3827,.2186],[.5556,.2198],[.7071,.2097],[.8315,.1838],[.9239,.1398],[.9808,.0779],[1,0]];
+  function subdiv(pts){const o=[];const n=pts.length;
+    for(let i=0;i<n;i++){const p=pts[i];
+      if(i===0){const q=pts[1];o.push([0,(q[1]+6*p[1]+q[1])/8])}
+      else if(i===n-1)o.push(p.slice());
+      else{const a=pts[i-1],b=pts[i+1];o.push([(a[0]+6*p[0]+b[0])/8,(a[1]+6*p[1]+b[1])/8])}
+      if(i<n-1){const q=pts[i+1];o.push([(p[0]+q[0])/2,(p[1]+q[1])/2])}}
+    return o}
+  let DOMEP=CAGE;for(let i=0;i<3;i++)DOMEP=subdiv(DOMEP);
+  const VS=`#version 300 es
+in vec3 aP;in vec3 aN;in vec2 aT;in vec4 aC;
+uniform mat4 uVP,uM;
+out vec3 vW;out vec3 vN;out vec2 vT;out vec4 vC;out vec3 vL;
+void main(){vec4 w=uM*vec4(aP,1.);vW=w.xyz;vN=mat3(uM)*aN;vT=aT;vC=aC;vL=aP;gl_Position=uVP*w;}`;
+  const HEAD=`#version 300 es
+precision highp float;
+in vec3 vW;in vec3 vN;in vec2 vT;in vec4 vC;in vec3 vL;
+uniform vec3 uCam,uLamp;uniform float uA;
+out vec4 o;
+vec3 envc(vec3 R){vec3 room=vec3(.035,.05,.10),felt=vec3(.10,.22,.08);
+  vec3 c=R.z<0.?mix(room,felt,clamp(-R.z*4.,0.,1.)):mix(room,vec3(.06,.08,.15),R.z);
+  float l=max(dot(normalize(R),normalize(vec3(0.,-.25,1.))),0.);c+=vec3(1.,.96,.88)*(pow(l,24.)*1.6+pow(l,4.)*.12);
+  c+=vec3(.55,.62,.78)*.32*exp(-pow((R.z-.12)/.16,2.));return c;}
+`;
+  const FS={
+    tex:HEAD+`uniform sampler2D uTex;
+void main(){vec3 c=texture(uTex,vT).rgb;float d=length(vW.xy-uLamp.xy);c*=1.05-.18*smoothstep(30.,110.,d);o=vec4(c*uA,uA);}`,
+    lit:HEAD+`uniform vec3 uCol;uniform float uRough,uMetal;uniform sampler2D uTex;uniform float uUseTex;
+void main(){vec3 N=normalize(vN);vec3 V=normalize(uCam-vW);if(dot(N,V)<0.)N=-N;vec3 L=normalize(uLamp-vW),H=normalize(L+V);
+  vec3 base=uUseTex>.5?texture(uTex,vT).rgb:uCol;float diff=max(dot(N,L),0.),amb=.32+.22*N.z;
+  float sh=mix(500.,10.,uRough),sp=pow(max(dot(N,H),0.),sh)*mix(1.4,.18,uRough);
+  vec3 R=reflect(-V,N),env=envc(R);float F=.04+.96*pow(1.-max(dot(N,V),0.),5.);
+  vec3 c=uMetal>.5?base*(env*1.35+diff*.35+.12)+base*sp*1.6:base*(diff*.72+amb)+vec3(sp)+env*F*(1.-uRough)*.8;
+  o=vec4(c*uA,uA);}`,
+    glass:HEAD+`uniform sampler2D uTex;uniform vec2 uRot;uniform float uR,uFace,uThick;uniform vec3 uRim;
+void main(){vec3 N=normalize(vN),d=normalize(vW-uCam),L=normalize(uLamp-vW);if(dot(N,d)>0.)discard;
+  float ci=clamp(-dot(d,N),0.,1.),F=.04+.96*pow(1.-ci,5.);
+  vec3 t=refract(d,N,1./1.5);vec3 P2=vL+t*(uThick/max(-dot(t,N),.3));
+  float s=(uFace-P2.z)/min(d.z,-1e-3);vec3 Hh=P2+d*max(s,0.);
+  vec2 q=Hh.xy/uR;float rho=length(q);q=vec2(q.x*uRot.x+q.y*uRot.y,-q.x*uRot.y+q.y*uRot.x);
+  vec3 art=texture(uTex,q*.5+.5).rgb;
+  float lit=.66+.42*max(L.z,0.);art*=lit*(1.-.25*smoothstep(.86,1.,rho));
+  vec3 R=reflect(d,N),env=envc(R);float rl=max(dot(R,L),0.);float spec=pow(rl,700.)*5.+pow(rl,60.)*.35;
+  float inside=1.-smoothstep(.975,.998,rho);
+  vec3 c=art*.93*(1.-F)*inside+env*F*1.25+vec3(spec);
+  float a=clamp(max(inside,F*1.1+.07+spec),0.,1.)*uA;o=vec4(c*uA,a);}`,
+    shadow:HEAD+`uniform vec4 uS;uniform vec2 uRot;uniform float uRad,uSoft;
+void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot.x);vec2 q=abs(p)-uS.zw;
+  float sd=length(max(q,0.))+min(max(q.x,q.y),0.)-uRad;float a=uA*(1.-smoothstep(-uSoft*.6,uSoft,sd));o=vec4(vec3(.01,.04,0.)*a,a);}`,
+    net:HEAD+`void main(){vec2 g=vT/1.25;vec2 f=fract(g);vec2 w=fwidth(g);vec2 dd=min(f,1.-f)/max(w,vec2(1e-4));
+  float line=1.-clamp(min(dd.x,dd.y)-.6,0.,1.);float a=line*.55*uA;o=vec4(vec3(.93,.95,.98)*a,a);}`,
+    col:HEAD+`void main(){float a=vC.a*uA;o=vec4(vC.rgb*a,a);}`
+  };
+  function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
+  function prog(fs){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,VS));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));
+    ['aP','aN','aT','aC'].forEach((n,i)=>gl.bindAttribLocation(p,i,n));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
+    const u={},n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=gl.getActiveUniform(p,i);u[a.name]=gl.getUniformLocation(p,a.name)}return {p,u}}
+  // geometry
+  function mesh(pos,nrm,uv,idx,col){const v=gl.createVertexArray();gl.bindVertexArray(v);
+    const buf=(data,loc,n)=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,n,gl.FLOAT,false,0,0)};
+    buf(pos,0,3);if(nrm)buf(nrm,1,3);if(uv)buf(uv,2,2);if(col)buf(col,3,4);
+    const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint32Array(idx),gl.STATIC_DRAW);
+    gl.bindVertexArray(null);return {v,n:idx.length,hasN:!!nrm,hasT:!!uv,hasC:!!col}}
+  function lathe(prof,segs,planar){ // prof: [[r,z]...] from the axis outward; normals from the profile
+    const pos=[],nrm=[],uv=[],idx=[],n=prof.length;
+    for(let i=0;i<n;i++){const a=prof[Math.max(0,i-1)],b=prof[Math.min(n-1,i+1)];let dr=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dr,dz)||1;const nr=-dz/l,nz=dr/l;
+      for(let j=0;j<=segs;j++){const t=j/segs*2*PI,c=Math.cos(t),s=Math.sin(t);pos.push(prof[i][0]*c,prof[i][0]*s,prof[i][1]);nrm.push(nr*c,nr*s,nz);uv.push(...(planar?[prof[i][0]*c/(2*planar)+.5,prof[i][0]*s/(2*planar)+.5]:[j/segs,i/(n-1)]))}}
+    for(let i=0;i<n-1;i++)for(let j=0;j<segs;j++){const a=i*(segs+1)+j,b=a+segs+1;idx.push(a,b,a+1,a+1,b,b+1)}
+    return mesh(pos,nrm,uv,idx)}
+  function rprof(r,h,e,k){ // a rounded puck: flat top, rounded edge e, straight side down to 0
+    const o=[[0,h]];for(let i=0;i<=k;i++){const t=i/k*PI/2;o.push([r-e+e*Math.sin(t),h-e+e*Math.cos(t)])}o.push([r,0]);return o}
+  function rbox(w,d,h,r,n){const H=[w/2,d/2,h/2],p=[],nn=[],u=[],idx=[];
+    const faces=[[0,1,2],[0,2,1],[1,2,0]];
+    for(const [a,b,c] of faces)for(const sg of [-1,1]){const k0=p.length/3;
+      for(let i=0;i<=n;i++)for(let j=0;j<=n;j++){const q=[0,0,0];q[a]=(i/n*2-1);q[b]=(j/n*2-1);q[c]=sg;
+        const P=q.map((v,t)=>v*H[t]),inner=P.map((v,t)=>Math.max(-(H[t]-r),Math.min(H[t]-r,v))),dv=P.map((v,t)=>v-inner[t]);const l=Math.hypot(...dv)||1,N=dv.map(v=>v/l);
+        p.push(inner[0]+N[0]*r,inner[1]+N[1]*r,inner[2]+N[2]*r+h/2);nn.push(...N);u.push(i/n,j/n)}
+      for(let i=0;i<n;i++)for(let j=0;j<n;j++){const A=k0+i*(n+1)+j;idx.push(A,A+n+1,A+1,A+1,A+n+1,A+n+2)}}
+    return mesh(p,nn,u,idx)}
+  function box(w,d,h){const p=[],n=[],u=[],idx=[];const X=w/2,Y=d/2;
+    const f=(a,b,c,dd,nn)=>{const k=p.length/3;for(const q of [a,b,c,dd]){p.push(...q);n.push(...nn)}u.push(0,0,1,0,1,1,0,1);idx.push(k,k+1,k+2,k,k+2,k+3)};
+    f([-X,-Y,h],[X,-Y,h],[X,Y,h],[-X,Y,h],[0,0,1]);f([-X,-Y,0],[X,-Y,0],[X,-Y,h],[-X,-Y,h],[0,-1,0]);f([X,Y,0],[-X,Y,0],[-X,Y,h],[X,Y,h],[0,1,0]);
+    f([X,-Y,0],[X,Y,0],[X,Y,h],[X,-Y,h],[1,0,0]);f([-X,Y,0],[-X,-Y,0],[-X,-Y,h],[-X,Y,h],[-1,0,0]);return mesh(p,n,u,idx)}
+  function quadsMesh(quads){ // [[p0,p1,p2,p3,normal,uv?]] in world space
+    const p=[],n=[],u=[],idx=[];for(const q of quads){const k=p.length/3;for(let i=0;i<4;i++){p.push(...q[i]);n.push(...q[4])}
+      const uv=q[5]||[[0,0],[1,0],[1,1],[0,1]];for(const t of uv)u.push(...t);idx.push(k,k+1,k+2,k,k+2,k+3)}return mesh(p,n,u,idx)}
+  function tube(a,b,r,segs){ // a cylinder between two world points
+    const p=[],n=[],u=[],idx=[],d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],L=Math.hypot(...d),w=d.map(x=>x/L);
+    let e=Math.abs(w[2])<.9?[0,0,1]:[1,0,0];const x=[w[1]*e[2]-w[2]*e[1],w[2]*e[0]-w[0]*e[2],w[0]*e[1]-w[1]*e[0]],xl=Math.hypot(...x);for(let i=0;i<3;i++)x[i]/=xl;
+    const y=[w[1]*x[2]-w[2]*x[1],w[2]*x[0]-w[0]*x[2],w[0]*x[1]-w[1]*x[0]];
+    for(const end of [a,b])for(let j=0;j<=segs;j++){const t=j/segs*2*PI,c=Math.cos(t),s=Math.sin(t),nn=[x[0]*c+y[0]*s,x[1]*c+y[1]*s,x[2]*c+y[2]*s];p.push(end[0]+nn[0]*r,end[1]+nn[1]*r,end[2]+nn[2]*r);n.push(...nn);u.push(j/segs,0)}
+    for(let j=0;j<segs;j++)idx.push(j,j+segs+1,j+1,j+1,j+segs+1,j+segs+2);return {p,n,u,idx}}
+  function merge(parts){const p=[],n=[],u=[],idx=[];for(const q of parts){const k=p.length/3;p.push(...q.p);n.push(...q.n);u.push(...q.u);idx.push(...q.idx.map(i=>i+k))}return mesh(p,n,u,idx)}
+  function build(){
+    M.dome=lathe(DOMEP.map(([r,z])=>[r*BR,z*BR]),64);
+    M.ball=lathe(rprof(BALLR,.62,.24,6),36);
+    M.pal=lathe(rprof(PAL_R,.15,.06,3),48,PAL_R);
+    M.keeper=rbox(KW,KH,KEEP_H,.35,14);
+    M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
+    // the table: felt plane under everything, the rail as a raised frame, the sides down to the floor
+    M.felt=quadsMesh([[[0,0,0],[TW,0,0],[TW,TH,0],[0,TH,0],[0,0,1],[[0,0],[1,0],[1,1],[0,1]]]]);
+    const RH=.9,I0=RAIL,Ix=TW-RAIL,Iy=TH-RAIL,T0=-6,q=[];
+    q.push([[0,0,RH],[TW,0,RH],[Ix,I0,RH],[I0,I0,RH],[0,0,1]],[[TW,0,RH],[TW,TH,RH],[Ix,Iy,RH],[Ix,I0,RH],[0,0,1]],[[TW,TH,RH],[0,TH,RH],[I0,Iy,RH],[Ix,Iy,RH],[0,0,1]],[[0,TH,RH],[0,0,RH],[I0,I0,RH],[I0,Iy,RH],[0,0,1]]);
+    q.push([[I0,I0,0],[Ix,I0,0],[Ix,I0,RH],[I0,I0,RH],[0,1,0]],[[Ix,I0,0],[Ix,Iy,0],[Ix,Iy,RH],[Ix,I0,RH],[-1,0,0]],[[Ix,Iy,0],[I0,Iy,0],[I0,Iy,RH],[Ix,Iy,RH],[0,-1,0]],[[I0,Iy,0],[I0,I0,0],[I0,I0,RH],[I0,Iy,RH],[1,0,0]]);
+    q.push([[TW,0,T0],[0,0,T0],[0,0,RH],[TW,0,RH],[0,-1,0]],[[TW,TH,T0],[TW,0,T0],[TW,0,RH],[TW,TH,RH],[1,0,0]],[[0,TH,T0],[TW,TH,T0],[TW,TH,RH],[0,TH,RH],[0,1,0]],[[0,0,T0],[0,TH,T0],[0,TH,RH],[0,0,RH],[-1,0,0]]);
+    M.rail=quadsMesh(q);
+    // goals: white frame and a net
+    const fr=[],net=[];
+    for(const top of [true,false]){const gy=top?F.t:F.b,o=top?-1:1,yb=gy+o*GD,zb=BAR*.72,x0=CX-GW/2,x1=CX+GW/2;
+      for(const x of [x0,x1])fr.push(tube([x,gy,0],[x,gy,BAR],.28,14));fr.push(tube([x0,gy,BAR],[x1,gy,BAR],.28,14));
+      for(const x of [x0,x1]){fr.push(tube([x,yb,0],[x,yb,zb],.1,8));fr.push(tube([x,gy,BAR],[x,yb,zb],.1,8));fr.push(tube([x,gy,.05],[x,yb,.05],.1,8))}
+      fr.push(tube([x0,yb,zb],[x1,yb,zb],.1,8));fr.push(tube([x0,yb,.05],[x1,yb,.05],.1,8));
+      const dn=GD;net.push([[x0,yb,0],[x1,yb,0],[x1,yb,zb],[x0,yb,zb],[0,-o,0],[[0,0],[GW,0],[GW,zb],[0,zb]]]);
+      net.push([[x0,gy,BAR],[x1,gy,BAR],[x1,yb,zb],[x0,yb,zb],[0,0,1],[[0,0],[GW,0],[GW,dn],[0,dn]]]);
+      for(const x of [x0,x1])net.push([[x,gy,0],[x,yb,0],[x,yb,zb],[x,gy,BAR],[1,0,0],[[0,0],[dn,0],[dn,zb],[0,BAR]]])}
+    M.frame=merge(fr);M.net=quadsMesh(net);
+    dyn={v:gl.createVertexArray(),b:gl.createBuffer(),n:0};gl.bindVertexArray(dyn.v);gl.bindBuffer(gl.ARRAY_BUFFER,dyn.b);
+    gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,3,gl.FLOAT,false,28,0);gl.enableVertexAttribArray(3);gl.vertexAttribPointer(3,4,gl.FLOAT,false,28,12);gl.bindVertexArray(null);
+  }
+  function init(){if(ok!==null)return ok;
+    try{cv=document.createElement('canvas');gl=cv.getContext('webgl2',{antialias:true,alpha:true,premultipliedAlpha:true});if(!gl)return ok=false;
+      for(const k in FS)P[k]=prog(FS[k]);build();
+      aniso=gl.getExtension('EXT_texture_filter_anisotropic');ok=true}catch(e){console.error(e);ok=false}return ok}
+  function texFrom(src,mip){const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    if(mip!==false){gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);if(aniso)gl.texParameterf(gl.TEXTURE_2D,aniso.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(16,gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT)))}
+    else gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);return t}
+  function felt(){const key=(prefs.pitch||'classico')+(pitchImg()?'1':'0');if(feltTex&&feltKey===key)return feltTex;
+    const K=12,c=document.createElement('canvas');c.width=TW*K;c.height=TH*K;const x=c.getContext('2d');x.scale(K,K);drawTable(x);
+    if(feltTex)gl.deleteTexture(feltTex);feltTex=texFrom(c);feltKey=key;return feltTex}
+  function artTex(team,num){const key=team.c+(team.kit==='away'?'_A':'')+'|'+num+'|'+team.dome;let t=ART3.get(key);if(t)return t;
+    const N=512,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),img=team.img,have=img&&img.complete&&img.naturalWidth;
+    if(have)x.drawImage(img,0,0,N,N);else{x.fillStyle=team.ring;x.fillRect(0,0,N,N);x.fillStyle=team.dome;x.beginPath();x.arc(N/2,N/2,N/2*DOME,0,2*PI);x.fill()}
+    x.fillStyle=team.num;x.font=`700 ${N*.25}px Geist, system-ui, sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(num,N/2,N/2+N*.19);
+    t=texFrom(c);if(have&&!(document.fonts&&document.fonts.status!=='loaded'))ART3.set(key,t);else setTimeout(()=>gl.deleteTexture(t),2000);return t}
+  function palTex(pal){const key=pal.mat+pal.base;let t=PALT.get(key);if(!t){t=texFrom(palSprite(pal.mat,pal.base));PALT.set(key,t)}return t}
+  // matrices
+  function VP(){const n=.8,f=3000,A=(f+n)/(f-n),B=-2*f*n/(f-n),sx=CV.F/(CW/2),sy=CV.F/(CH/2),p=[CV.px,CV.py,CV.pz],d=(v)=>v[0]*p[0]+v[1]*p[1]+v[2]*p[2];
+    const r=CV.r,u=CV.u,fw=CV.f;
+    return new Float32Array([r[0]*sx,u[0]*sy,fw[0]*A,fw[0], r[1]*sx,u[1]*sy,fw[1]*A,fw[1], r[2]*sx,u[2]*sy,fw[2]*A,fw[2], -d(r)*sx,-d(u)*sy,-d(fw)*A+B,-d(fw)])}
+  const I4=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+  const TR=(x,y,z,a=0,s=1,sy=s)=>{const c=Math.cos(a),n=Math.sin(a);return new Float32Array([c*s,n*s,0,0,-n*sy,c*sy,0,0,0,0,1,0,x,y,z,1])};
+  let cur=null,vp=null;const last={pr:null};
+  function use(k,alpha){const p=P[k];if(cur!==p){gl.useProgram(p.p);cur=p;gl.uniformMatrix4fv(p.u.uVP,false,vp);gl.uniform3f(p.u.uCam,CV.px,CV.py,CV.pz);gl.uniform3f(p.u.uLamp,LAMP.x,LAMP.y,70)}
+    gl.uniform1f(p.u.uA,alpha==null?1:alpha);return p.u}
+  function draw(m,M4){gl.uniformMatrix4fv(cur.u.uM,false,M4||I4);gl.bindVertexArray(m.v);
+    if(!m.hasN)gl.vertexAttrib3f(1,0,0,1);if(!m.hasT)gl.vertexAttrib2f(2,0,0);if(!m.hasC)gl.vertexAttrib4f(3,1,1,1,1);gl.drawElements(gl.TRIANGLES,m.n,gl.UNSIGNED_INT,0)}
+  const rgb=h=>{const n=parseInt((h||'#888888').slice(1),16);return [(n>>16)/255,(n>>8&255)/255,(n&255)/255]};
+  function lit(col,rough,metal,alpha,M4,m,tex){const u=use('lit',alpha);gl.uniform3f(u.uCol,...rgb(col));gl.uniform1f(u.uRough,rough);gl.uniform1f(u.uMetal,metal?1:0);
+    gl.uniform1f(u.uUseTex,tex?1:0);if(tex){gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.uniform1i(u.uTex,0)}draw(m,M4)}
+  function shadow(x,y,hx,hy,ang,rad,soft,a){const u=use('shadow',a);gl.uniform4f(u.uS,x,y,hx,hy);gl.uniform2f(u.uRot,Math.cos(ang),Math.sin(ang));gl.uniform1f(u.uRad,rad);gl.uniform1f(u.uSoft,soft);
+    const e=Math.max(hx,hy)+rad+soft*1.2;draw(M.unit,TR(x,y,.015,0,e))}
+  // camera-facing ribbons from a list of [x,y,z,r,g,b,a,w]
+  const strips=[];
+  function ribbon(pts){if(pts.length<2)return;const out=[];
+    for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)],p=pts[i];
+      const t=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[CV.px-p[0],CV.py-p[1],CV.pz-p[2]];let s=[t[1]*v[2]-t[2]*v[1],t[2]*v[0]-t[0]*v[2],t[0]*v[1]-t[1]*v[0]];const l=Math.hypot(...s)||1,w=p[7]/2;s=s.map(q=>q/l*w);
+      out.push(p[0]+s[0],p[1]+s[1],p[2]+s[2],p[3],p[4],p[5],p[6], p[0]-s[0],p[1]-s[1],p[2]-s[2],p[3],p[4],p[5],p[6])}
+    strips.push(out)}
+  function flat(pts){if(pts.length<2)return;const out=[]; // ribbons lying on the felt
+    for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)],p=pts[i];let nx=-(b[1]-a[1]),ny=b[0]-a[0];const l=Math.hypot(nx,ny)||1,w=p[7]/2;nx=nx/l*w;ny=ny/l*w;
+      out.push(p[0]+nx,p[1]+ny,p[2],p[3],p[4],p[5],p[6],p[0]-nx,p[1]-ny,p[2],p[3],p[4],p[5],p[6])}strips.push(out)}
+  function curtain(top,bot){const out=[];for(let i=0;i<top.length;i++)out.push(...top[i].slice(0,7),...bot[i].slice(0,7));strips.push(out)}
+  function flushStrips(alpha){if(!strips.length)return;const u=use('col',alpha);gl.uniformMatrix4fv(u.uM,false,I4);gl.bindVertexArray(dyn.v);gl.vertexAttrib3f(1,0,0,1);gl.vertexAttrib2f(2,0,0);
+    for(const s of strips){gl.bindBuffer(gl.ARRAY_BUFFER,dyn.b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(s),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLE_STRIP,0,s.length/7)}strips.length=0}
+  const ring=(x,y,z,r,col,w,n=48)=>{const o=[];for(let i=0;i<=n;i++){const a=i/n*2*PI;o.push([x+r*Math.cos(a),y+r*Math.sin(a),z,...col,w])}return o};
+  // height colour of the flight: white on the felt, yellow once it clears the buttons, red over the bar
+  const hcol=z=>z<=BTN_H?[1,1,1]:z<BAR?[1,.83,.25]:[1,.36,.24];
+
+  function render(ts){
+    const W=Math.round(CW*DPR),H=Math.round(CH*DPR);if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+    gl.viewport(0,0,W,H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    vp=VP();cur=null;gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.disable(gl.CULL_FACE);
+    const tA=G.kit[0],tB=G.kit[1],bl=G.ball,pulse=.5+.5*Math.sin(ts/260),A=G.aim&&G.aim.mode3?G.aim:null;
+    // table
+    {const u=use('tex');gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,felt());gl.uniform1i(u.uTex,0);draw(M.felt)}
+    lit('#c9d0d6',.35,true,1,null,M.rail);
+    // soft shadows on the felt (no depth writes)
+    gl.depthMask(false);
+    for(const b of bodies()){const L=lampVec(b.x,b.y);shadow(b.x+L.x*.6,b.y+L.y*.6+.2,0,0,0,b.r*.9,b.r*.55,.42);shadow(b.x,b.y,0,0,0,b.r*.96,.5,.35)}
+    for(const k of G.keepers){const L=lampVec(k.x,k.y);shadow(k.x+L.x*.9,k.y+L.y*.9+.3,KW/2,KH/2,k.a,.2,1.4,.45)}
+    {const L=lampVec(bl.x,bl.y),z=bl.z||0;shadow(bl.x+L.x*(.4+z*.6),bl.y+L.y*(.4+z*.6)+.15,0,0,0,BALLR*(.9+z*.04),.6+z*.15,Math.max(.12,.45-z*.03))}
+    for(const top of [true,false]){const gy=top?F.t:F.b,o=top?-1:1;shadow(CX,gy+o*GD/2,GW/2,GD/2,0,.2,1.2,.18)}
+    // the aim on the felt, the shooter's ring
+    if(A&&A.raw>=CANCEL_PX&&A.pw>.005){const b=A.b,ux=Math.cos(A.ang),uy=Math.sin(A.ang),L=b.r+2+A.pw*14,c=hcol(0);
+      flat([[b.x+ux*(b.r+.6),b.y+uy*(b.r+.6),.03,1,.82,.25,.95,.45],[b.x+ux*L,b.y+uy*L,.03,1,.82,.25,.95,.45]])}
+    if(V3.btn&&(V3.mode==='shot'||V3.mode==='shotIn')&&!A){const b=V3.btn;flat(ring(b.x,b.y,.03,b.r+.8,[1,.82,.25,.5+.4*pulse],.25))}
+    if(A&&A.raw>4&&A.raw<CANCEL_PX){const b=A.b;flat(ring(b.x,b.y,.03,b.r+1.4,[1,.47,.39,.9],.25))}
+    let pr=null;if(A&&A.raw>=CANCEL_PX&&A.pw>.005)pr=predictBall(A.b,A.ang,A.pw,A.seed,ts,null,70);last.pr=pr;
+    if(pr&&pr.length>1)flat(pr.map((p,k)=>[p[0],p[1],.03,0,0,0,.35*(1-k/pr.length)+.1,.3]));
+    flushStrips(1);gl.depthMask(true);
+    // pieces, far to near; anything near the camera fades, and anything between the camera and the shooter turns see-through
+    const items=[],sh=V3.btn&&V3.mode!=='chase'?V3.btn:null,shC=sh?toC(sh.x,sh.y,.3):null,shS=shC&&shC[2]>NEAR?scr(shC):null;
+    for(const b of bodies())items.push({o:b,d:toC(b.x,b.y,.3)[2],f:a=>{const t=b.side===0?tA:tB,u=use('glass',a);
+      gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,artTex(t,b.num));gl.uniform1i(u.uTex,0);gl.uniform2f(u.uRot,Math.cos(b.rot||0),Math.sin(b.rot||0));
+      gl.uniform1f(u.uR,b.r);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(t.ring));draw(M.dome,TR(b.x,b.y,0))}});
+    G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({o:{x:k.x,y:k.y,r:KW/2},d:toC(k.x,k.y,1)[2],f:a=>lit(t.dome,.4,false,a,TR(k.x,k.y,0,k.a),M.keeper)})});
+    items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#15181c',.3,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
+    if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,pal=curPal();
+      items.push({o:null,d:toC(px,py,0)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:.2,pal.mat==='metal',pal.mat==='glass'?a*.8:a,TR(px,py,.02,A.ang+PI/2),M.pal,palTex(pal))})}
+    items.sort((p,q)=>q.d-p.d);
+    for(const it of items){let al=clamp((it.d-2.2)/4,0,1);
+      if(it.o&&it.o!==sh&&shS&&it.d<shC[2]){const q=toC(it.o.x,it.o.y,.3);if(q[2]>NEAR){const p=scr(q),rad=CV.F*(it.o.r||3)/q[2]+CV.F*sh.r/shC[2];if(hyp(p[0]-shS[0],p[1]-shS[1])<rad)al=Math.min(al,.3)}}
+      if(al<=.02)continue;it.f(al)}
+    // goals last: frame, then the net (see-through)
+    lit('#f2f4f6',.3,false,1,null,M.frame);
+    gl.depthMask(false);use('net',1);draw(M.net);gl.depthMask(true);
+    // the ball's flight: a faint curtain down to the felt, drop lines, the arc coloured by height, and a ghost ball at the top
+    if(pr&&pr.length>1){const n=pr.length,air=pr.some(p=>p[2]>.15);gl.depthMask(false);
+      if(air){curtain(pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],p[2]+.3,...c,.22*(1-i/n)+.06]}),pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],.03,...c,.03]}));
+        for(let i=0;i<n;i+=Math.max(1,Math.round(n/14))){const p=pr[i];if(p[2]<.4)continue;const c=hcol(p[2]);ribbon([[p[0],p[1],.03,...c,.4,.08],[p[0],p[1],p[2]+.3,...c,.4,.08]])}}
+      ribbon(pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],p[2]+.3,...c,.95*(1-i/n)+.3,.38]}));
+      const e=pr[n-1];flat(ring(e[0],e[1],.04,BALLR*1.3,[1,1,1,.55],.16,24));flushStrips(1);gl.depthMask(true);
+      let top=pr[0];for(const p of pr)if(p[2]>top[2])top=p;
+      if(top[2]>.6)lit('#ffffff',.3,false,.35,TR(top[0],top[1],top[2]),M.ball)}
+    // the flight again on top, faint, so it never vanishes behind a piece
+    if(pr&&pr.length>1){gl.disable(gl.DEPTH_TEST);const n=pr.length;ribbon(pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],p[2]+.3,...c,.25*(1-i/n),.2]}));flushStrips(1);gl.enable(gl.DEPTH_TEST)}
+    return cv;
+  }
+  return {init,render,ok:()=>ok,last};
+})();
+/* side view of the shot: how high the ball goes against the buttons and the crossbar */
+function flightPanel(c,pr){
+  if(!pr||pr.length<2)return;const w=Math.min(250,CW*.44),h=Math.round(w*.46),x0=CW-w-12,y0=12,pad=10;
+  const ds=[0];for(let i=1;i<pr.length;i++)ds.push(ds[i-1]+hyp(pr[i][0]-pr[i-1][0],pr[i][1]-pr[i-1][1]));
+  let gd=null;for(let i=1;i<pr.length;i++){const a=pr[i-1],b=pr[i];if((a[1]-F.t)*(b[1]-F.t)<=0&&a[1]!==b[1]){const t=(F.t-a[1])/(b[1]-a[1]);gd={d:ds[i-1]+(ds[i]-ds[i-1])*t,x:a[0]+(b[0]-a[0])*t,z:a[2]+(b[2]-a[2])*t};break}}
+  const maxD=Math.max(ds[ds.length-1],gd?gd.d+4:0),maxZ=Math.max(BAR*1.35,...pr.map(p=>p[2]*1.12));
+  const X=d=>x0+pad+(w-2*pad)*d/maxD,Y=z=>y0+h-pad-(h-2*pad-12)*z/maxZ;
+  c.save();c.fillStyle='rgba(5,12,32,.66)';rr(c,x0,y0,w,h,10);c.fill();c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=1;c.stroke();
+  c.font='600 9.5px Geist, system-ui, sans-serif';c.textBaseline='bottom';
+  const hl=(z,txt,col)=>{c.strokeStyle=col;c.setLineDash([3,3]);c.beginPath();c.moveTo(x0+pad,Y(z));c.lineTo(x0+w-pad,Y(z));c.stroke();c.setLineDash([]);c.fillStyle=col;c.textAlign='left';c.fillText(txt,x0+pad+2,Y(z)-2)};
+  hl(BTN_H,tr('fpButtons'),'rgba(255,255,255,.45)');hl(BAR,tr('fpBar'),'rgba(255,120,100,.6)');
+  c.strokeStyle='rgba(120,200,110,.7)';c.lineWidth=2;c.beginPath();c.moveTo(x0+pad,Y(0));c.lineTo(x0+w-pad,Y(0));c.stroke();
+  if(gd){const inside=Math.abs(gd.x-CX)<GW/2,gx=X(gd.d);c.strokeStyle=inside?'#f2f4f6':'rgba(242,244,246,.35)';c.lineWidth=2.2;c.beginPath();c.moveTo(gx,Y(0));c.lineTo(gx,Y(BAR));c.lineTo(gx+7,Y(BAR*.72));c.lineTo(gx+7,Y(0));c.stroke();
+    c.fillStyle='rgba(255,255,255,.55)';c.textAlign='center';c.fillText(tr('fpGoal'),gx,Y(0)+11)}
+  c.lineWidth=2.6;c.lineCap='round';for(let i=1;i<pr.length;i++){const z=pr[i][2];c.strokeStyle=z<=BTN_H?'#ffffff':z<BAR?'#ffd23f':'#ff5a3d';c.beginPath();c.moveTo(X(ds[i-1]),Y(pr[i-1][2]));c.lineTo(X(ds[i]),Y(z));c.stroke()}
+  c.fillStyle='#0b0d10';c.strokeStyle='#fff';c.lineWidth=1;c.beginPath();c.arc(X(0),Y(0)-3,3.2,0,2*PI);c.fill();c.stroke();
+  c.restore()}
 function render3D(ts){
+  if(GL3.init()){const c=ctx;c.setTransform(DPR,0,0,DPR,0,0);roomBg(c);setCam(V3.pose);
+    try{const g=GL3.render(ts);c.setTransform(1,0,0,1,0,0);c.drawImage(g,0,0);c.setTransform(DPR,0,0,DPR,0,0);vignette(c);flightPanel(c,GL3.last.pr);return}catch(e){console.error(e)}}
+  render3Dflat(ts)}
+function render3Dflat(ts){
   const c=ctx;c.setTransform(DPR,0,0,DPR,0,0);roomBg(c);setCam(V3.pose);
   table3();
   const tA=G.kit[0],tB=G.kit[1],bl=G.ball,pulse=.5+.5*Math.sin(ts/260);
