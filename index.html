@@ -2650,7 +2650,7 @@ function v3Update(dt){
   if(V3.anim){const A=V3.anim;A.t+=dt;const e=ease(Math.min(1,A.t/A.dur));V3.pose=mixPose(A.from,A.to(),e);
     if(A.t>=A.dur){const d=A.done;V3.anim=null;V3.pose=A.to();d&&d()}return}
   const k=(rate)=>Math.min(1,dt*rate),sm=(p,q,r)=>{const m=mixPose(p,q,k(r));return m};
-  if(V3.mode==='shot'){const ag=G&&G.aim&&G.aim.mode3&&G.aim.raw>=CANCEL_PX?G.aim.ang:V3.ang;V3.pose=sm(V3.pose,shotPose(V3.btn,ag),5)}
+  if(V3.mode==='shot'){V3.pose=sm(V3.pose,shotPose(V3.btn,V3.ang),6)} // the camera stays put while aiming
   else if(V3.mode==='chase'&&V3.chaseBase){const B=V3.chaseBase,bl=G.ball;
     // turn only if the ball drifts well off-centre, and then only by the excess
     let want=Math.atan2(bl.y-B.y,bl.x-B.x),d=want-V3.chaseYaw;while(d>PI)d-=2*PI;while(d<-PI)d+=2*PI;const dz=.32;
