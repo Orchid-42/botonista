@@ -36,6 +36,8 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea{-webkit-user-select:text;user-select:text}
 body{background:radial-gradient(900px 520px at 85% -8%,rgba(255,210,63,.07),transparent 70%),radial-gradient(800px 600px at -10% 110%,rgba(70,120,255,.09),transparent 70%),var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
 #app{height:100%;display:flex;flex-direction:column}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column}
@@ -2246,7 +2248,7 @@ let CV=null;
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const focal=()=>Math.max(CH*.95,CW*1.05);
 function topPose(){return {x:G.cam.x,y:G.cam.y,z:focal()/S,yaw:-PI/2,pitch:-PI/2+1e-3}}
-function shotPose(b,ang){const z=prefs.zoom3||1,back=21/z,h=14/Math.pow(z,.85),ahead=42;return {x:b.x-Math.cos(ang)*back,y:b.y-Math.sin(ang)*back,z:h,yaw:ang,pitch:-Math.atan2(h,back+ahead)}}
+function shotPose(b,ang){const z=prefs.zoom3||1,back=31/z,h=18/Math.pow(z,.85),ahead=42;return {x:b.x-Math.cos(ang)*back,y:b.y-Math.sin(ang)*back,z:h,yaw:ang,pitch:-Math.atan2(h,back+ahead)}}
 function mixPose(a,b,t){let dy=b.yaw-a.yaw;while(dy>PI)dy-=2*PI;while(dy<-PI)dy+=2*PI;
   const L=(p,q)=>p+(q-p)*t;return {x:L(a.x,b.x),y:L(a.y,b.y),z:a.z*Math.pow(b.z/a.z,t),yaw:a.yaw+dy*t,pitch:L(a.pitch,b.pitch)}}
 function setCam(p){const ch=Math.cos(p.yaw),sh=Math.sin(p.yaw),cp=Math.cos(p.pitch),sp=Math.sin(p.pitch);
@@ -2382,8 +2384,9 @@ void main(){vec3 N=normalize(vN),d=normalize(vW-uCam),L=normalize(uLamp-vW);if(d
   float lit=.66+.42*max(L.z,0.);art*=lit*(1.-.25*smoothstep(.86,1.,rho));
   vec3 R=reflect(d,N),env=envc(R);float rl=max(dot(R,L),0.);float spec=pow(rl,700.)*5.+pow(rl,60.)*.35;
   float inside=1.-smoothstep(.975,.998,rho);
-  vec3 c=art*.93*(1.-F)*inside+env*F*1.25+vec3(spec);
-  float a=clamp(max(inside,F*1.1+.07+spec),0.,1.)*uA;o=vec4(c*uA,a);}`,
+  float Fm=min(1.,F*1.7+.06);
+  vec3 c=(art*.86+vec3(.80,.86,.95)*.07)*(1.-Fm)*inside+env*Fm*1.25+vec3(.75,.82,.95)*.06+vec3(spec);
+  float a=clamp(max(inside,Fm+.24+spec),0.,1.)*uA;o=vec4(c*uA,a);}`,
     shadow:HEAD+`uniform vec4 uS;uniform vec2 uRot;uniform float uRad,uSoft;
 void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot.x);vec2 q=abs(p)-uS.zw;
   float sd=length(max(q,0.))+min(max(q.x,q.y),0.)-uRad;float a=uA*(1.-smoothstep(-uSoft*.6,uSoft,sd));o=vec4(vec3(.01,.04,0.)*a,a);}`,
@@ -2433,7 +2436,10 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
   function merge(parts){const p=[],n=[],u=[],idx=[];for(const q of parts){const k=p.length/3;p.push(...q.p);n.push(...q.n);u.push(...q.u);idx.push(...q.idx.map(i=>i+k))}return mesh(p,n,u,idx)}
   function build(){
     M.dome=lathe(DOMEP.map(([r,z])=>[r*BR,z*BR]),64);
-    M.ball=lathe(rprof(BALLR,.62,.24,6),36);
+    {const k=BALLR/.1722,H=.0495,top=[[0,.0416]],R=[.0601,.0748,.0781,.0815,.085,.0887,.0925,.0966,.1008,.1051,.1097,.1144,.1194,.1246,.13,.1356,.1406];
+      let hi=false;for(const r of R){top.push([r,hi?.0437:.0416]);hi=!hi;top.push([r,hi?.0437:.0416])}
+      top.push([.1675,H],[.1722,.0448],[.1722,-.0448],[.1675,-H],[0,-H]);
+      M.ball=lathe(top.map(([r,z])=>[r*k,(z+H)*k]),40)}
     M.pal=lathe(rprof(PAL_R,.15,.06,3),48,PAL_R);
     M.keeper=rbox(KW,KH,KEEP_H,.35,14);
     M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
@@ -2536,7 +2542,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
       gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,artTex(t,b.num));gl.uniform1i(u.uTex,0);gl.uniform2f(u.uRot,Math.cos(b.rot||0),Math.sin(b.rot||0));
       gl.uniform1f(u.uR,b.r);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(t.ring));draw(M.dome,TR(b.x,b.y,0))}});
     G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({o:{x:k.x,y:k.y,r:KW/2},d:toC(k.x,k.y,1)[2],f:a=>lit(t.dome,.4,false,a,TR(k.x,k.y,0,k.a),M.keeper)})});
-    items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#15181c',.3,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
+    items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#0d0f12',.14,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
     if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,pal=curPal();
       items.push({o:null,d:toC(px,py,0)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:.2,pal.mat==='metal',pal.mat==='glass'?a*.8:a,TR(px,py,.02,A.ang+PI/2),M.pal,palTex(pal))})}
     items.sort((p,q)=>q.d-p.d);
@@ -2552,8 +2558,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
         for(let i=0;i<n;i+=Math.max(1,Math.round(n/14))){const p=pr[i];if(p[2]<.4)continue;const c=hcol(p[2]);ribbon([[p[0],p[1],.03,...c,.4,.08],[p[0],p[1],p[2]+.3,...c,.4,.08]])}}
       ribbon(pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],p[2]+.3,...c,.95*(1-i/n)+.3,.38]}));
       const e=pr[n-1];flat(ring(e[0],e[1],.04,BALLR*1.3,[1,1,1,.55],.16,24));flushStrips(1);gl.depthMask(true);
-      let top=pr[0];for(const p of pr)if(p[2]>top[2])top=p;
-      if(top[2]>.6)lit('#ffffff',.3,false,.35,TR(top[0],top[1],top[2]),M.ball)}
+    }
     // the flight again on top, faint, so it never vanishes behind a piece
     if(pr&&pr.length>1){gl.disable(gl.DEPTH_TEST);const n=pr.length;ribbon(pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],p[2]+.3,...c,.25*(1-i/n),.2]}));flushStrips(1);gl.enable(gl.DEPTH_TEST)}
     return cv;
@@ -2579,7 +2584,7 @@ function flightPanel(c,pr){
   c.restore()}
 function render3D(ts){
   if(GL3.init()){const c=ctx;c.setTransform(DPR,0,0,DPR,0,0);roomBg(c);setCam(V3.pose);
-    try{const g=GL3.render(ts);c.setTransform(1,0,0,1,0,0);c.drawImage(g,0,0);c.setTransform(DPR,0,0,DPR,0,0);vignette(c);flightPanel(c,GL3.last.pr);return}catch(e){console.error(e)}}
+    try{const g=GL3.render(ts);c.setTransform(1,0,0,1,0,0);c.drawImage(g,0,0);c.setTransform(DPR,0,0,DPR,0,0);vignette(c);return}catch(e){console.error(e)}}
   render3Dflat(ts)}
 function render3Dflat(ts){
   const c=ctx;c.setTransform(DPR,0,0,DPR,0,0);roomBg(c);setCam(V3.pose);
