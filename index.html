@@ -261,6 +261,17 @@ button{touch-action:manipulation}
 .turnpill{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;background:rgba(5,12,32,.88);border:1px solid var(--line2);color:var(--ink);font-weight:700;font-size:17px;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.45);animation:pillIn .25s ease-out}
 .turnpill small{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
 .turnpill .flag{width:26px;height:18px}
+/* the "place your players" cue: a quiet title that rises in, a yellow rule that draws under it, then it all fades */
+.cue{position:absolute;z-index:5;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;text-align:center;
+  padding:18px 30px 16px;border-radius:16px;background:radial-gradient(closest-side,rgba(4,10,28,.72),rgba(4,10,28,0));animation:cueOut .45s ease-in 2.1s forwards}
+.cue[hidden]{display:none}
+.cue-k{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);opacity:0;animation:cueIn .45s cubic-bezier(.2,.8,.2,1) .05s forwards}
+.cue-t{font-size:clamp(24px,4.4vw,38px);font-weight:800;letter-spacing:-.02em;line-height:1.05;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.55);opacity:0;animation:cueIn .55s cubic-bezier(.2,.8,.2,1) .14s forwards;white-space:nowrap}
+.cue-l{display:block;height:2px;width:72px;border-radius:2px;background:var(--accent);transform:scaleX(0);animation:cueLine .6s cubic-bezier(.2,.8,.2,1) .35s forwards}
+@keyframes cueIn{from{opacity:0;transform:translateY(12px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes cueLine{to{transform:scaleX(1)}}
+@keyframes cueOut{to{opacity:0;transform:translate(-50%,-56%)}}
+@media (prefers-reduced-motion:reduce){.cue-k,.cue-t,.cue-l{animation-duration:.01s!important;animation-delay:0s!important}}
 @keyframes pillIn{from{opacity:0;transform:translate(-50%,-40%)}}
 
 /* home: competition choice */
@@ -458,6 +469,7 @@ button{touch-action:manipulation}
   <!-- MATCH -->
   <section id="match" class="screen" hidden>
     <div class="stage" id="stage">
+      <div class="cue" id="cue" hidden><span class="cue-k" id="cueK"></span><span class="cue-t" id="cueT"></span><i class="cue-l"></i></div>
       <canvas id="cv"></canvas>
       <canvas id="fxc"></canvas>
       <div class="turnpill" id="turnPill" hidden></div>
@@ -554,14 +566,14 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 const STR={
 pt:{
  inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
- fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
+ fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
  zoomIn:'Aproximar',zoomOut:'Afastar',rotL:'Girar goleiro para a esquerda',rotR:'Girar goleiro para a direita',
  soundOn:'Som: ligado',soundOff:'Som: desligado',
  rounds:['Oitavas de final','Quartas de final','Semifinal','Final'],roundsShort:['Oitavas','Quartas','Semi','Final'],roundsTiny:['Oit.','Qua.','Semi','Final'],tbd:'A definir',nextMatch:'{round} · próxima partida',play:'Jogar',
  champs:'Campeões do mundo',lifts:'{t} levanta a taça',outIn:'Eliminado: {round}',wonCopa:'{t} é campeã',newCopa:'Nova Copa',newSkin:'Liberado: {x}',
- shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'2D',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força; puxe para um lado para mirar para o outro, como um estilingue. Com força suficiente a bola sobe. Arraste para cima ou para os lados para girar a câmera. Toque em outro botão seu para trocar.',ready:'Pronto',done:'Feito',
+ shoot:'Pro gol',shotOn:'Pro gol!',aimView:'Mirar',height:'Altura',power:'Força',swap:'Escolher outro',pickShooter:'<strong>Quem vai chutar?</strong> Toque no botão que vai bater.',topView:'2D',shotHelp:'<strong>Mire o chute.</strong> Puxe para baixo para dar força; puxe para um lado para mirar para o outro, como um estilingue. Com força suficiente a bola sobe. Arraste para cima ou para os lados para girar a câmera. Toque em outro botão seu para trocar.',ready:'Pronto',done:'Pronto',
  firstTo:'Primeiro a {n}',lockNote:'Quem repôs a bola só toca de novo depois de passar por um companheiro.',possLeft:'{n}',possTip:'Toques restantes nesta posse (máximo 10, incluindo o chute)',possOver:'Acabaram os 10 toques',possOverYou:'A posse passa para a CPU.',possOverCpu:'A bola é sua.',takerNote:'A reposição é com o botão posicionado na bola.',streakNote:'Esse botão já tocou três vezes seguidas: jogue com outro.',koNote:'Depois da saída, a bola precisa de dois toques antes do chute.',cancelled:'Jogada cancelada.',h1:'1º T',h2:'2º T',pensClock:'PÊNALTIS',half1:'1º tempo',half2:'2º tempo',pensWord:'pênaltis',
  kickoff:'Saída de bola',second:'Segundo tempo',goal:'Gol!',own:'Gol contra',penalty:'Pênalti!',penFor:'Pênalti para você.',penForCpu:'Pênalti para {c}.',outOfTime:'Tempo esgotado. A bola é deles.',noGoal:'Gol anulado',noGoalSub:'O chute não foi anunciado. Tiro de meta.',
  foul:'Falta',foulYou:'Falta para você.',foulCpu:'Falta para {c}.',halfTime:'Intervalo',pens:'Pênaltis',pensSub:'Empate no tempo normal. Cinco cobranças para cada.',
@@ -590,7 +602,7 @@ pt:{
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
- fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
+ fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
  zoomIn:'Zoom in',zoomOut:'Zoom out',rotL:'Rotate keeper left',rotR:'Rotate keeper right',
@@ -1644,7 +1656,10 @@ function setupTaker(){
   else if(G.pvp){flipView('pvpSetup');startSetup(true)}
   else{G.phase='pause';setStatus(tr('cpuPrep',{c:cpuC()}));hud();cpuSetup(true);later(()=>{snapAll();beginTurn(1,sp.msg)},750)}
 }
-function startSetup(taking){G.phase='setup';G.turn=G.sp.side;G.setup={taking,moved:[]};hud();setupStatus()}
+function startSetup(taking){G.phase='setup';G.turn=G.sp.side;G.setup={taking,moved:[]};hud();setupStatus();
+  if(G.turn===0||G.pvp)showCue(STR[prefs.lang].kind[G.sp.kind]||'',tr('cueSetup'))}
+function showCue(k,t){const c=$('#cue');if(!c)return;$('#cueK').textContent=k;$('#cueT').textContent=t;c.hidden=true;void c.offsetWidth;c.hidden=false;
+  clearTimeout(showCue.t);showCue.t=setTimeout(()=>{c.hidden=true},2700)}
 function setupStatus(extra){
   if(G.sp.kind==='kickoff'){setStatus(tr('koSetup',{n:KO_MOVE-G.setup.moved.length})+(extra?' '+extra:''));return}
   const s=G.setup,n=MAX_MOVE-s.moved.length,K=STR[prefs.lang].kind[G.sp.kind];
