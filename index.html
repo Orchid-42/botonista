@@ -2611,10 +2611,15 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
     // the table: felt plane under everything, the rail as a raised frame, the sides down to the floor
     M.felt=quadsMesh([[[0,0,0],[TW,0,0],[TW,TH,0],[0,TH,0],[0,0,1],[[0,0],[1,0],[1,1],[0,1]]]]);
-    const RH=.9,I0=RAIL,Ix=TW-RAIL,Iy=TH-RAIL,T0=-6,q=[];
-    q.push([[0,0,RH],[TW,0,RH],[Ix,I0,RH],[I0,I0,RH],[0,0,1]],[[TW,0,RH],[TW,TH,RH],[Ix,Iy,RH],[Ix,I0,RH],[0,0,1]],[[TW,TH,RH],[0,TH,RH],[I0,Iy,RH],[Ix,Iy,RH],[0,0,1]],[[0,TH,RH],[0,0,RH],[I0,I0,RH],[I0,Iy,RH],[0,0,1]]);
-    q.push([[I0,I0,0],[Ix,I0,0],[Ix,I0,RH],[I0,I0,RH],[0,1,0]],[[Ix,I0,0],[Ix,Iy,0],[Ix,Iy,RH],[Ix,I0,RH],[-1,0,0]],[[Ix,Iy,0],[I0,Iy,0],[I0,Iy,RH],[Ix,Iy,RH],[0,-1,0]],[[I0,Iy,0],[I0,I0,0],[I0,I0,RH],[I0,Iy,RH],[1,0,0]]);
-    q.push([[TW,0,T0],[0,0,T0],[0,0,RH],[TW,0,RH],[0,-1,0]],[[TW,TH,T0],[TW,0,T0],[TW,0,RH],[TW,TH,RH],[1,0,0]],[[0,TH,T0],[TW,TH,T0],[TW,TH,RH],[0,TH,RH],[0,1,0]],[[0,0,T0],[0,TH,T0],[0,TH,RH],[0,0,RH],[-1,0,0]]);
+    // the rail: a ring whose inner edge follows the felt's rounded corners (r 2.6), outer corners rounded too, sides down to the floor
+    const RH=.9,T0=-6,q=[],CN=10;
+    const rrp=(x0,y0,x1,y1,r)=>{const P=[],cs=[[x1-r,y0+r,-PI/2],[x1-r,y1-r,0],[x0+r,y1-r,PI/2],[x0+r,y0+r,PI]];
+      for(const [cx,cy,a0] of cs)for(let k=0;k<=CN;k++){const a=a0+k/CN*PI/2;P.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r])}return P};
+    const IN=rrp(RAIL,RAIL,TW-RAIL,TH-RAIL,2.6),OUT=rrp(0,0,TW,TH,3.4),NP=IN.length;
+    for(let k=0;k<NP;k++){const a=IN[k],b=IN[(k+1)%NP],c=OUT[k],d=OUT[(k+1)%NP];
+      q.push([[c[0],c[1],RH],[d[0],d[1],RH],[b[0],b[1],RH],[a[0],a[1],RH],[0,0,1]]);
+      {const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;q.push([[a[0],a[1],0],[b[0],b[1],0],[b[0],b[1],RH],[a[0],a[1],RH],[-dy/l,dx/l,0]])}
+      {const dx=d[0]-c[0],dy=d[1]-c[1],l=Math.hypot(dx,dy)||1;q.push([[d[0],d[1],T0],[c[0],c[1],T0],[c[0],c[1],RH],[d[0],d[1],RH],[dy/l,-dx/l,0]])}}
     M.rail=quadsMesh(q);
     // goals: white frame and a net
     const fr=[],net=[];
