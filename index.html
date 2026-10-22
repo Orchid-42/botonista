@@ -1241,7 +1241,7 @@ function avatar(){const a=$('#avatar');if(!a)return;a.innerHTML='';const c=docum
 let PSTAGE=0;
 function palStage(){const cv=$('#palStage');if(!cv||PSTAGE)return;const t0=performance.now();
   const tick=()=>{if($('#profile').hidden){PSTAGE=0;return}const t=(performance.now()-t0)/1000,P=curPal();
-    palPaint(cv,P.mat,P.base,PI+Math.sin(t*.7)*.85,.78+Math.sin(t*1.1)*.1);PSTAGE=requestAnimationFrame(tick)};PSTAGE=requestAnimationFrame(tick)}
+    palPaint(cv,P.mat,P.base,PI+t*.6,.78);PSTAGE=requestAnimationFrame(tick)};PSTAGE=requestAnimationFrame(tick)}
 function renderAcctBox(){const box=$('#acctBox');if(!box)return;
   if(!cloudOn()){box.hidden=true;return}box.hidden=false;
   box.innerHTML=AUTH?`<p class="label">${A('account')}</p><p class="acctmail">${escH(AUTH.user&&AUTH.user.email||'')}</p><p class="small" id="syncline">${syncText()}</p><div class="row"><button class="btn ghost" data-aact="syncnow">${A('syncNow')}</button><button class="btn ghost" data-aact="asignout">${A('signout')}</button></div>`
