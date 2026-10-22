@@ -150,7 +150,7 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .cbox canvas{width:100%;height:auto;aspect-ratio:1.54;filter:drop-shadow(0 6px 6px rgba(0,0,0,.5));transition:transform .2s}
 .cbox:hover canvas,.cbox:focus-visible canvas{transform:translateY(-3px) scale(1.03)}
 .cbox span{font-size:11px;color:#f1e1c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.cbox.locked{cursor:default}.cbox.locked canvas{filter:brightness(.18) saturate(0) drop-shadow(0 6px 6px rgba(0,0,0,.5));opacity:.8}
+.cbox.locked{cursor:default}.cbox.locked canvas{filter:brightness(.07) saturate(0) drop-shadow(0 6px 6px rgba(0,0,0,.5));opacity:.85}
 .cbox.locked span{color:rgba(241,225,200,.45)}
 #boxModal .sheet{max-width:760px}
 #inspCv{width:min(100%,62vh,460px);aspect-ratio:1;height:auto;display:block;margin:0 auto;touch-action:none;cursor:grab;border-radius:12px;background:radial-gradient(ellipse at 50% 60%,rgba(150,180,255,.16),transparent 70%)}
@@ -1418,7 +1418,7 @@ const ACH=[
  ['quick10','Partida rápida','Quick fire','Jogue 10 partidas rápidas','Play 10 quick matches',s=>s.quick>=10],
  ['lob1','Por cobertura','Chip shot','Faça um gol de cobertura','Score a lob',s=>s.lobs>=1],
  ['lob10','Mestre da cobertura','Chip master','Faça 10 gols de cobertura','Score 10 lobs',s=>s.lobs>=10],
- ['pen1','Bola na rede','Spot on','Marque de pênalti','Score a penalty',s=>s.pens>=1],
+ ['pen1','Na marca da cal','Spot on','Marque de pênalti','Score a penalty',s=>s.pens>=1],
  ['pen10','Frieza','Ice cold','Marque 10 pênaltis','Score 10 penalties',s=>s.pens>=10],
  ['so1','Nos pênaltis','Shootout','Vença uma disputa de pênaltis','Win a penalty shootout',s=>s.shootout>=1],
  ['so5','Especialista','Shootout king','Vença 5 disputas de pênaltis','Win 5 penalty shootouts',s=>s.shootout>=5],
@@ -1427,7 +1427,7 @@ const ACH=[
  ['hat1','Hat-trick','Hat-trick','Faça os 3 gols de uma vitória','Score all 3 goals of a win',s=>s.hat>=1],
  ['rout1','Goleada','Rout','Vença por 3 gols de diferença','Win by 3 goals',s=>s.rout>=1],
  ['back1','Virada','Comeback','Vença depois de estar perdendo','Win after trailing',s=>s.comeback>=1],
- ['back5','Nunca desista','Never give up','Vença 5 viradas','Win 5 comebacks',s=>s.comeback>=5],
+ ['back5','Nunca desista','Never give up','Vença 5 jogos de virada','Win 5 comebacks',s=>s.comeback>=5],
  ['semi1','Semifinalista','Semi-finalist','Chegue a uma semifinal','Reach a semi-final',s=>s.semis>=1],
  ['cup1','Campeão','Champion','Ganhe uma Copa','Win a cup',s=>s.copas>=1],
  ['cup3','Tricampeão','Three-time champion','Ganhe 3 Copas','Win 3 cups',s=>s.copas>=3],
@@ -1496,9 +1496,9 @@ function boxList(){const L=[];
   for(const t of ALLT){if(t.sped)L.push({grp:'sp',t,k:t.sped,on:spedOn(t),name:SPED[t.c].name[prefs.lang==='en'?1:0],hint:'kitHintSp'})}
   for(const [grp,list] of [['wc',NATIONS],['br',CLUBS],['cl',EURO]])for(const t of list){L.push({grp,t,k:t,on:true,name:tn(t)});if(hasKit2(t))L.push({grp,t,k:t.away,on:kit2On(t),name:tn(t)+' · '+tr('kit2'),hint:'kitHint2'})}
   return L}
-function renderCab(){const L=boxList(),tab=renderCab.tab||'sp';
+function renderCab(){const L=boxList(),tab=renderCab.tab||'wc';
   $('#boxCount').textContent=tr('boxCount',{n:L.filter(b=>b.on).length,m:L.length});
-  const bt=$('#boxTabs');bt.innerHTML=[['sp',tr('boxSp')],['wc',tr('tab_wc')],['br',tr('tab_br')],['cl',tr('tab_cl')]].map(([v,l])=>`<button data-v="${v}" aria-pressed="${v===tab}">${l}</button>`).join('');
+  const bt=$('#boxTabs');bt.innerHTML=[['wc',tr('tab_wc')],['br',tr('tab_br')],['cl',tr('tab_cl')],['sp',tr('boxSp')]].map(([v,l])=>`<button data-v="${v}" aria-pressed="${v===tab}">${l}</button>`).join('');
   for(const b of bt.children)b.onclick=()=>{renderCab.tab=b.dataset.v;renderCab()};
   const cab=$('#cab');cab.innerHTML='';
   for(const b of L.filter(b=>b.grp===tab)){const el=document.createElement('button');el.type='button';el.className='cbox'+(b.on?'':' locked');
