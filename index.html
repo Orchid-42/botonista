@@ -1681,12 +1681,27 @@ function cpuSetup(taking){
       let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-x,o.y-y));
       spots.push({x,y,s:Math.min(mo,16)-hyp(x-CX,y-(F.b-24))*.12-Math.abs(hyp(x-ball.x,y-ball.y)-35)*.15})}
     spots.sort((a,b)=>b.s-a.s);
-    // first put the most out-of-place buttons (defenders weigh more) back into the shape, then use what's left for support
-    const off=mine.filter(b=>b!==sp.taker).map(b=>{const r=roleSpot(1,b.num,ball.x,ball.y);return {b,r,e:r?hyp(b.x-r.x,b.y-r.y)*(.6+r.depth):0}}).filter(q=>q.r&&q.e>14).sort((a,b)=>b.e-a.e);
+    /* spread out: the formation, sliding only gently toward the ball so the team keeps its width and depth.
+       Move the buttons that are furthest from their spot or bunched with teammates; keep everyone ~16 cm apart;
+       if nobody is open for a first pass, the last free move becomes that option */
+    const others=mine.filter(b=>b!==sp.taker),pos=b=>b.tx!=null?{x:b.tx,y:b.ty}:{x:b.x,y:b.y};
+    const spot=b=>roleSpot(1,b.num,CX+(ball.x-CX)*.6,CY+(ball.y-CY)*.5);
+    const crowd=b=>{const p=pos(b);let n=0;for(const o of mine)if(o!==b&&hyp(pos(o).x-p.x,pos(o).y-p.y)<15)n++;return n};
+    const spaced=(p,b,gap)=>mine.every(o=>o===b||hyp(pos(o).x-p.x,pos(o).y-p.y)>=gap)&&okSpot(p.x,p.y,b,WALL);
+    const place=(b,t)=>{if(!t)return false;let best=null;
+      for(let r=0;r<=24&&!best;r+=3)for(let a=0;a<(r?12:1);a++){const p={x:clamp(t.x+Math.cos(a*PI/6)*r,F.l+5,F.r-5),y:clamp(t.y+Math.sin(a*PI/6)*r,F.t+6,F.b-6)};if(spaced(p,b,16)){best=p;break}}
+      if(best){moveTo(b,best,true);return true}return false};
     let left=MAX_MOVE-1;
-    for(const q of off.slice(0,Math.max(1,left-1))){if(!left)break;const t=nearestOk(q.r.x,q.r.y,q.b,WALL);if(t){moveTo(q.b,t,true);left--}}
-    const movers=mine.filter(b=>b!==sp.taker&&b.y>F.t+40&&!off.slice(0,MAX_MOVE).some(q=>q.b===b&&q.b.tx!=null)).sort((a,b)=>hyp(b.x-ball.x,b.y-ball.y)-hyp(a.x-ball.x,a.y-ball.y)).slice(0,left);
-    let k=0;for(const b of movers){while(k<spots.length&&!okSpot(spots[k].x,spots[k].y,b,WALL))k++;if(k<spots.length){moveTo(b,spots[k],true);k++}}
+    const need=others.map(b=>{const r=spot(b),p=pos(b);return {b,r,e:(r?hyp(p.x-r.x,p.y-r.y)*(.6+r.depth):0)+crowd(b)*12}}).filter(q=>q.r&&q.e>10).sort((a,c)=>c.e-a.e);
+    const open=others.some(b=>{const p=pos(b),dd=hyp(p.x-ball.x,p.y-ball.y);if(dd<14||dd>42)return false;let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-p.x,o.y-p.y));return mo>9});
+    for(const q of need.slice(0,open?left:left-1)){if(left<=(open?0:1))break;if(place(q.b,q.r))left--}
+    if(left>0){ // a passing option in space, 25-40 cm from the ball, not next to a teammate
+      const cand=[];for(let i=-4;i<=4;i++)for(let j=-1;j<=4;j++){const x=CX+i*12,y=clamp(ball.y+j*12,F.t+10,F.b-12),dd=hyp(x-ball.x,y-ball.y);if(dd<20||dd>45)continue;
+        let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-x,o.y-y));cand.push({x,y,s:Math.min(mo,18)-Math.abs(dd-32)*.2+(y-ball.y)*.06})}
+      cand.sort((a,c)=>c.s-a.s);
+      const spare=others.filter(b=>b.tx==null).sort((a,c)=>{const ra=spot(a),rc=spot(c);return (rc?rc.depth:0)-(ra?ra.depth:0)}); // forwards/mids first, keep defenders home
+      for(const b of spare.reverse()){if(!left)break;const c=cand.find(c=>spaced(c,b,16));if(c){moveTo(b,c,true);left--;cand.splice(cand.indexOf(c),1)}}
+    }
   }else{
     const d=hyp(own.x-ball.x,own.y-ball.y)||1;
     const wall={x:ball.x+(own.x-ball.x)/d*(RING+1),y:ball.y+(own.y-ball.y)/d*(RING+1)};
@@ -2473,7 +2488,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     M.pal=lathe(PAL_PROF,96);
     {const zs=PAL_PROF.map(p=>p[1]),zm=(Math.min(...zs)+Math.max(...zs))/2;M.palC=lathe(PAL_PROF.map(([r,z])=>[r,z-zm]),96)}
     M.keeper=rbox(KW,KH,KEEP_H,.16,10);
-    {const w=KW/2-.2,y=KH/2-.15;M.gkCard=quadsMesh([[[-w,y,.2],[w,y,.2],[w,y,KEEP_H-.2],[-w,y,KEEP_H-.2],[0,-1,0],[[0,1],[1,1],[1,0],[0,0]]]])}
+    {const w=KW/2-.2,y=KH/2-.15;M.gkCard=quadsMesh([[[-w,y,.2],[w,y,.2],[w,y,KEEP_H-.2],[-w,y,KEEP_H-.2],[0,-1,0],[[1,1],[0,1],[0,0],[1,0]]]]) /* seen from the front the table's x runs right-to-left, so u is flipped */}
     {const w=KW/2-.35,h=KH/2-.35,r=Math.min(1,(2*h)/(2*w)*(980/340)),v0=(1-r)/2,v1=(1+r)/2;
       M.gkFloor=quadsMesh([[[-w,-h,.03],[w,-h,.03],[w,h,.03],[-w,h,.03],[0,0,1],[[0,v0],[1,v0],[1,v1],[0,v1]]]])}
     M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
