@@ -156,7 +156,7 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 #inspCv{width:min(100%,62vh,460px);aspect-ratio:1;height:auto;display:block;margin:0 auto;touch-action:none;cursor:grab;border-radius:12px;background:radial-gradient(ellipse at 50% 60%,rgba(150,180,255,.16),transparent 70%)}
 #inspBack{margin-right:10px;font-size:20px}#inspBack+h2{flex:1}
 .boxbtns figure{cursor:pointer}.boxbtns figure:hover canvas{transform:scale(1.05)}.boxbtns canvas{transition:transform .15s}
-.boxview canvas{width:100%;height:auto;aspect-ratio:1.54;display:block;border-radius:6px}
+.boxview canvas{touch-action:manipulation;width:100%;height:auto;aspect-ratio:1.54;display:block;border-radius:6px}
 .boxbtns{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:12px}
 @media (max-width:620px){.boxbtns{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .boxbtns figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -1492,6 +1492,10 @@ function drawBox(cv,kt,base,title){const W=cv.width,H=cv.height,x=cv.getContext(
   x.fillStyle='rgba(0,0,0,.18)';x.fillRect(kx+2,ky+3,kw,kh);if(gi)x.drawImage(gi,kx,ky,kw,kh);else{x.fillStyle=kt.ring||kt.dome;x.fillRect(kx,ky,kw,kh)}
   x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=Math.max(1,W*.003);x.strokeRect(kx,ky,kw,kh);x.fillStyle='rgba(255,255,255,.18)';x.fillRect(kx,ky,kw,kh*.2);
   const gl=x.createLinearGradient(wx+ww*.55,wy,wx+ww*.35,wy+wh);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,255,255,.14)');gl.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gl;x.fillRect(wx,wy,ww,wh)}
+// which piece of a drawn box is under a point: 1 for the keeper, 2..11 for the buttons
+function boxHit(W,H,x,y){const wx=W*.047,wy=H*.105,ww=W-2*wx,wh=H-2*wy,R=ww*.078,gap=ww/5;
+  for(let i=0;i<5;i++){if(Math.hypot(x-(wx+gap*(i+.5)),y-(wy+wh*.2))<R*1.1)return 2+i;if(Math.hypot(x-(wx+gap*(i+.5)),y-(wy+wh*.8))<R*1.1)return 7+i}
+  const kw=ww*.3,kh=kw*340/980;if(Math.abs(x-W/2)<kw/2+6&&Math.abs(y-(wy+wh/2))<kh/2+6)return 1;return 0}
 function boxList(){const L=[];
   for(const t of ALLT){if(t.sped)L.push({grp:'sp',t,k:t.sped,on:spedOn(t),name:SPED[t.c].name[prefs.lang==='en'?1:0],hint:'kitHintSp'})}
   for(const [grp,list] of [['wc',NATIONS],['br',CLUBS],['cl',EURO]])for(const t of list){L.push({grp,t,k:t,on:true,name:tn(t)});if(hasKit2(t))L.push({grp,t,k:t.away,on:kit2On(t),name:tn(t)+' · '+tr('kit2'),hint:'kitHint2'})}
@@ -1508,25 +1512,23 @@ function renderCab(){const L=boxList(),tab=renderCab.tab||'wc';
   setTimeout(()=>{if(!$('#pBox').hidden&&cab.querySelector('canvas'))for(const [i,el] of [...cab.children].entries()){const b=L.filter(b=>b.grp===tab)[i];if(b)drawBox(el.querySelector('canvas'),b.k,b.t,b.k.kit==='sped'?b.name:tn(b.t))}},600)}
 function openBox(b){$('#boxTitle').textContent=b.name;
   const v=$('#boxView');v.innerHTML='<canvas width="1100" height="714"></canvas>';drawBox(v.firstChild,b.k,b.t,b.k.kit==='sped'?b.name:tn(b.t));
-  const bb=$('#boxBtns');bb.innerHTML='';const shirt=n=>b.k.kit==='sped'&&SPED[b.t.c].shirt?SPED[b.t.c].shirt[n]:n;
-  const gk=document.createElement('figure');gk.className='gk';gk.innerHTML=`<canvas width="490" height="170"></canvas><figcaption>GK · ${shirt(1)}</figcaption>`;
-  {const c=gk.firstChild.getContext('2d'),gi=gkImg(b.k);if(gi)c.drawImage(gi,0,0,490,170);else{c.fillStyle=b.k.ring||b.k.dome;c.fillRect(0,0,490,170)}}gk.onclick=()=>inspect(b,'gk',1,shirt(1));bb.appendChild(gk);
-  for(let n=2;n<=11;n++){const f=document.createElement('figure');f.innerHTML=`<canvas width="240" height="240"></canvas><figcaption>${shirt(n)}</figcaption>`;
-    const c=f.firstChild.getContext('2d'),sp=btnSprite(b.k,n);if(sp)c.drawImage(sp,0,0,240,240);f.onclick=()=>inspect(b,'btn',n,shirt(n));bb.appendChild(f)}
+  $('#boxBtns').innerHTML='';const shirt=n=>b.k.kit==='sped'&&SPED[b.t.c].shirt?SPED[b.t.c].shirt[n]:n;
+  const c=v.firstChild;c.style.cursor='pointer';c.onclick=e=>{const r=c.getBoundingClientRect(),X=(e.clientX-r.left)/r.width*c.width,Y=(e.clientY-r.top)/r.height*c.height,h=boxHit(c.width,c.height,X,Y);
+    if(h===1)inspect(b,'gk',1,shirt(1));else if(h)inspect(b,'btn',h,shirt(h))};
   openModal('box')}
 // turn one piece in 3D: drag to orbit, let go and it drifts back into a slow turn
 let INSP=0;
 function inspect(b,kind,n,shirt){$('#inspTitle').textContent=`${b.name} · ${kind==='gk'?'GK ':''}${shirt}`;openModal('insp');
   $('#inspBack').onclick=()=>openBox(b);
-  const cv=$('#inspCv'),S={yaw:kind==='gk'?0:PI+.4,pitch:kind==='gk'?.28:.62,vy:.5,vp:0,drag:null},P0=S.pitch;let last=performance.now();
-  cv.onpointerdown=e=>{S.drag={x:e.clientX,y:e.clientY,t:performance.now()};S.vy=0;S.vp=0;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
+  const cv=$('#inspCv'),S={rot:0,tilt:0,vr:.9,vt:0,drag:null};let last=performance.now();
+  cv.onpointerdown=e=>{S.drag={x:e.clientX,y:e.clientY,t:performance.now()};S.vr=0;S.vt=0;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
   cv.onpointermove=e=>{if(!S.drag)return;const now=performance.now(),dt=Math.max(1,now-S.drag.t)/1000,dx=e.clientX-S.drag.x,dy=e.clientY-S.drag.y;
-    S.yaw-=dx*.01;S.pitch=clamp(S.pitch+dy*.01,.04,1.5);S.vy=-dx*.01/dt;S.vp=dy*.01/dt;S.drag={x:e.clientX,y:e.clientY,t:now}};
+    S.rot+=dx*.012;S.tilt=clamp(S.tilt+dy*.012,-1.4,1.4);S.vr=dx*.012/dt;S.vt=dy*.012/dt;S.drag={x:e.clientX,y:e.clientY,t:now}};
   cv.onpointerup=cv.onpointercancel=()=>{S.drag=null;cv.style.cursor='grab'};
   cancelAnimationFrame(INSP);
   const tick=()=>{if($('#inspModal').hidden){INSP=0;return}const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
-    if(!S.drag){S.vy+=(.5-S.vy)*Math.min(1,dt*1.5);S.vp*=Math.pow(.02,dt);S.yaw+=S.vy*dt;S.pitch=clamp(S.pitch+S.vp*dt+(P0-S.pitch)*Math.min(1,dt*1.8),.04,1.5)}
-    const x=cv.getContext('2d'),px=cv.width;x.clearRect(0,0,px,px);let r=null;try{r=GL3.inspect(kind,b.k,n,px,S.yaw,S.pitch)}catch(e){}
+    if(!S.drag){S.vr+=(.9-S.vr)*Math.min(1,dt*1.6);S.vt*=Math.pow(.02,dt);S.rot+=S.vr*dt;S.tilt=clamp(S.tilt+S.vt*dt-S.tilt*Math.min(1,dt*2.2),-1.4,1.4)}
+    const x=cv.getContext('2d'),px=cv.width;x.clearRect(0,0,px,px);let r=null;try{r=GL3.inspect(kind,b.k,n,px,S.rot,S.tilt)}catch(e){}
     if(r)x.drawImage(r.c,0,r.sy,px,px,0,0,px,px);else if(kind!=='gk'){const sp=btnSprite(b.k,n);if(sp)x.drawImage(sp,px*.15,px*.15,px*.7,px*.7)}
     INSP=requestAnimationFrame(tick)};INSP=requestAnimationFrame(tick)}
 /* ================= TOURNAMENT ================= */
@@ -2896,11 +2898,12 @@ void main(){vec3 N=normalize(vN);vec3 V=normalize(uCam-vW);if(dot(N,V)<0.)N=-N;v
     vec3 c=base*body*.6+env*Fg*1.3+vec3(sp)*1.4;float a=clamp(body+Fg+sp,0.,1.)*uA;o=vec4(c*uA,a);return;}
   vec3 c=uMetal>.5?base*(env*1.35+diff*.35*uLC+.12*uAmb)+base*sp*1.6*uLC:base*(diff*.62*uLC+amb*.78*uAmb)+vec3(sp)*uLC+env*F*(1.-uRough)*.8;
   c=c/(1.+max(c.r,max(c.g,c.b))*.12);o=vec4(c*uA,uA);}`,
-    glass:HEAD+`uniform sampler2D uTex;uniform vec2 uRot;uniform float uR,uFace,uThick;uniform vec3 uRim;
+    glass:HEAD+`uniform sampler2D uTex;uniform vec2 uRot;uniform float uR,uFace,uThick,uUseMi;uniform vec3 uRim;uniform mat3 uMi;
 void main(){vec3 N=normalize(vN),d=normalize(vW-uCam),L=normalize(uLamp-vW);if(dot(N,d)>0.)discard;
   float ci=clamp(-dot(d,N),0.,1.),F=.04+.96*pow(1.-ci,5.);
-  vec3 t=refract(d,N,1./1.5);vec3 P2=vL+t*(uThick/max(-dot(t,N),.3));
-  float s=(uFace-P2.z)/min(d.z,-1e-3);vec3 Hh=P2+d*max(s,0.);
+  mat3 Mi=uUseMi>.5?uMi:mat3(1.);vec3 dl=Mi*d,Nl=Mi*N;
+  vec3 t=refract(dl,Nl,1./1.5);vec3 P2=vL+t*(uThick/max(-dot(t,Nl),.3));
+  float s=(uFace-P2.z)/min(dl.z,-1e-3);vec3 Hh=P2+dl*max(s,0.);
   vec2 q=Hh.xy/uR;float rho=length(q);q=vec2(q.x*uRot.x+q.y*uRot.y,-q.x*uRot.y+q.y*uRot.x);
   vec3 art=texture(uTex,q*.5+.5).rgb;
   float lit=.66+.42*max(L.z,0.);art*=lit*(1.-.25*smoothstep(.86,1.,rho));art*=mix(vec3(1.),uLC,.7)*mix(1.,uAmb,.6);
@@ -3133,24 +3136,26 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     {const u=use('lit',1);gl.uniform1f(u.uL2,0)}
     CV=keep;return {c:cv,sy:cv.height-px}}
   // one button or the keeper on its own, seen from an orbiting camera (yaw around, pitch up from the felt)
-  function inspect(kind,team,num,px,yaw,pitch){if(!init())return null;if(cv.width<px||cv.height<px){cv.width=Math.max(cv.width,px);cv.height=Math.max(cv.height,px)}
-    const gk=kind==='gk',tz=gk?KEEP_H*.45:.25,dist=gk?16.5:9.6,cp=Math.cos(pitch),pos=[dist*cp*Math.sin(yaw),-dist*cp*Math.cos(yaw),tz+dist*Math.sin(pitch)];
-    let f=[-pos[0],-pos[1],tz-pos[2]];{const l=Math.hypot(...f);f=f.map(v=>v/l)}
-    let r=[-f[1],f[0],0];{const l=Math.hypot(...r)||1;r=r.map(v=>v/l)}
-    const u=[f[1]*r[2]-f[2]*r[1],f[2]*r[0]-f[0]*r[2],f[0]*r[1]-f[1]*r[0]];
+  function inspect(kind,team,num,px,yaw,tilt){if(!init())return null;if(cv.width<px||cv.height<px){cv.width=Math.max(cv.width,px);cv.height=Math.max(cv.height,px)}
+    const gk=kind==='gk',tz=3,el=.12,dist=gk?15:9.2,pos=[0,dist*Math.cos(el),tz+dist*Math.sin(el)],f=[0,-Math.cos(el),-Math.sin(el)],r=[1,0,0],u=[0,-Math.sin(el),Math.cos(el)];
     const F=px/2/Math.tan(.36),n=.5,fa=200,A=(fa+n)/(fa-n),B=-2*fa*n/(fa-n),sx=F/(px/2),d=v=>v[0]*pos[0]+v[1]*pos[1]+v[2]*pos[2];
     const keep=CV;CV={px:pos[0],py:pos[1],pz:pos[2],f,r,u,F};
     vp=new Float32Array([r[0]*sx,u[0]*sx,f[0]*A,f[0], r[1]*sx,u[1]*sx,f[1]*A,f[1], r[2]*sx,u[2]*sx,f[2]*A,f[2], -d(r)*sx,-d(u)*sx,-d(f)*A+B,-d(f)]);cur=null;
     gl.viewport(0,0,px,px);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,0,px,px);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
     gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-    const L=[-10,-22,40];
-    gl.depthMask(false);{const u=use('shadow',.5);gl.uniform3f(u.uLamp,...L);if(gk){gl.uniform4f(u.uS,.3,.5,KW/2,KH/2);gl.uniform1f(u.uRad,.3)}else{gl.uniform4f(u.uS,.3,.5,0,0);gl.uniform1f(u.uRad,BR*.95)}gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uSoft,1.4);draw(M.unit,TR(.3,.5,.015,0,(gk?KW:BR)+3))}gl.depthMask(true);
+    // rotation: stand the piece facing the camera, spin it about the vertical, lean it by the tilt
+    const mm=(a,b)=>{const o=[];for(let c=0;c<3;c++)for(let rr=0;rr<3;rr++)o[c*3+rr]=a[rr]*b[c*3]+a[3+rr]*b[c*3+1]+a[6+rr]*b[c*3+2];return o};
+    const Rx=a=>[1,0,0,0,Math.cos(a),Math.sin(a),0,-Math.sin(a),Math.cos(a)],Rz=a=>[Math.cos(a),Math.sin(a),0,-Math.sin(a),Math.cos(a),0,0,0,1];
+    const Rm=mm(Rx(tilt),mm(Rz(yaw),gk?Rz(PI):Rx(-PI/2))),zc=gk?KEEP_H/2:BR*.11;
+    const T=[-Rm[6]*zc,-Rm[7]*zc,tz-Rm[8]*zc],M4=new Float32Array([Rm[0],Rm[1],Rm[2],0,Rm[3],Rm[4],Rm[5],0,Rm[6],Rm[7],Rm[8],0,T[0],T[1],T[2],1]);
+    const L=[-9,22,tz+14];
     if(gk){const img=gkImg(team),key=img?team.c+(team.kit||''):'#'+(team.ring||team.dome);let tx=GKT.get(key);
       if(!tx){let src=img;if(!src){src=document.createElement('canvas');src.width=src.height=4;const x=src.getContext('2d');x.fillStyle=team.ring||team.dome;x.fillRect(0,0,4,4)}tx=texFrom(src);if(img)GKT.set(key,tx)}
-      {const u=use('tex',1);gl.uniform3f(u.uLamp,...L);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);draw(M.gkCard,TR(0,0,0,0))}
-      gl.depthMask(false);{const u=use('lit',1);gl.uniform3f(u.uLamp,...L)}lit('#c8dbee',.02,false,1,TR(0,0,0,0),M.keeper,null,true);gl.depthMask(true)}
+      {const u=use('tex',1);gl.uniform3f(u.uLamp,...L);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);draw(M.gkCard,M4)}
+      gl.depthMask(false);{const u=use('lit',1);gl.uniform3f(u.uLamp,...L)}lit('#c8dbee',.02,false,1,M4,M.keeper,null,true);gl.depthMask(true)}
     else{const u=use('glass',1);gl.uniform3f(u.uLamp,...L);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,artTex(team,num));gl.uniform1i(u.uTex,0);
-      gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uR,BR);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(team.ring));draw(M.dome,TR(0,0,0))}
+      gl.uniformMatrix3fv(u.uMi,false,new Float32Array([Rm[0],Rm[3],Rm[6],Rm[1],Rm[4],Rm[7],Rm[2],Rm[5],Rm[8]]));gl.uniform1f(u.uUseMi,1);
+      gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uR,BR);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(team.ring));draw(M.dome,M4);gl.uniform1f(u.uUseMi,0)}
     CV=keep;return {c:cv,sy:cv.height-px}}
   return {init,render,ok:()=>ok,last,preview,palPreview,inspect};
 })();
