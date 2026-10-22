@@ -2755,8 +2755,8 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     const M4=new Float32Array([cr,sr,0,0, -sr*c,cr*c,sn,0, sr*sn,-cr*sn,c,0, 0,0,h,1]);
     gl.depthMask(false);
     gl.depthMask(true);
-    {const u=use('lit',1);const LP=PAL_LAMP||[-14,14,3];gl.uniform3f(u.uLamp,LP[0],LP[1],h+LP[2]);gl.uniform3f(u.uLamp2,-22,3,h+1);gl.uniform1f(u.uL2,.75)}
-    lit(hex,mat==='metal'?.8:mat==='glass'?.62:.74,mat==='metal',1,M4,M.palC,null,mat==='glass'); // softer highlights than in the match
+    {const u=use('lit',1);const LP=PAL_LAMP||[-14,14,3];gl.uniform3f(u.uLamp,LP[0],LP[1],h+LP[2]);gl.uniform1f(u.uL2,0)}
+    lit(hex,mat==='metal'?.58:mat==='glass'?.62:.74,mat==='metal',1,M4,M.palC,null,mat==='glass'); // softer highlights than in the match
     {const u=use('lit',1);gl.uniform1f(u.uL2,0)}
     CV=keep;return {c:cv,sy:cv.height-px}}
   return {init,render,ok:()=>ok,last,preview,palPreview};
