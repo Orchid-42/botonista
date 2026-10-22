@@ -2473,7 +2473,7 @@ function table3(){
     const sy=gy+d*SPOT,lim=Math.acos((PA.d-SPOT)/CIRC);poly3(d>0?circ(CX,sy,CIRC,PI/2-lim,PI/2+lim,16):circ(CX,sy,CIRC,-PI/2-lim,-PI/2+lim,16),lw,W)}
 }
 function goal3(top){
-  const gy=top?F.t:F.b,o=top?-1:1,yb=gy+o*GD,zb=BAR*.72,x0=CX-GW/2,x1=CX+GW/2,N='rgba(255,255,255,.28)',nw=.07;
+  const gy=top?F.t:F.b,o=top?-1:1,yb=gy+o*GD,zb=BAR,x0=CX-GW/2,x1=CX+GW/2,N='rgba(255,255,255,.28)',nw=.07;
   for(let x=x0;x<=x1+.01;x+=1.4){seg3([x,yb,0],[x,yb,zb],nw,N);seg3([x,gy,BAR],[x,yb,zb],nw,N)}
   for(let z=0;z<=zb+.01;z+=1.4)seg3([x0,yb,z],[x1,yb,z],nw,N);
   for(const x of [x0,x1]){for(let z=0;z<=zb;z+=1.4)seg3([x,gy,z+(BAR-zb)*(z/zb)*0],[x,yb,z],nw,N);seg3([x,yb,0],[x,yb,zb],.18,'rgba(235,240,245,.7)');seg3([x,gy,BAR],[x,yb,zb],.18,'rgba(235,240,245,.7)')}
@@ -2512,16 +2512,16 @@ void main(){vec4 w=uM*vec4(aP,1.);vW=w.xyz;vN=mat3(uM)*aN;vT=aT;vC=aC;vL=aP;gl_P
   const HEAD=`#version 300 es
 precision highp float;
 in vec3 vW;in vec3 vN;in vec2 vT;in vec4 vC;in vec3 vL;
-uniform vec3 uCam,uLamp;uniform float uA;
+uniform vec3 uCam,uLamp,uLC;uniform float uA,uAmb,uVig;
 out vec4 o;
 vec3 envc(vec3 R){vec3 room=vec3(.035,.05,.10),felt=vec3(.10,.22,.08);
   vec3 c=R.z<0.?mix(room,felt,clamp(-R.z*4.,0.,1.)):mix(room,vec3(.06,.08,.15),R.z);
-  float l=max(dot(normalize(R),normalize(vec3(0.,-.25,1.))),0.);c+=vec3(1.,.96,.88)*(pow(l,24.)*1.6+pow(l,4.)*.12);
+  float l=max(dot(normalize(R),normalize(vec3(0.,-.25,1.))),0.);c+=vec3(1.,.96,.88)*uLC*(pow(l,24.)*1.6+pow(l,4.)*.12);
   c+=vec3(.55,.62,.78)*.32*exp(-pow((R.z-.12)/.16,2.));return c;}
 `;
   const FS={
     tex:HEAD+`uniform sampler2D uTex;
-void main(){vec3 c=texture(uTex,vT).rgb;float d=length(vW.xy-uLamp.xy);c*=1.05-.18*smoothstep(30.,110.,d);o=vec4(c*uA,uA);}`,
+void main(){vec3 c=texture(uTex,vT).rgb;float d=length(vW.xy-uLamp.xy);c*=(1.05-uVig*smoothstep(30.,110.,d))*mix(vec3(1.),uLC,.7)*uAmb;o=vec4(c*uA,uA);}`,
     lit:HEAD+`uniform vec3 uCol,uLamp2;uniform float uRough,uMetal,uGlass,uL2;uniform sampler2D uTex;uniform float uUseTex;
 void main(){vec3 N=normalize(vN);vec3 V=normalize(uCam-vW);if(dot(N,V)<0.)N=-N;vec3 L=normalize(uLamp-vW),H=normalize(L+V);
   vec3 base=uUseTex>.5?texture(uTex,vT).rgb:uCol;float diff=max(dot(N,L),0.),amb=.32+.22*N.z;
@@ -2530,7 +2530,7 @@ void main(){vec3 N=normalize(vN);vec3 V=normalize(uCam-vW);if(dot(N,V)<0.)N=-N;v
   vec3 R=reflect(-V,N),env=envc(R);float F=.04+.96*pow(1.-max(dot(N,V),0.),5.);
   if(uGlass>.5){float Fg=min(1.,F*1.6+.05),lum=dot(base,vec3(.3,.59,.11)),body=.16+.5*(1.-lum);
     vec3 c=base*body*.6+env*Fg*1.3+vec3(sp)*1.4;float a=clamp(body+Fg+sp,0.,1.)*uA;o=vec4(c*uA,a);return;}
-  vec3 c=uMetal>.5?base*(env*1.35+diff*.35+.12)+base*sp*1.6:base*(diff*.62+amb*.78)+vec3(sp)+env*F*(1.-uRough)*.8;
+  vec3 c=uMetal>.5?base*(env*1.35+diff*.35*uLC+.12*uAmb)+base*sp*1.6*uLC:base*(diff*.62*uLC+amb*.78*uAmb)+vec3(sp)*uLC+env*F*(1.-uRough)*.8;
   c=c/(1.+max(c.r,max(c.g,c.b))*.12);o=vec4(c*uA,uA);}`,
     glass:HEAD+`uniform sampler2D uTex;uniform vec2 uRot;uniform float uR,uFace,uThick;uniform vec3 uRim;
 void main(){vec3 N=normalize(vN),d=normalize(vW-uCam),L=normalize(uLamp-vW);if(dot(N,d)>0.)discard;
@@ -2539,16 +2539,16 @@ void main(){vec3 N=normalize(vN),d=normalize(vW-uCam),L=normalize(uLamp-vW);if(d
   float s=(uFace-P2.z)/min(d.z,-1e-3);vec3 Hh=P2+d*max(s,0.);
   vec2 q=Hh.xy/uR;float rho=length(q);q=vec2(q.x*uRot.x+q.y*uRot.y,-q.x*uRot.y+q.y*uRot.x);
   vec3 art=texture(uTex,q*.5+.5).rgb;
-  float lit=.66+.42*max(L.z,0.);art*=lit*(1.-.25*smoothstep(.86,1.,rho));
+  float lit=.66+.42*max(L.z,0.);art*=lit*(1.-.25*smoothstep(.86,1.,rho));art*=mix(vec3(1.),uLC,.7)*mix(1.,uAmb,.6);
   vec3 R=reflect(d,N),env=envc(R);float rl=max(dot(R,L),0.);float spec=pow(rl,4000.)*.9+pow(rl,150.)*.12;
   float inside=1.-smoothstep(.975,.998,rho);
   float Fm=min(1.,F*1.7+.06);
-  vec3 c=(art*.86+vec3(.80,.86,.95)*.07)*(1.-Fm)*inside+env*Fm*1.25+vec3(.75,.82,.95)*.06+vec3(spec);
+  vec3 c=(art*.86+vec3(.80,.86,.95)*.07)*(1.-Fm)*inside+env*Fm*1.25+vec3(.75,.82,.95)*.06+vec3(spec)*uLC;
   float a=clamp(max(inside,Fm+.24+spec),0.,1.)*uA;o=vec4(c*uA,a);}`,
     shadow:HEAD+`uniform vec4 uS;uniform vec2 uRot;uniform float uRad,uSoft;
 void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot.x);vec2 q=abs(p)-uS.zw;
   float sd=length(max(q,0.))+min(max(q.x,q.y),0.)-uRad;float a=uA*(1.-smoothstep(-uSoft*.6,uSoft,sd));o=vec4(vec3(.01,.04,0.)*a,a);}`,
-    net:HEAD+`void main(){vec2 g=vT/1.25;vec2 f=fract(g);vec2 w=fwidth(g);vec2 dd=min(f,1.-f)/max(w,vec2(1e-4));
+    net:HEAD+`void main(){vec2 g=vT/.8;vec2 f=fract(g);vec2 w=fwidth(g);vec2 dd=min(f,1.-f)/max(w,vec2(1e-4));
   float line=1.-clamp(min(dd.x,dd.y)-.6,0.,1.);float a=line*.55*uA;o=vec4(vec3(.93,.95,.98)*a,a);}`,
     col:HEAD+`void main(){float a=vC.a*uA;o=vec4(vC.rgb*a,a);}`
   };
@@ -2591,6 +2591,9 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     const y=[w[1]*x[2]-w[2]*x[1],w[2]*x[0]-w[0]*x[2],w[0]*x[1]-w[1]*x[0]];
     for(const end of [a,b])for(let j=0;j<=segs;j++){const t=j/segs*2*PI,c=Math.cos(t),s=Math.sin(t),nn=[x[0]*c+y[0]*s,x[1]*c+y[1]*s,x[2]*c+y[2]*s];p.push(end[0]+nn[0]*r,end[1]+nn[1]*r,end[2]+nn[2]*r);n.push(...nn);u.push(j/segs,0)}
     for(let j=0;j<segs;j++)idx.push(j,j+segs+1,j+1,j+1,j+segs+1,j+segs+2);return {p,n,u,idx}}
+  function ball3(c,r,seg){ // a sphere, used to round off the joints of the goal frame
+    const p=[],n=[],u=[],idx=[];for(let i=0;i<=seg;i++){const th=i/seg*PI;for(let j=0;j<=seg;j++){const ph=j/seg*2*PI,nn=[Math.sin(th)*Math.cos(ph),Math.sin(th)*Math.sin(ph),Math.cos(th)];p.push(c[0]+nn[0]*r,c[1]+nn[1]*r,c[2]+nn[2]*r);n.push(...nn);u.push(j/seg,i/seg)}}
+    for(let i=0;i<seg;i++)for(let j=0;j<seg;j++){const a=i*(seg+1)+j,b=a+seg+1;idx.push(a,b,a+1,a+1,b,b+1)}return {p,n,u,idx}}
   function merge(parts){const p=[],n=[],u=[],idx=[];for(const q of parts){const k=p.length/3;p.push(...q.p);n.push(...q.n);u.push(...q.u);idx.push(...q.idx.map(i=>i+k))}return mesh(p,n,u,idx)}
   function build(){
     M.dome=lathe(DOMEP.map(([r,z])=>[r*BR,z*BR]),64);
@@ -2615,8 +2618,9 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     M.rail=quadsMesh(q);
     // goals: white frame and a net
     const fr=[],net=[];
-    for(const top of [true,false]){const gy=top?F.t:F.b,o=top?-1:1,yb=gy+o*GD,zb=BAR*.72,x0=CX-GW/2,x1=CX+GW/2;
-      for(const x of [x0,x1])fr.push(tube([x,gy,0],[x,gy,BAR],.28,14));fr.push(tube([x0,gy,BAR],[x1,gy,BAR],.28,14));
+    for(const top of [true,false]){const gy=top?F.t:F.b,o=top?-1:1,yb=gy+o*GD,zb=BAR,x0=CX-GW/2,x1=CX+GW/2,PR=.42;
+      for(const x of [x0,x1]){fr.push(tube([x,gy,0],[x,gy,BAR],PR,18));fr.push(ball3([x,gy,BAR],PR,18))}fr.push(tube([x0,gy,BAR],[x1,gy,BAR],PR,18));
+      for(const x of [x0,x1])fr.push(ball3([x,yb,zb],.1,8));
       for(const x of [x0,x1]){fr.push(tube([x,yb,0],[x,yb,zb],.1,8));fr.push(tube([x,gy,BAR],[x,yb,zb],.1,8));fr.push(tube([x,gy,.05],[x,yb,.05],.1,8))}
       fr.push(tube([x0,yb,zb],[x1,yb,zb],.1,8));fr.push(tube([x0,yb,.05],[x1,yb,.05],.1,8));
       const dn=GD;net.push([[x0,yb,0],[x1,yb,0],[x1,yb,zb],[x0,yb,zb],[0,-o,0],[[0,0],[GW,0],[GW,zb],[0,zb]]]);
@@ -2651,7 +2655,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
   const I4=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
   const TR=(x,y,z,a=0,s=1,sy=s)=>{const c=Math.cos(a),n=Math.sin(a);return new Float32Array([c*s,n*s,0,0,-n*sy,c*sy,0,0,0,0,1,0,x,y,z,1])};
   let cur=null,vp=null;const last={pr:null};
-  function use(k,alpha){const p=P[k];if(cur!==p){gl.useProgram(p.p);cur=p;gl.uniformMatrix4fv(p.u.uVP,false,vp);gl.uniform3f(p.u.uCam,CV.px,CV.py,CV.pz);gl.uniform3f(p.u.uLamp,LAMP.x,LAMP.y,70)}
+  function use(k,alpha){const p=P[k];if(cur!==p){gl.useProgram(p.p);cur=p;gl.uniformMatrix4fv(p.u.uVP,false,vp);gl.uniform3f(p.u.uCam,CV.px,CV.py,CV.pz);gl.uniform3f(p.u.uLamp,LAMP.x,LAMP.y,LITE.z);if(p.u.uLC)gl.uniform3f(p.u.uLC,...LITE.col);if(p.u.uAmb)gl.uniform1f(p.u.uAmb,LITE.amb);if(p.u.uVig)gl.uniform1f(p.u.uVig,LITE.vig)}
     gl.uniform1f(p.u.uA,alpha==null?1:alpha);return p.u}
   function draw(m,M4){gl.uniformMatrix4fv(cur.u.uM,false,M4||I4);gl.bindVertexArray(m.v);
     if(!m.hasN)gl.vertexAttrib3f(1,0,0,1);if(!m.hasT)gl.vertexAttrib2f(2,0,0);if(!m.hasC)gl.vertexAttrib4f(3,1,1,1,1);gl.drawElements(gl.TRIANGLES,m.n,gl.UNSIGNED_INT,0)}
@@ -2915,10 +2919,11 @@ const NOISE=(()=>{const N=256,n=document.createElement('canvas');n.width=n.heigh
   for(const [ox,oy] of [[0,0],[-N,0],[0,-N],[-N,-N],[N,0],[0,N]])y.drawImage(n,ox,oy);return m})();
 const GRAIN=.13; // cm of table per texel: the grain is printed on the felt, so it pans and zooms with it
 let noisePat=null;
-const LAMP={x:CX,y:CY-25}; // overhead lamp: highlights and shadows react to where each piece is
+const LAMP={x:CX,y:CY}; // stadium floodlights high over the middle: highlights and shadows react to where each piece is
+const LITE={z:260,col:[.97,1,1.06],amb:1.12,vig:.03,so:.45};
 function shade(h,k){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
   if(k<0){r*=1+k;g*=1+k;b*=1+k}else{r+=(255-r)*k;g+=(255-g)*k;b+=(255-b)*k}return `rgb(${r|0},${g|0},${b|0})`}
-function lampVec(x,y){const dx=x-LAMP.x,dy=y-LAMP.y,d=hyp(dx,dy)||1,k=Math.min(1,d/95);return {x:dx/d*k,y:dy/d*k}}
+function lampVec(x,y){const dx=x-LAMP.x,dy=y-LAMP.y,d=hyp(dx,dy)||1,k=Math.min(1,d/95)*LITE.so;return {x:dx/d*k,y:dy/d*k}}
 const FELT={base:'#3f7d2f',band:'#4b8d37',margin:'#3a752b',line:'rgba(255,255,255,.9)'};
 /* brushed metal for the rail */
 function metal(c,x0,y0,x1,y1){const g=c.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,'#f4f6f8');g.addColorStop(.18,'#c6ccd2');g.addColorStop(.42,'#eef1f3');g.addColorStop(.7,'#aab2ba');g.addColorStop(1,'#d8dde2');return g}
