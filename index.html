@@ -262,12 +262,12 @@ button{touch-action:manipulation}
 .turnpill small{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
 .turnpill .flag{width:26px;height:18px}
 /* the "place your players" cue: a quiet title that rises in, a yellow rule that draws under it, then it all fades */
-.cue{position:absolute;z-index:5;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;text-align:center;
-  padding:18px 30px 16px;border-radius:16px;background:radial-gradient(closest-side,rgba(4,10,28,.72),rgba(4,10,28,0));animation:cueOut .45s ease-in 2.1s forwards}
+.cue{position:absolute;z-index:5;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;text-align:center;
+  padding:10px 20px 10px;border-radius:12px;background:radial-gradient(closest-side,rgba(4,10,28,.28),rgba(4,10,28,0));animation:cueOut .45s ease-in 2.1s forwards}
 .cue[hidden]{display:none}
-.cue-k{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);opacity:0;animation:cueIn .45s cubic-bezier(.2,.8,.2,1) .05s forwards}
-.cue-t{font-size:clamp(24px,4.4vw,38px);font-weight:800;letter-spacing:-.02em;line-height:1.05;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.55);opacity:0;animation:cueIn .55s cubic-bezier(.2,.8,.2,1) .14s forwards;white-space:nowrap}
-.cue-l{display:block;height:2px;width:72px;border-radius:2px;background:var(--accent);transform:scaleX(0);animation:cueLine .6s cubic-bezier(.2,.8,.2,1) .35s forwards}
+.cue-k{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);opacity:0;animation:cueIn .45s cubic-bezier(.2,.8,.2,1) .05s forwards}
+.cue-t{font-size:clamp(18px,3vw,26px);font-weight:800;letter-spacing:-.015em;line-height:1.05;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.3);opacity:0;animation:cueIn .55s cubic-bezier(.2,.8,.2,1) .14s forwards;white-space:nowrap}
+.cue-l{display:block;height:2px;width:48px;border-radius:2px;background:var(--accent);transform:scaleX(0);animation:cueLine .6s cubic-bezier(.2,.8,.2,1) .35s forwards}
 @keyframes cueIn{from{opacity:0;transform:translateY(12px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @keyframes cueLine{to{transform:scaleX(1)}}
 @keyframes cueOut{to{opacity:0;transform:translate(-50%,-56%)}}
@@ -1657,7 +1657,7 @@ function setupTaker(){
   else{G.phase='pause';setStatus(tr('cpuPrep',{c:cpuC()}));hud();cpuSetup(true);later(()=>{snapAll();beginTurn(1,sp.msg)},750)}
 }
 function startSetup(taking){G.phase='setup';G.turn=G.sp.side;G.setup={taking,moved:[]};hud();setupStatus();
-  if(G.turn===0||G.pvp)showCue(STR[prefs.lang].kind[G.sp.kind]||'',tr('cueSetup'))}
+  showCue(STR[prefs.lang].kind[G.sp.kind]||'',tr('cueSetup'))} // only ever called when a person is placing buttons (their restart or their defence)
 function showCue(k,t){const c=$('#cue');if(!c)return;$('#cueK').textContent=k;$('#cueT').textContent=t;c.hidden=true;void c.offsetWidth;c.hidden=false;
   clearTimeout(showCue.t);showCue.t=setTimeout(()=>{c.hidden=true},2700)}
 function setupStatus(extra){
