@@ -402,9 +402,15 @@ button{touch-action:manipulation}
 .cupcard.mode{min-height:clamp(220px,46vh,460px);justify-content:space-between;flex-direction:column;align-items:flex-start;padding:clamp(20px,4vh,40px)}
 .cupcard.mode .cupart{width:clamp(80px,15vh,150px);height:clamp(80px,15vh,150px)}
 .cupcard.mode .cuptx b{font-size:clamp(28px,5.4vh,52px)}
-.cupcard.mode.quick{--glow:rgba(255,210,63,.45);border-color:rgba(255,210,63,.55);background:linear-gradient(150deg,rgba(255,210,63,.16),rgba(255,210,63,.03))}
-.cupcard.mode.quick .cupart{color:var(--accent)}
-.cupcard.mode.quick:hover{box-shadow:0 14px 40px rgba(255,210,63,.18)}
+.resumecard{flex-direction:row;align-items:center;gap:clamp(16px,3vw,32px);min-height:clamp(110px,23vh,230px);margin:0 0 clamp(12px,2vh,20px);padding:clamp(18px,3vh,32px) clamp(20px,4vh,40px);cursor:pointer}
+.resumecard[hidden]{display:none}
+.resumecard .cupart{width:clamp(52px,10vh,96px);height:clamp(52px,10vh,96px);flex:none}
+.resumecard .cuptx{margin-top:0;flex:1;min-width:0}
+.resumecard .cuptx b{font-size:clamp(26px,4.8vh,46px)}
+#resumeText{color:var(--muted);font-size:clamp(13px,1.8vh,16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#abandonBtn{position:relative;flex:none}
+.resumecard .label{white-space:nowrap}
+@media (max-width:620px){.resumecard{gap:14px;padding:18px;min-height:clamp(110px,18vh,170px)}.resumecard .cupart{width:44px;height:44px}.resumecard .cuptx b{font-size:28px}#abandonBtn{position:absolute;top:10px;right:10px;padding:6px 10px;font-size:12px}}
 @media (max-width:620px){.cupcard.mode{min-height:clamp(180px,34vh,300px);flex-direction:column;align-items:flex-start;padding:18px}.cupcard.mode .cupart{width:72px;height:72px}.cupcard.mode .cuptx b{font-size:26px}}
 @media (max-width:380px){.modes{grid-template-columns:1fr}.cupcard.mode{min-height:150px}}
 #cups .cups{margin-bottom:auto}
@@ -437,11 +443,12 @@ button{touch-action:manipulation}
           <button class="iconbtn" data-open="help" data-ia="howto">?</button>
           <button class="iconbtn" data-open="settings" data-ia="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
         </div></header>
-      <div id="resumeBox" class="resume" hidden>
-        <div><p class="label" data-i="inProgress"></p><h2 id="resumeText"></h2></div>
-        <div class="row"><button class="btn go" id="resumeBtn" data-i="continue"></button><button class="btn ghost" id="abandonBtn" data-i="startOver"></button></div>
-      </div>
       <p class="hello" id="hello"></p>
+      <div id="resumeBox" class="cupcard resumecard" role="button" tabindex="0" hidden>
+        <span class="cupart"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 13.5 51 32 22 50.5Z"/></svg></span>
+        <span class="cuptx"><small class="label" data-i="inProgress"></small><b data-i="continue"></b><small id="resumeText"></small></span>
+        <button class="btn ghost" id="abandonBtn" data-i="startOver"></button>
+      </div>
       <div class="modes">
         <button class="cupcard mode quick" id="pvpBtn"><span class="cupart"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"/><path d="M41.6 8.1L40.7 8.3L39.7 8.5L38.8 8.7L37.8 9L36.8 9.3L35.8 9.7L34.8 10.1L33.7 10.5L32.7 10.9L32 11.3M51.7 15.5L51.9 16.4L52 17.4L52.1 18.4L52.1 19.4L52.1 20.4L52.1 21.5L52 22.6L51.9 23.7L51.8 24.8L51.7 25.6M22.4 8.1L23.3 8.3L24.3 8.5L25.2 8.7L26.2 9L27.2 9.3L28.2 9.7L29.2 10.1L30.3 10.5L31.3 10.9L32 11.3M32 11.3L32 21.6M51.7 25.6L41.8 28.8M51.7 25.6L52.5 26.4L53.2 27.2L53.9 28L54.6 28.9L55.2 29.7L55.8 30.6L56.4 31.5L56.9 32.3L57.4 33.1L57.7 33.8M12.3 15.5L12.1 16.4L12 17.4L11.9 18.4L11.9 19.4L11.9 20.4L11.9 21.5L12 22.6L12.1 23.7L12.2 24.8L12.3 25.6M32 21.6L41.8 28.8M32 21.6L22.2 28.8M41.8 28.8L38.1 40.4M12.3 25.6L22.2 28.8M12.3 25.6L11.5 26.4L10.8 27.2L10.1 28L9.4 28.9L8.8 29.7L8.2 30.6L7.6 31.5L7.1 32.3L6.6 33.1L6.3 33.8M22.2 28.8L25.9 40.4M38.1 40.4L25.9 40.4M38.1 40.4L44.2 48.8M53.8 45.7L53 46.1L52.1 46.5L51.2 46.9L50.2 47.2L49.2 47.6L48.2 47.9L47.1 48.1L46.1 48.4L45 48.6L44.2 48.8M25.9 40.4L19.8 48.8M44.2 48.8L43.6 49.7L43.1 50.7L42.5 51.6L41.9 52.5L41.3 53.4L40.7 54.2L40.1 55L39.4 55.8L38.7 56.5L38.3 57M10.2 45.7L11 46.1L11.9 46.5L12.8 46.9L13.8 47.2L14.8 47.6L15.8 47.9L16.9 48.1L17.9 48.4L19 48.6L19.8 48.8M19.8 48.8L20.4 49.7L20.9 50.7L21.5 51.6L22.1 52.5L22.7 53.4L23.3 54.2L23.9 55L24.6 55.8L25.3 56.5L25.7 57"/></svg></span><span class="cuptx"><b data-i="pvp"></b></span></button>
         <button class="cupcard mode" id="cupsBtn"><span class="cupart" id="cupModeArt"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 12h9v12H5M5 40h9v12H5M14 18h7v28h-7M21 32h7M59 12h-9v12h9M59 40h-9v12h9M50 18h-7v28h7M43 32h-7"/><circle cx="32" cy="32" r="4"/></svg></span><span class="cuptx"><b data-i="cupMode"></b></span></button>
@@ -1269,7 +1276,9 @@ $('#pvpBtn').onclick=()=>{renderPvp();openModal('pvp')};
 $('#cupsBtn').onclick=()=>show('cups');
 $('#pvpGo').onclick=()=>{closeModals();const t0=ALLT[PV.t[0]],t1=ALLT[PV.t[1]];
   kitPick([t0,t1],[PV.mode===1?tr('you'):tr('p1'),PV.mode===1?'CPU':tr('p2')],kits=>{useCup('all');startMatch(PV.t[0],PV.t[1],{cup:'all',forms:PV.f.slice(),cpu:PV.mode===1?PV.diff:null,goals:PV.goals,kits})},()=>{renderPvp();openModal('pvp')})};
-$('#resumeBtn').onclick=()=>{if(prefs.match&&resumeSaved())return;show('bracket');renderBracket()};
+const doResume=()=>{if(prefs.match&&resumeSaved())return;show('bracket');renderBracket()};
+$('#resumeBox').onclick=e=>{if(e.target.closest('#abandonBtn'))return;doResume()};
+$('#resumeBox').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target===e.currentTarget){e.preventDefault();doResume()}};
 $('#abandonBtn').onclick=()=>{if(prefs.match&&(prefs.match.pvp||prefs.match.quick))prefs.match=null;else{T=null;prefs.match=null}save();renderHome()};
 $('#homeBtn').onclick=()=>{renderHome();show('home')};
 
