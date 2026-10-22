@@ -288,6 +288,17 @@ button{touch-action:manipulation}
 .kitseg button{display:flex;align-items:center;gap:8px;justify-content:center}
 .kitimg{display:inline-block;width:22px;height:22px;border-radius:50%;background-size:cover;background-position:center;box-shadow:0 0 0 1px rgba(255,255,255,.25),0 2px 6px rgba(0,0,0,.35);flex:none}
 .pvpcol .kitseg{margin-top:6px}
+.kitcols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.kitcol{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+.kitcol .bhead{display:flex;justify-content:space-between;align-items:baseline}
+.kitopts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kitopt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px 10px;border-radius:12px;border:1px solid var(--line2);background:radial-gradient(120% 90% at 50% 30%,rgba(60,120,60,.35),rgba(10,20,40,.2));color:var(--ink);cursor:pointer;transition:border-color .15s,background-color .15s,transform .1s}
+.kitopt canvas{width:min(150px,30vw);height:min(150px,30vw)}
+.kitopt span{font-size:13px;color:var(--muted)}
+.kitopt[aria-pressed="true"]{border-color:var(--accent);background:radial-gradient(120% 90% at 50% 30%,rgba(255,210,63,.16),rgba(10,20,40,.2))}
+.kitopt[aria-pressed="true"] span{color:var(--accent)}
+.kitopt:active{transform:scale(.98)}
+@media (max-width:620px){.kitcols{grid-template-columns:1fr}}
 @keyframes pillIn{from{opacity:0;transform:translate(-50%,-40%)}}
 
 /* home: competition choice */
@@ -548,6 +559,11 @@ button{touch-action:manipulation}
 </div></div>
 
 <!-- HELP -->
+<div class="modal" id="kitModal" hidden><div class="sheet wide kitsheet" role="dialog" aria-modal="true" aria-labelledby="kitTitle">
+  <div class="sheet-head"><h2 id="kitTitle" data-i="kitTitle"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
+  <div class="kitcols" id="kitCols"></div>
+  <button class="btn go big" id="kitGo" data-i="pvpStart"></button>
+</div></div>
 <div class="modal" id="pvpModal" hidden><div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="pvpTitle">
   <div class="sheet-head"><h2 id="pvpTitle" data-i="pvp"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
   <div class="qopts">
@@ -559,9 +575,9 @@ button{touch-action:manipulation}
   <p class="hint" id="qHint"></p>
   <div class="pvpcols">
     <div class="pvpcol"><div class="bhead"><p class="label" id="pvpL0"></p><p class="label val" id="pvpN0"></p></div><div class="seg small qtab" id="qTab0"></div><div class="teams" id="pvpT0"></div>
-      <div class="seg small kitseg" id="pvpK0" hidden></div><div class="seg small" id="pvpF0"></div></div>
+<div class="seg small" id="pvpF0"></div></div>
     <div class="pvpcol"><div class="bhead"><p class="label" id="pvpL1"></p><p class="label val" id="pvpN1"></p></div><div class="seg small qtab" id="qTab1"></div><div class="teams" id="pvpT1"></div>
-      <div class="seg small kitseg" id="pvpK1" hidden></div><div class="seg small" id="pvpF1"></div></div>
+<div class="seg small" id="pvpF1"></div></div>
   </div>
   <button class="btn go big" id="pvpGo" data-i="pvpStart"></button>
 </div></div>
@@ -581,7 +597,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 const STR={
 pt:{
  inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
- fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',menu:'Menu',kitLbl:'Uniforme',kit1:'1º uniforme',kit2:'2º uniforme',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
+ fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',kitTitle:'Uniformes',menu:'Menu',kitLbl:'Uniforme',kit1:'1º uniforme',kit2:'2º uniforme',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
  zoomIn:'Aproximar',zoomOut:'Afastar',rotL:'Girar goleiro para a esquerda',rotR:'Girar goleiro para a direita',
@@ -617,7 +633,7 @@ pt:{
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
- fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',menu:'Menu',kitLbl:'Kit',kit1:'Home',kit2:'Away',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
+ fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',kitTitle:'Kits',menu:'Menu',kitLbl:'Kit',kit1:'Home',kit2:'Away',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
  zoomIn:'Zoom in',zoomOut:'Zoom out',rotL:'Rotate keeper left',rotR:'Rotate keeper right',
@@ -1155,9 +1171,6 @@ function renderSetup(){
     for(const b of $(id).children){b.setAttribute('aria-pressed',String(b.dataset.v)===String(prefs[key]));
       b.onclick=()=>{prefs[key]=b.dataset.v;save();renderSetup()}}
   pitchSeg('#pitchSeg');$('#pitchBox').hidden=PITCHES.length<2;
-  {const t=TEAMS[prefs.teams[prefs.cup]]||TEAMS[0];$('#kitBox').hidden=!hasKit2(t);
-   if(hasKit2(t)){prefs.kits=prefs.kits||{};const ks=$('#kitSeg');ks.innerHTML=kitSegHTML(t,prefs.kits[t.c]||'home');
-     for(const b of ks.children)b.onclick=()=>{prefs.kits[t.c]=b.dataset.v;save();renderSetup()}}}
   $('#startBtn').textContent=T&&!T.done?tr('startNew'):tr('start');
 }
 function renderProfile(){
@@ -1209,16 +1222,14 @@ function renderPvp(){
       b.innerHTML=`${flag(t)}<span class="tx"><b>${t.c}</b></span>`;b.title=tn(t);b.disabled=i===PV.t[1-p];
       b.onclick=()=>{PV.t[p]=i;if(PV.k)PV.k[p]=null;renderPvp()};g.appendChild(b)});
     $('#pvpN'+p).textContent=tn(ALLT[PV.t[p]]);
-    {const t=ALLT[PV.t[p]],ks=$('#pvpK'+p);PV.k=PV.k||[null,null];ks.hidden=!hasKit2(t);
-     if(hasKit2(t)){const auto=kitsForT(ALLT[PV.t[0]],ALLT[PV.t[1]])[p]===t.away?'away':'home';const cur=PV.k[p]||auto;ks.innerHTML=kitSegHTML(t,cur);
-       for(const b of ks.children)b.onclick=()=>{PV.k[p]=b.dataset.v;renderPvp()}}}
+
     const fs=$('#pvpF'+p);fs.hidden=PV.mode===1&&p===1;
     fs.innerHTML=Object.keys(FORMS).map(f=>`<button data-v="${f}" aria-pressed="${f===PV.f[p]}">${f}</button>`).join('');
     for(const b of fs.children)b.onclick=()=>{PV.f[p]=b.dataset.v;renderPvp()}}
 }
 $('#pvpBtn').onclick=()=>{renderPvp();openModal('pvp')};
-$('#pvpGo').onclick=()=>{closeModals();useCup('all');const kk=PV.k||[null,null],auto=kitsForT(ALLT[PV.t[0]],ALLT[PV.t[1]]),kits=[0,1].map(p=>hasKit2(ALLT[PV.t[p]])?(kk[p]||(auto[p]===ALLT[PV.t[p]].away?'away':'home')):'home');
-  startMatch(PV.t[0],PV.t[1],{cup:'all',forms:PV.f.slice(),cpu:PV.mode===1?PV.diff:null,goals:PV.goals,kits})};
+$('#pvpGo').onclick=()=>{closeModals();const t0=ALLT[PV.t[0]],t1=ALLT[PV.t[1]];
+  kitPick([t0,t1],[PV.mode===1?tr('you'):tr('p1'),PV.mode===1?'CPU':tr('p2')],kits=>{useCup('all');startMatch(PV.t[0],PV.t[1],{cup:'all',forms:PV.f.slice(),cpu:PV.mode===1?PV.diff:null,goals:PV.goals,kits})})};
 $('#resumeBtn').onclick=()=>{if(prefs.match&&resumeSaved())return;show('bracket');renderBracket()};
 $('#abandonBtn').onclick=()=>{if(prefs.match&&(prefs.match.pvp||prefs.match.quick))prefs.match=null;else{T=null;prefs.match=null}save();renderHome()};
 $('#homeBtn').onclick=()=>{renderHome();show('home')};
@@ -1284,7 +1295,7 @@ function renderBracket(keepFresh){
   else if(T.out){const c=TEAMS[T.champ];nb.innerHTML=`<div>${ul}<p class="label">${tr('outIn',{round:RN[T.outRound]})}</p><h2>${tr('wonCopa',{t:tn(c)})}</h2></div><button class="btn go" id="againBtn">${tr('newCopa')}</button>`}
   else{const m=userMatch(),opp=TEAMS[m.a===T.user?m.b:m.a];
     nb.innerHTML=`<div>${ul}<p class="label">${cupName(T.cup)} · ${tr('nextMatch',{round:tr('roundsShort')[T.r]})}</p><h2>${tn(u)} × ${tn(opp)}</h2></div><button class="btn go big" id="playBtn">${tr('play')}</button>`;
-    $('#playBtn').onclick=()=>{if(prefs.match&&!prefs.match.pvp&&!prefs.match.quick&&resumeSaved())return;startMatch(T.user,m.a===T.user?m.b:m.a)}}
+    $('#playBtn').onclick=()=>{if(prefs.match&&!prefs.match.pvp&&!prefs.match.quick&&resumeSaved())return;const opp=m.a===T.user?m.b:m.a;useCup(T.cup);kitPick([TEAMS[T.user],TEAMS[opp]],[tr('you'),'CPU'],kits=>{prefs.kits=prefs.kits||{};prefs.kits[TEAMS[T.user].c]=kits[0];save();startMatch(T.user,opp,null,null,kits)})}}
   const ag=$('#againBtn');if(ag)ag.onclick=()=>{newTournament();renderBracket()};
 }
 
@@ -1309,6 +1320,32 @@ const AWAY_VS={"BAH":["FLA","INT","VIT"],"BOT":[],"CAM":[],"COR":["BOT","PON","S
 const hasKit2=t=>!!(t&&t.away&&t.away.img);
 function kitThumb(t){const src=t.img&&t.img.src;return src?`<i class="kitimg" style="background-image:url(${src})"></i>`:`<i class="kitimg" style="background:${t.dome};box-shadow:inset 0 0 0 3px ${t.ring}"></i>`}
 function kitSegHTML(t,cur){return ['home','away'].map((k,i)=>`<button data-v="${k}" aria-pressed="${cur===k}">${kitThumb(k==='away'?t.away:t)}<span>${tr(i?'kit2':'kit1')}</span></button>`).join('')}
+/* before every match: pick each team's kit, shown as the real 3D buttons (slowly turning) */
+let KITP=null;
+function kitPick(teams,labels,go){
+  const auto=kitsForT(teams[0],teams[1],[(prefs.kits||{})[teams[0].c]||null,null]);
+  const sel=[0,1].map(p=>hasKit2(teams[p])&&auto[p]===teams[p].away?'away':'home');
+  const cols=$('#kitCols');cols.innerHTML='';const cvs=[];
+  teams.forEach((t,p)=>{const col=document.createElement('div');col.className='kitcol';
+    col.innerHTML=`<div class="bhead"><p class="label">${labels[p]}</p><p class="label val">${tn(t)}</p></div><div class="kitopts"></div>`;
+    const box=col.querySelector('.kitopts');
+    for(const [k,i] of [['home',0],['away',1]]){if(k==='away'&&!hasKit2(t))continue;
+      const b=document.createElement('button');b.className='kitopt';b.dataset.k=k;b.setAttribute('aria-pressed',sel[p]===k);
+      b.innerHTML=`<canvas width="300" height="300"></canvas><span>${tr(i?'kit2':'kit1')}</span>`;
+      b.onclick=()=>{sel[p]=k;for(const o of box.children)o.setAttribute('aria-pressed',o.dataset.k===k)};box.appendChild(b);
+      cvs.push({c:b.querySelector('canvas'),team:k==='away'?t.away:t,num:p===0?10:9,ph:p*1.7+i})}
+    cols.appendChild(col)});
+  $('#kitGo').onclick=()=>{KITP=null;closeModals();go(sel.slice())};
+  openModal('kit');
+  const t0=performance.now();KITP={cvs,t0};
+  const tick=()=>{if(!KITP||$('#kitModal').hidden){KITP=null;return}
+    const t=(performance.now()-t0)/1000;
+    for(const v of cvs){const x=v.c.getContext('2d'),px=v.c.width;x.clearRect(0,0,px,px);
+      const r=GL3.preview(v.team,v.num,px,Math.sin(t*.6+v.ph)*.5);
+      if(r)x.drawImage(r.c,0,r.sy,px,px,0,0,px,px);else{const sp=btnSprite(v.team,v.num);if(sp)x.drawImage(sp,px*.15,px*.15,px*.7,px*.7)}}
+    requestAnimationFrame(tick)};
+  requestAnimationFrame(tick);
+}
 function kitsFor(home,away,pick){return kitsForT(TEAMS[home],TEAMS[away],pick)}
 function kitsForT(h,a,pick){
   const near=(x,y)=>{const p=q=>[1,3,5].map(i=>parseInt(q.slice(i,i+2),16)),u=p(x),v=p(y);return Math.abs(u[0]-v[0])+Math.abs(u[1]-v[1])+Math.abs(u[2]-v[2])<170};
@@ -1317,7 +1354,7 @@ function kitsForT(h,a,pick){
   const k0=pick&&pick[0],k1=pick&&pick[1];
   return [k0==='away'&&h.away?h.away:h, k1?(k1==='away'&&a.away?a.away:a):(clash&&hasKit2(a)?a.away:a)];
 }
-function startMatch(home,away,pvp,resume){
+function startMatch(home,away,pvp,resume,cupKits){
   V3.on=false;V3.mode=null;V3.anim=null;V3.pose=null;
   useCup(pvp?pvp.cup:(T.cup||'wc'));
   const base={easy:.38,normal:.68,hard:.93}[pvp?(pvp.cpu||'normal'):T.diff]||.68;
@@ -1326,7 +1363,7 @@ function startMatch(home,away,pvp,resume){
      buttons:[],ball:newBall(CX,CY),keepers:[homeKeeper(0),homeKeeper(1)],kt:[null,null],
      phase:'pause',turn:0,mode:'match',move:null,event:null,announced:false,
      aim:null,kdrag:null,sdrag:null,pan:null,cpuAim:null,pens:null,pkBtn:null,setup:null,sp:null,note:'',
-     cam:{x:CX,y:CY,manual:false},kitPick:pvp&&pvp.kits?pvp.kits.slice():null,kit:kitsFor(home,away,pvp?pvp.kits:[(prefs.kits||{})[TEAMS[home].c]||null,null]),hat:0,cpuForm:Object.keys(FORMS)[Math.floor(rand()*4)]};
+     cam:{x:CX,y:CY,manual:false},kitPick:pvp&&pvp.kits?pvp.kits.slice():cupKits?cupKits.slice():resume&&resume.kits?resume.kits.slice():null,kit:kitsFor(home,away,pvp?pvp.kits:cupKits||(resume&&resume.kits)||[(prefs.kits||{})[TEAMS[home].c]||null,null]),hat:0,cpuForm:Object.keys(FORMS)[Math.floor(rand()*4)]};
   G.forms=pvp?(pvp.cpu?[pvp.forms[0],G.cpuForm]:pvp.forms.slice()):[T.form||'4-3-3',G.cpuForm];G.cup=pvp?pvp.cup:(T.cup||'wc');
   $('#hName').textContent=TEAMS[home].c;$('#aName').textContent=TEAMS[away].c;$('#possA').title=tn(TEAMS[home]);$('#possB').title=tn(TEAMS[away]);
   $('#hDisc').outerHTML=flag(TEAMS[home]).replace('class="flag"','class="flag" id="hDisc"');$('#aDisc').outerHTML=flag(TEAMS[away]).replace('class="flag"','class="flag" id="aDisc"');
@@ -2644,7 +2681,19 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     if(pr&&pr.length>1){gl.disable(gl.DEPTH_TEST);const n=pr.length;ribbon(pr.map((p,i)=>{const c=hcol(p[2]);return [p[0],p[1],p[2]+.3,...c,.25*(1-i/n),.2]}));flushStrips(1);gl.enable(gl.DEPTH_TEST)}
     return cv;
   }
-  return {init,render,ok:()=>ok,last};
+  // a single button, seen from 40 degrees up, for the kit picker (drawn into the corner of the GL canvas)
+  function preview(team,num,px,rot){if(!init())return null;if(cv.width<px||cv.height<px){cv.width=Math.max(cv.width,px);cv.height=Math.max(cv.height,px)}
+    const el=.62,dist=9.5,tz=.3,cx=0,cy=0,pos=[cx,cy+dist*Math.cos(el),tz+dist*Math.sin(el)],f=[0,-Math.cos(el),-Math.sin(el)],r=[1,0,0],u=[0,-Math.sin(el),Math.cos(el)];
+    const F=px/2/Math.tan(.36),n=.5,fa=200,A=(fa+n)/(fa-n),B=-2*fa*n/(fa-n),sx=F/(px/2),d=v=>v[0]*pos[0]+v[1]*pos[1]+v[2]*pos[2];
+    const keep=CV;CV={px:pos[0],py:pos[1],pz:pos[2],f,r,u,F};
+    vp=new Float32Array([r[0]*sx,u[0]*sx,f[0]*A,f[0], r[1]*sx,u[1]*sx,f[1]*A,f[1], r[2]*sx,u[2]*sx,f[2]*A,f[2], -d(r)*sx,-d(u)*sx,-d(f)*A+B,-d(f)]);cur=null;
+    gl.viewport(0,0,px,px);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,0,px,px);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
+    gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);{const u=use('shadow',.5);gl.uniform3f(u.uLamp,-14,-24,60);gl.uniform4f(u.uS,.35,.6,0,0);gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uRad,BR*.95);gl.uniform1f(u.uSoft,1.4);draw(M.unit,TR(.35,.6,.015,0,BR+2.8))}gl.depthMask(true);
+    {const u=use('glass',1);gl.uniform3f(u.uLamp,-14,-24,60);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,artTex(team,num));gl.uniform1i(u.uTex,0);
+     gl.uniform2f(u.uRot,Math.cos(rot),Math.sin(rot));gl.uniform1f(u.uR,BR);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(team.ring));draw(M.dome,TR(0,0,0))}
+    CV=keep;return {c:cv,sy:cv.height-px}}
+  return {init,render,ok:()=>ok,last,preview};
 })();
 /* side view of the shot: how high the ball goes against the buttons and the crossbar */
 function flightPanel(c,pr){
