@@ -1823,7 +1823,7 @@ function cpuPlan(side,forceShot){
   for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [6,11,17,25,36,52]){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
     let ts=(Tp.y-ball.y)*dirY*.4-Math.max(0,L-36)*.5;
-    if(Tp.x<F.l+7||Tp.x>F.r-7)ts-=40; if(Tp.y<F.t+4||Tp.y>F.b-4)ts-=40;
+    {const ms=Math.min(Tp.x-F.l,F.r-Tp.x),me=Math.min(Tp.y-F.t,F.b-Tp.y);if(ms<10)ts-=5*(10-ms);if(me<8)ts-=(Math.abs(Tp.x-CX)>PA.w/2-4?5:2)*(8-me)}
     for(const o of opp)if(segDist(o.x,o.y,ball.x,ball.y,Tp.x,Tp.y)[0]<BR+BALLR+.3)ts-=22;
     let dn=1e9;for(const o of mine)dn=Math.min(dn,hyp(o.x-Tp.x,o.y-Tp.y));ts+=Math.max(0,18-dn)*.7;
     ts+=Math.max(0,70-hyp(Tp.x-CX,Tp.y-gy))*.25;
@@ -1921,7 +1921,9 @@ function rateOutcome(o,side,shot){
     const urg=clamp((6-o.left)/5,0,1);   // grows from 5 flicks left
     v+=urg*(off===0?45:-off*1.6);
     if(o.left<=1&&off===0){let sh2=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d<16)sh2=Math.max(sh2,1-d/16)}v+=40*sh2}}
-  if(bl.x<F.l+4||bl.x>F.r-4)v-=10;if(bl.y<F.t+4||bl.y>F.b-4)v-=6;
+  // keep the ball off the lines: near a touchline (or a goal line away from the box) it is easy to lose, so leave ~10 cm of room
+  {const ms=Math.min(bl.x-F.l,F.r-bl.x);if(ms<11)v-=55*Math.pow(1-Math.max(0,ms)/11,2);
+   const me=Math.min(bl.y-F.t,F.b-bl.y),wide=Math.abs(bl.x-CX)>PA.w/2-4;if(me<9)v-=(wide?40:14)*Math.pow(1-Math.max(0,me)/9,2)}
   return reach*v+(1-reach)*loss*.8;
 }
 function idealKeeper(def){const sk=G.skill;G.skill=1;const k=faceBall(def);G.skill=sk;return k}
@@ -2446,7 +2448,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     // the palheta from Botonista_Palheta.blend: 48.4 mm, 1.45 mm thick, concentric creases and a centre dimple on both faces, rounded rim
     M.pal=lathe(PAL_PROF,96);
     {const zs=PAL_PROF.map(p=>p[1]),zm=(Math.min(...zs)+Math.max(...zs))/2;M.palC=lathe(PAL_PROF.map(([r,z])=>[r,z-zm]),96)}
-    M.keeper=rbox(KW,KH,KEEP_H,.35,14);
+    M.keeper=rbox(KW,KH,KEEP_H,.16,10);
     {const w=KW/2-.2,y=KH/2-.15;M.gkCard=quadsMesh([[[-w,y,.2],[w,y,.2],[w,y,KEEP_H-.2],[-w,y,KEEP_H-.2],[0,-1,0],[[0,1],[1,1],[1,0],[0,0]]]])}
     M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
     // the table: felt plane under everything, the rail as a raised frame, the sides down to the floor
@@ -2551,7 +2553,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
       const key=img?t.c:'#'+(t.ring||t.dome);let tx=GKT.get(key);
       if(!tx){let src=img;if(!src){src=document.createElement('canvas');src.width=src.height=4;const x=src.getContext('2d');x.fillStyle=t.ring||t.dome;x.fillRect(0,0,4,4)}tx=texFrom(src);GKT.set(key,tx)}
       {const u=use('tex',a);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);draw(M.gkCard,M4)}
-      gl.depthMask(false);lit('#e8f2ff',.02,false,a,M4,M.keeper,null,true);gl.depthMask(true)}})});
+      gl.depthMask(false);lit('#c8dbee',.02,false,a,M4,M.keeper,null,true);gl.depthMask(true)}})});
     items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#0d0f12',.14,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
     if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,pal=curPal();
       items.push({o:null,d:toC(px,py,0)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:pal.mat==='glass'?.02:.21,pal.mat==='metal',a,TR(px,py,.01,A.ang+PI/2),M.pal,null,pal.mat==='glass')})}
@@ -2853,13 +2855,13 @@ function drawKeeper(c,k,team,edit,pulse){
   c.save();c.translate(L.x*.95+.15,L.y*.95+.7);c.rotate(k.a);
   for(const [g,al] of [[1.2,.06],[.7,.08],[.25,.12]]){c.fillStyle=`rgba(5,20,0,${al})`;rr(c,-KW/2-g,-KH/2-g,KW+2*g,KH+2*g,.6+g);c.fill()}c.restore();
   const base=team.ring||team.dome,img=gkImg(team);
-  c.save();c.translate(0,.32);c.rotate(k.a);rr(c,-KW/2,-KH/2,KW,KH,.45);c.fillStyle=shade(base,-.45);c.fill();c.restore();
+  c.save();c.translate(0,.32);c.rotate(k.a);rr(c,-KW/2,-KH/2,KW,KH,.22);c.fillStyle=shade(base,-.45);c.fill();c.restore();
   c.rotate(k.a); // the art reads upright on screen for both keepers, like the buttons
   // glass block: the art card seen through the top, then the glass's sheen and edges
-  c.save();rr(c,-KW/2,-KH/2,KW,KH,.45);c.clip();c.fillStyle=base;c.fillRect(-KW/2,-KH/2,KW,KH);
+  c.save();rr(c,-KW/2,-KH/2,KW,KH,.22);c.clip();c.fillStyle=base;c.fillRect(-KW/2,-KH/2,KW,KH);
   if(img)c.drawImage(img,-KW/2+.2,-KH/2+.2,KW-.4,KH-.4);
-  const g=c.createLinearGradient(-KW/2,-KH/2,KW/2,KH/2);g.addColorStop(0,'rgba(255,255,255,.34)');g.addColorStop(.45,'rgba(255,255,255,.06)');g.addColorStop(1,'rgba(0,10,30,.18)');c.fillStyle=g;c.fillRect(-KW/2,-KH/2,KW,KH);c.restore();
-  rr(c,-KW/2,-KH/2,KW,KH,.45);c.lineWidth=.22;c.strokeStyle='rgba(225,240,255,.75)';c.stroke();
+  const g=c.createLinearGradient(-KW/2,-KH/2,KW/2,KH/2);g.addColorStop(0,'rgba(255,255,255,.4)');g.addColorStop(.45,'rgba(225,238,255,.14)');g.addColorStop(1,'rgba(0,10,30,.2)');c.fillStyle=g;c.fillRect(-KW/2,-KH/2,KW,KH);c.restore();
+  rr(c,-KW/2,-KH/2,KW,KH,.22);c.lineWidth=.24;c.strokeStyle='rgba(225,240,255,.85)';c.stroke();
   c.fillStyle='rgba(255,255,255,.45)';c.fillRect(-KW/2+.6,-KH/2+.22,KW-1.2,.12);
   if(edit){
     c.strokeStyle=`rgba(255,210,63,${.5+.5*pulse})`;c.lineWidth=.22;c.setLineDash([.7,.5]);rr(c,-KW/2-.9,-KH/2-.9,KW+1.8,KH+1.8,1.1);c.stroke();c.setLineDash([]);
