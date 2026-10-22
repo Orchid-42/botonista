@@ -469,7 +469,7 @@ button{touch-action:manipulation}
   <!-- MATCH -->
   <section id="match" class="screen" hidden>
     <div class="stage" id="stage">
-      <div class="cue" id="cue" hidden><span class="cue-k" id="cueK"></span><span class="cue-t" id="cueT"></span><i class="cue-l"></i></div>
+      <div class="cue" id="cue" hidden><span class="cue-k" id="cueK"></span><span class="cue-t" id="cueT"></span></div>
       <canvas id="cv"></canvas>
       <canvas id="fxc"></canvas>
       <div class="turnpill" id="turnPill" hidden></div>
@@ -566,7 +566,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 const STR={
 pt:{
  inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
- fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
+ fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
  zoomIn:'Aproximar',zoomOut:'Afastar',rotL:'Girar goleiro para a esquerda',rotR:'Girar goleiro para a direita',
@@ -602,7 +602,7 @@ pt:{
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
- fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
+ fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
  zoomIn:'Zoom in',zoomOut:'Zoom out',rotL:'Rotate keeper left',rotR:'Rotate keeper right',
@@ -1620,7 +1620,7 @@ function penaltyKick(side){
     const r=rand(),off=(GW/2-KW/2-.4)*(.5+rand()*.6);
     G.kt[1]={x:CX+(r<.38?-off:r<.76?off:0),y:G.keepers[1].y,a:0};
     G.phase='aim';setStatus(tr('penYou'));
-  }else{G.phase='keeperSet';setStatus(tr('penCpu',{c:cpuC()}))}
+  }else{G.phase='keeperSet';setStatus(tr('penCpu',{c:cpuC()}));showCue(tr('cuePen'),tr('cueKeeper'))}
   hud();
 }
 
@@ -1671,9 +1671,11 @@ function cpuSetup(taking){
   const own={x:CX,y:F.t};
   if(taking){
     const sp=G.sp,dg=hyp(ball.x-CX,ball.y-F.b);
-    const T=dg<80?{x:CX+(rand()<.5?-1:1)*(GW/2-3),y:F.b}:{x:ball.x+(CX-ball.x)*.4,y:Math.min(F.b-20,ball.y+45)};
+    const T=sp.kind==='corner'?{x:CX+(ball.x<CX?-1:1)*(4+rand()*8),y:F.b-SPOT+(rand()-.5)*6}:dg<80?{x:CX+(rand()<.5?-1:1)*(GW/2-3),y:F.b-12}:{x:ball.x+(CX-ball.x)*.4,y:Math.min(F.b-20,ball.y+45)};
     const d=hyp(T.x-ball.x,T.y-ball.y)||1;
-    moveTo(sp.taker,nearestOk(ball.x-(T.x-ball.x)/d*(BR+BALLR+1.6),ball.y-(T.y-ball.y)/d*(BR+BALLR+1.6),sp.taker,BR+BALLR+.3),true);
+    // the taker stands right behind the ball on the line to the target, outside the lines if need be (corners, throw-ins), like a person would
+    {const g=BR+BALLR+.9;let p={x:clamp(ball.x-(T.x-ball.x)/d*g,BR+.2,TW-BR-.2),y:clamp(ball.y-(T.y-ball.y)/d*g,BR+.2,TH-BR-.2)};
+     if(G.buttons.some(o=>o!==sp.taker&&hyp(o.x-p.x,o.y-p.y)<BR*2+.3))p=nearestOk(p.x,p.y,sp.taker,BR+BALLR+.3);moveTo(sp.taker,p,true)}
     const spots=[];
     for(let i=-3;i<=3;i++)for(let j=1;j<=4;j++){const x=CX+i*14,y=clamp(ball.y+j*14,F.t+10,F.b-12);
       let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-x,o.y-y));
@@ -1720,7 +1722,7 @@ function nextPen(){
     const r=rand(),off=(GW/2-KW/2-.4)*(.5+rand()*.6);
     G.kt[1]={x:CX+(r<.38?-off:r<.76?off:0),y:G.keepers[1].y,a:0};
     G.phase='aim';setStatus(tr('penYou'));
-  }else{G.phase='keeperSet';setStatus(tr('penCpu',{c:cpuC()}))}
+  }else{G.phase='keeperSet';setStatus(tr('penCpu',{c:cpuC()}));showCue(tr('cuePen'),tr('cueKeeper'))}
   hud();
 }
 function resolvePen(){
@@ -1981,7 +1983,7 @@ function simPick(side,cands,forced){
 function cpuTurn(){
   if(G.phase!=='cpuThink'||G.turn!==1)return;
   const plan=cpuPlan(1,false);
-  if(plan.shot){G.announced=true;G.phase='keeperSet';setStatus(tr('cpuAnnounce'));hud()}
+  if(plan.shot){G.announced=true;G.phase='keeperSet';setStatus(tr('cpuAnnounce'));hud();showCue(tr('cueShot'),tr('cueKeeper'))}
   else execPlan(plan);
 }
 function execPlan(p){
