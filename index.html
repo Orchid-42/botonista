@@ -133,6 +133,7 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .modal{position:fixed;inset:0;z-index:20;background:rgba(3,7,20,.72);display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
 .sheet{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:20px;width:min(100%,460px);max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:14px;animation:pop .25s cubic-bezier(.2,1.3,.4,1)}
 .sheet-head{display:flex;justify-content:space-between;align-items:center}
+#kitBack{margin-right:10px;font-size:20px}#kitBack+h2{flex:1}
 .sheet h2{font-size:20px}
 .rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
 .rules li{display:grid;grid-template-columns:84px 1fr;gap:10px;font-size:13.5px;padding:9px 0;border-top:1px solid var(--line)}
@@ -447,8 +448,8 @@ button{touch-action:manipulation}
           <div class="teams" id="teamGrid"></div>
         </section>
         <section class="block">
-          <p class="label" data-i="cpuLevel"></p>
-          <div class="seg" id="diffSeg"><button data-v="easy" data-i="easy"></button><button data-v="normal" data-i="normal"></button><button data-v="hard" data-i="hard"></button></div>
+          <p class="label" data-i="cpuLevel" hidden></p>
+          <div class="seg" id="diffSeg" hidden><button data-v="easy" data-i="easy"></button><button data-v="normal" data-i="normal"></button><button data-v="hard" data-i="hard"></button></div>
           <p class="label" data-i="formation"></p>
           <div class="seg" id="formSeg"><button data-v="4-3-3">4-3-3</button><button data-v="4-4-2">4-4-2</button><button data-v="3-5-2">3-5-2</button><button data-v="4-2-3-1">4-2-3-1</button></div>
           <div id="pitchBox" hidden><p class="label" data-i="pitchLbl"></p><div class="seg" id="pitchSeg"></div></div>
@@ -560,7 +561,7 @@ button{touch-action:manipulation}
 
 <!-- HELP -->
 <div class="modal" id="kitModal" hidden><div class="sheet wide kitsheet" role="dialog" aria-modal="true" aria-labelledby="kitTitle">
-  <div class="sheet-head"><h2 id="kitTitle" data-i="kitTitle"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
+  <div class="sheet-head"><button class="iconbtn" id="kitBack" data-ia="back">‹</button><h2 id="kitTitle" data-i="kitTitle"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
   <div class="kitcols" id="kitCols"></div>
   <button class="btn go big" id="kitGo" data-i="pvpStart"></button>
 </div></div>
@@ -568,9 +569,9 @@ button{touch-action:manipulation}
   <div class="sheet-head"><h2 id="pvpTitle" data-i="pvp"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
   <div class="qopts">
     <div><p class="label" data-i="players"></p><div class="seg" id="qMode"><button data-v="1" data-i="onePlayer"></button><button data-v="2" data-i="twoPlayers"></button></div></div>
-    <div id="qDiffBox"><p class="label" data-i="cpuLevel"></p><div class="seg" id="qDiff"><button data-v="easy" data-i="easy"></button><button data-v="normal" data-i="normal"></button><button data-v="hard" data-i="hard"></button></div></div>
+    <div id="qDiffBox" hidden><p class="label" data-i="cpuLevel"></p><div class="seg" id="qDiff"><button data-v="easy" data-i="easy"></button><button data-v="normal" data-i="normal"></button><button data-v="hard" data-i="hard"></button></div></div>
     <div hidden><p class="label" data-i="pitchLbl"></p><div class="seg" id="qPitch"></div></div>
-    <div><p class="label" data-i="goalsToWin"></p><div class="seg" id="qGoals"><button data-v="3">3</button><button data-v="5">5</button></div></div>
+    <div hidden><p class="label" data-i="goalsToWin"></p><div class="seg" id="qGoals"><button data-v="3">3</button><button data-v="5">5</button></div></div>
   </div>
   <p class="hint" id="qHint"></p>
   <div class="pvpcols">
@@ -579,7 +580,7 @@ button{touch-action:manipulation}
     <div class="pvpcol"><div class="bhead"><p class="label" id="pvpL1"></p><p class="label val" id="pvpN1"></p></div><div class="seg small qtab" id="qTab1"></div><div class="teams" id="pvpT1"></div>
 <div class="seg small" id="pvpF1"></div></div>
   </div>
-  <button class="btn go big" id="pvpGo" data-i="pvpStart"></button>
+  <button class="btn go big" id="pvpGo" data-i="pickKits"></button>
 </div></div>
 <div class="modal" id="helpModal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
   <div class="sheet-head"><h2 id="helpTitle" data-i="howto"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
@@ -596,7 +597,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 /* ---------- language ---------- */
 const STR={
 pt:{
- inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
+ inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',pickKits:'Escolher uniformes',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
  fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',kitTitle:'Uniformes',menu:'Menu',kitLbl:'Uniforme',kit1:'1º uniforme',kit2:'2º uniforme',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
@@ -632,7 +633,7 @@ pt:{
  skinReq:['Inicial','Inicial','Vença uma partida','Faça um gol de cobertura','Marque 10 gols','Vença 3 partidas','Marque de pênalti','Vença por 3 a 0','Chegue à semifinal','Vença no Difícil','Faça um hat-trick','Ganhe a Copa']
 },
 en:{
- inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
+ inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',pickKits:'Choose kits',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
  fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',kitTitle:'Kits',menu:'Menu',kitLbl:'Kit',kit1:'Home',kit2:'Away',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
@@ -842,7 +843,7 @@ try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s){T=s.T||null;pref
 if(!STR[prefs.lang])prefs.lang='pt';
 if(!prefs.teams||typeof prefs.teams!=='object')prefs.teams={wc:prefs.team||0,br:0};
 if(!CUPS[prefs.cup])prefs.cup='wc';prefs.teams=Object.assign({wc:0,br:0,cl:0},prefs.teams||{});
-prefs.stats=Object.assign({wins:0,goals:0,lobs:0,clean:0,pens:0,hat:0,semis:0,hard:0,copas:0},prefs.stats||{});
+prefs.diff='hard';prefs.stats=Object.assign({wins:0,goals:0,lobs:0,clean:0,pens:0,hat:0,semis:0,hard:0,copas:0},prefs.stats||{});
 const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify({T,prefs}))}catch(e){}};
 const save=()=>{prefs.mod=Date.now();saveLocal();cloudDirty()};
 
@@ -1049,7 +1050,8 @@ document.addEventListener('click',e=>{
 const unlocked=s=>!s.req||s.req(prefs.stats);
 let lastUnlocked=new Set(SKINS.filter(unlocked).map(s=>s.id));
 /* aim guide levels: line length (cm) and how far off it can drift (radians) */
-const AIM=[{len:42,err:.035}]; // one aim guide for everyone: a medium-length line with a little wobble
+const AIM=[{len:42,err:.035}];
+const penCtx=()=>!!(G&&(G.mode==='pens'||G.penLine)); // penalty kicks: shakier, shorter aim guide; real shot error for both sides // one aim guide for everyone: a medium-length line with a little wobble
 const aimLevel=()=>1;
 let lastAim=aimLevel();
 function newUnlocks(){const now=SKINS.filter(unlocked).map(s=>s.id),fresh=now.filter(id=>!lastUnlocked.has(id));lastUnlocked=new Set(now);
@@ -1204,14 +1206,14 @@ function renderAcctBox(){const box=$('#acctBox');if(!box)return;
   const b=$('#profSignin');if(b)b.onclick=()=>signInSheet('in');
 }
 $('#startBtn').onclick=()=>{newTournament();show('bracket');renderBracket()};
-const PV={init:false,mode:1,diff:'normal',goals:3,t:[0,17],tab:['wc','br'],f:['4-3-3','4-3-3']};
+const PV={init:false,mode:1,diff:'hard',goals:3,t:[0,17],tab:['wc','br'],f:['4-3-3','4-3-3']};
 const QOFF={wc:0,br:NATIONS.length,cl:NATIONS.length+CLUBS.length};
 const cupOf=i=>i>=QOFF.cl?'cl':i>=QOFF.br?'br':'wc';
 function renderPvp(){
-  if(!PV.init){PV.init=true;const c=prefs.cup||'wc',me=QOFF[c]+(prefs.teams[c]||0);PV.t=[me,me===QOFF[c]?QOFF[c]+1:QOFF[c]];PV.tab=[c,c];PV.f[0]=prefs.form||'4-3-3';PV.diff=prefs.diff||'normal'}
+  if(!PV.init){PV.init=true;const c=prefs.cup||'wc',me=QOFF[c]+(prefs.teams[c]||0);PV.t=[me,me===QOFF[c]?QOFF[c]+1:QOFF[c]];PV.tab=[c,c];PV.f[0]=prefs.form||'4-3-3';PV.diff='hard'}
   const seg=(id,val,fn)=>{for(const b of $(id).children){b.setAttribute('aria-pressed',String(b.dataset.v)===String(val));b.onclick=()=>{fn(b.dataset.v);renderPvp()}}};
-  seg('#qMode',PV.mode,v=>PV.mode=+v);seg('#qDiff',PV.diff,v=>PV.diff=v);seg('#qGoals',PV.goals,v=>PV.goals=+v);pitchSeg('#qPitch');
-  $('#qDiffBox').hidden=PV.mode!==1;
+  seg('#qMode',PV.mode,v=>PV.mode=+v);seg('#qDiff',PV.diff,v=>PV.diff=v);PV.goals=3;pitchSeg('#qPitch');
+  $('#qDiffBox').hidden=true;
   $('#qHint').textContent=tr(PV.mode===1?'quickHint1':'pvpHint')+' '+tr('quickGoals',{n:PV.goals,m:PV.goals-1,k:PV.goals+1});
   $('#pvpL0').textContent=PV.mode===1?tr('you'):tr('p1');$('#pvpL1').textContent=PV.mode===1?'CPU':tr('p2');
   for(const p of [0,1]){
@@ -1229,7 +1231,7 @@ function renderPvp(){
 }
 $('#pvpBtn').onclick=()=>{renderPvp();openModal('pvp')};
 $('#pvpGo').onclick=()=>{closeModals();const t0=ALLT[PV.t[0]],t1=ALLT[PV.t[1]];
-  kitPick([t0,t1],[PV.mode===1?tr('you'):tr('p1'),PV.mode===1?'CPU':tr('p2')],kits=>{useCup('all');startMatch(PV.t[0],PV.t[1],{cup:'all',forms:PV.f.slice(),cpu:PV.mode===1?PV.diff:null,goals:PV.goals,kits})})};
+  kitPick([t0,t1],[PV.mode===1?tr('you'):tr('p1'),PV.mode===1?'CPU':tr('p2')],kits=>{useCup('all');startMatch(PV.t[0],PV.t[1],{cup:'all',forms:PV.f.slice(),cpu:PV.mode===1?PV.diff:null,goals:PV.goals,kits})},()=>{renderPvp();openModal('pvp')})};
 $('#resumeBtn').onclick=()=>{if(prefs.match&&resumeSaved())return;show('bracket');renderBracket()};
 $('#abandonBtn').onclick=()=>{if(prefs.match&&(prefs.match.pvp||prefs.match.quick))prefs.match=null;else{T=null;prefs.match=null}save();renderHome()};
 $('#homeBtn').onclick=()=>{renderHome();show('home')};
@@ -1322,7 +1324,7 @@ function kitThumb(t){const src=t.img&&t.img.src;return src?`<i class="kitimg" st
 function kitSegHTML(t,cur){return ['home','away'].map((k,i)=>`<button data-v="${k}" aria-pressed="${cur===k}">${kitThumb(k==='away'?t.away:t)}<span>${tr(i?'kit2':'kit1')}</span></button>`).join('')}
 /* before every match: pick each team's kit, shown as the real 3D buttons (slowly turning) */
 let KITP=null;
-function kitPick(teams,labels,go){
+function kitPick(teams,labels,go,back){
   const auto=kitsForT(teams[0],teams[1],[(prefs.kits||{})[teams[0].c]||null,null]);
   const sel=[0,1].map(p=>hasKit2(teams[p])&&auto[p]===teams[p].away?'away':'home');
   const cols=$('#kitCols');cols.innerHTML='';const cvs=[];
@@ -1336,6 +1338,7 @@ function kitPick(teams,labels,go){
       cvs.push({c:b.querySelector('canvas'),team:k==='away'?t.away:t,num:p===0?10:9,ph:p*1.7+i})}
     cols.appendChild(col)});
   $('#kitGo').onclick=()=>{KITP=null;closeModals();go(sel.slice())};
+  $('#kitBack').onclick=()=>{KITP=null;closeModals();if(back)back()};
   openModal('kit');
   const t0=performance.now();KITP={cvs,t0};
   const tick=()=>{if(!KITP||$('#kitModal').hidden){KITP=null;return}
@@ -2070,7 +2073,7 @@ function execPlan(p){
   if(p.keeper){const sk=G.skill,a=Math.atan2(p.uy,p.ux)+gauss()*(.02+(1-sk)*.06),v=p.v0*(1+gauss()*(.05+(1-sk)*.08));
     G.phase='cpuAim';G.kt[p.side]={x:p.pose.x,y:p.pose.y,a:p.pose.a};hud();
     later(()=>{G.keepers[p.side]=Object.assign({},p.pose);G.kt[p.side]=null;keeperKick(p.side,Math.cos(a)*v,Math.sin(a)*v)},700);return}
-  const sk=G.skill,sig=.006+(1-sk)*.05+p.s*.0005*(1.4-sk),a=Math.atan2(p.uy,p.ux)+gauss()*sig;
+  const sk=G.skill,sig=.006+(1-sk)*.05+p.s*.0005*(1.4-sk)+(penCtx()?.03:0),a=Math.atan2(p.uy,p.ux)+gauss()*sig;
   const v=clamp(p.v0*(1+gauss()*(.04+(1-sk)*.1)),VMIN,VMAX);
   G.phase='cpuAim';G.cpuAim={b:p.b,ux:Math.cos(a),uy:Math.sin(a),pw:0,tpw:pwOf(v)};hud();
   later(()=>flick(p.b,Math.cos(a)*v,Math.sin(a)*v),650);
@@ -2209,7 +2212,7 @@ const endPtr=()=>{
   if(!G)return;
   if(G.aim&&G.aim.mode3&&G.aim.pend){const a=G.aim;G.aim=null;Snd.tension(0);const t=shooterAt(a.sx,a.sy);if(t&&t!==a.b&&G.phase==='aim')switchShooter(t)}
   if(G.aim){const a=G.aim;G.aim=null;Snd.tension(0);
-    if(G.phase==='aim'&&a.raw>=CANCEL_PX&&a.tpw>0){const v=vOf(a.pw);if(a.mode3){V3.ang=a.ang;V3.mode='chase';const b0=a.b,p0=shotPose(b0,a.ang);V3.chaseBase={x:p0.x-Math.cos(a.ang)*6,y:p0.y-Math.sin(a.ang)*6,z:p0.z+5,yaw:a.ang,pitch:p0.pitch-.06};V3.chaseYaw=a.ang}flick(a.b,Math.cos(a.ang)*v,Math.sin(a.ang)*v,null)}else if(a.raw>4)setStatus(tr('cancelled'))}
+    if(G.phase==='aim'&&a.raw>=CANCEL_PX&&a.tpw>0){const v=vOf(a.pw);if(a.mode3){V3.ang=a.ang;V3.mode='chase';const b0=a.b,p0=shotPose(b0,a.ang);V3.chaseBase={x:p0.x-Math.cos(a.ang)*6,y:p0.y-Math.sin(a.ang)*6,z:p0.z+5,yaw:a.ang,pitch:p0.pitch-.06};V3.chaseYaw=a.ang}const an=a.ang+(penCtx()?gauss()*.022:0);flick(a.b,Math.cos(an)*v,Math.sin(an)*v,null)}else if(a.raw>4)setStatus(tr('cancelled'))}
   G.kdrag=null;G.sdrag=null;G.pan=null;V3.drag=null;
 };
 cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',()=>{V3.drag=null;if(G){G.aim=null;G.kdrag=null;G.sdrag=null;G.pan=null;Snd.tension(0)}});
@@ -3017,9 +3020,9 @@ function predictBall(b,ang,pw,seed,ts,loft,minLen){
   for(const o of bodies()){if(o===b)continue;const gx=b.x-o.x,gy=b.y-o.y,q2=gx*ux+gy*uy,d2=q2*q2-(gx*gx+gy*gy-4*BR*BR);if(d2>=0){const s2=-q2-Math.sqrt(d2);if(s2>0&&s2<sHit)return null}}
   let v=v0,s=0;while(s<sHit){const ds=Math.min(.25,sHit-s);v-=(A_BTN+DRAG*v)*ds/Math.max(v,1);if(v<=0)return null;s+=ds}
   const cx=b.x+ux*sHit,cy=b.y+uy*sHit,nx=(ball.x-cx)/R,ny=(ball.y-cy)/R,vn=v*(ux*nx+uy*ny);if(vn<=0)return null;
-  let sp=1.41*vn;const a2=Math.atan2(ny,nx)+lvl.err*Math.sin(ts/900+seed);let vz;
+  let sp=1.41*vn;const pen=penCtx(),a2=Math.atan2(ny,nx)+lvl.err*(pen?2.4:1)*Math.sin(ts/(pen?520:900)+seed);let vz;
   if(loft!=null){vz=loft*LOFT_K*sp;sp*=1-.3*loft}else vz=sp>LIFT_T?(sp-LIFT_T)*LIFT_K:0;
-  const maxLen=Math.max(lvl.len,minLen||0);
+  const maxLen=pen?22:Math.max(lvl.len,minLen||0);
   let x=ball.x,y=ball.y,vx=Math.cos(a2)*sp,vy=Math.sin(a2)*sp,z=0,len=0;
   const pts=[[x,y,0]],dt=1/120;
   for(let i=0;i<480;i++){
