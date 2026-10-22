@@ -2920,7 +2920,7 @@ const NOISE=(()=>{const N=256,n=document.createElement('canvas');n.width=n.heigh
 const GRAIN=.13; // cm of table per texel: the grain is printed on the felt, so it pans and zooms with it
 let noisePat=null;
 const LAMP={x:CX,y:CY}; // stadium floodlights high over the middle: highlights and shadows react to where each piece is
-const LITE={z:260,col:[.97,1,1.06],amb:1.12,vig:.03,so:.45};
+const LITE={z:260,col:[.9,.93,.98],amb:.9,vig:.06,so:.6};
 function shade(h,k){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
   if(k<0){r*=1+k;g*=1+k;b*=1+k}else{r+=(255-r)*k;g+=(255-g)*k;b+=(255-b)*k}return `rgb(${r|0},${g|0},${b|0})`}
 function lampVec(x,y){const dx=x-LAMP.x,dy=y-LAMP.y,d=hyp(dx,dy)||1,k=Math.min(1,d/95)*LITE.so;return {x:dx/d*k,y:dy/d*k}}
