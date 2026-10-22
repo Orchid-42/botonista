@@ -665,7 +665,7 @@ pt:{
   ['Chute','Toque em "Pro gol" antes de chutar, do campo de ataque. Gol sem anunciar não vale.'],
   ['Placar','Vence quem fizer 3 gols primeiro. Em 2 a 2, precisa de 4; 3 a 3 vai para os pênaltis.']],
  aim:'Mira',aimLevel:'Nível {n} de {m}',aimNext:'próximo: {x}',aimMax:'completa',aimUp:'Mira nível {n}',aimReq:['','Vença 2 partidas','Chegue à semifinal','Ganhe a Copa'],
- skinReq:['Inicial','Vença uma partida','Marque 10 gols','Faça um gol de cobertura','Marque de pênalti','Vença 3 partidas','Vença uma disputa de pênaltis','Ganhe uma Copa','Chegue à semifinal','Faça um hat-trick','Vença por 3 a 0','Ganhe uma Copa sem sofrer gols']
+ skinReq:['Inicial','Vença uma partida','Marque 10 gols','Faça um gol de cobertura','Marque de pênalti','Vença 3 partidas','Vença uma disputa de pênaltis','Chegue à semifinal','Faça um hat-trick','Vença por 3 a 0','Ganhe uma Copa','Ganhe uma Copa sem sofrer gols']
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',cupMode:'Cup',pickMode:'How do you want to play?',pickKits:'Choose kits',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
@@ -701,7 +701,7 @@ en:{
   ['Shooting','Press "Announce shot" before shooting, from the attacking half. Unannounced goals don\'t count.'],
   ['Score','First to 3 goals wins. At 2–2 you need 4; 3–3 goes to penalties.']],
  aim:'Aim guide',aimLevel:'Level {n} of {m}',aimNext:'next: {x}',aimMax:'complete',aimUp:'Aim guide level {n}',aimReq:['','Win 2 matches','Reach a semi-final','Win the Copa'],
- skinReq:['Starter','Win a match','Score 10 goals','Score a lob','Score a penalty','Win 3 matches','Win a penalty shootout','Win a cup','Reach a semi-final','Score a hat-trick','Win 3–0','Win a cup without conceding']
+ skinReq:['Starter','Win a match','Score 10 goals','Score a lob','Score a penalty','Win 3 matches','Win a penalty shootout','Reach a semi-final','Score a hat-trick','Win 3–0','Win a cup','Win a cup without conceding']
 }};
 const tr=(k,v)=>{let s=STR[prefs.lang][k];if(typeof s==='string'&&v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s};
 
@@ -822,10 +822,10 @@ const PAL_COLS=[
  {id:'verde',n:['Verde','Green'],hex:'#1f9a4a',req:s=>s.pens>=1},
  {id:'amarelo',n:['Amarelo','Yellow'],hex:'#f2c616',req:s=>s.wins>=3},
  {id:'laranja',n:['Laranja','Orange'],hex:'#ee7a1c',req:s=>s.shootout>=1},
- {id:'rosa',n:['Rosa','Pink'],hex:'#e85a9c',req:s=>s.copas>=1},
  {id:'roxo',n:['Roxo','Purple'],hex:'#7a45d6',req:s=>s.semis>=1},
  {id:'ciano',n:['Ciano','Cyan'],hex:'#1fb8c9',req:s=>s.hat>=1},
  {id:'bordo',n:['Bordô','Maroon'],hex:'#7a1830',req:s=>s.clean>=1},
+ {id:'rosa',n:['Rosa','Pink'],hex:'#e85a9c',req:s=>s.copas>=1},
  {id:'dourado',n:['Dourado','Gold'],hex:'#d4a017',req:s=>s.perfect>=1}
 ];
 const SKINS=PAL_COLS; // unlock tracking works on the colours
