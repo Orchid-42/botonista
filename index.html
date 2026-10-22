@@ -2972,6 +2972,8 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     M.pal=lathe(PAL_PROF,96);
     {const zs=PAL_PROF.map(p=>p[1]),zm=(Math.min(...zs)+Math.max(...zs))/2;M.palC=lathe(PAL_PROF.map(([r,z])=>[r,z-zm]),96)}
     M.keeper=rbox(KW,KH,KEEP_H,.16,10);
+    {const w=KW/2-.08,y=KH/2-.06,z0=.08,z1=KEEP_H-.08;M.gkBack=quadsMesh([[[w,y,z0],[-w,y,z0],[-w,y,z1],[w,y,z1],[0,1,0],[[0,0],[1,0],[1,1],[0,1]]]])}
+    {const q=[],N=48;for(let i=0;i<N;i++){const a0=i/N*2*PI,a1=(i+1)/N*2*PI,r=BR*.995;q.push([[0,0,.004],[Math.cos(a1)*r,Math.sin(a1)*r,.004],[Math.cos(a0)*r,Math.sin(a0)*r,.004],[0,0,.004],[0,0,-1]])}M.btnBase=quadsMesh(q)}
     {const w=KW/2-.2,y=KH/2-.15;M.gkCard=quadsMesh([[[-w,y,.2],[w,y,.2],[w,y,KEEP_H-.2],[-w,y,KEEP_H-.2],[0,-1,0],[[1,1],[0,1],[0,0],[1,0]]]]) /* seen from the front the table's x runs right-to-left, so u is flipped */}
     {const w=KW/2-.35,h=KH/2-.35,r=Math.min(1,(2*h)/(2*w)*(980/340)),v0=(1-r)/2,v1=(1+r)/2;
       M.gkFloor=quadsMesh([[[-w,-h,.03],[w,-h,.03],[w,h,.03],[-w,h,.03],[0,0,1],[[0,v0],[1,v0],[1,v1],[0,v1]]]])}
@@ -3148,7 +3150,10 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     const Rx=a=>[1,0,0,0,Math.cos(a),Math.sin(a),0,-Math.sin(a),Math.cos(a)],Rz=a=>[Math.cos(a),Math.sin(a),0,-Math.sin(a),Math.cos(a),0,0,0,1];
     const Rm=mm(Rx(tilt),mm(Rz(yaw),gk?Rz(PI):Rx(-PI/2))),zc=gk?KEEP_H/2:BR*.11;
     const T=[-Rm[6]*zc,-Rm[7]*zc,tz-Rm[8]*zc],M4=new Float32Array([Rm[0],Rm[1],Rm[2],0,Rm[3],Rm[4],Rm[5],0,Rm[6],Rm[7],Rm[8],0,T[0],T[1],T[2],1]);
-    const L=[-9,22,tz+14];
+    const L=[-9,22,tz+14],seen=(nx,ny,nz)=>{const w=[Rm[0]*nx+Rm[3]*ny+Rm[6]*nz,Rm[1]*nx+Rm[4]*ny+Rm[7]*nz,Rm[2]*nx+Rm[5]*ny+Rm[8]*nz];return w[0]*(pos[0])+w[1]*(pos[1])+w[2]*(pos[2]-tz)>0};
+    const back=team.ring||team.dome;
+    if(gk&&seen(0,1,0))lit(back,.45,false,1,M4,M.gkBack);
+    if(!gk&&seen(0,0,-1))lit(back,.45,false,1,M4,M.btnBase);
     if(gk){const img=gkImg(team),key=img?team.c+(team.kit||''):'#'+(team.ring||team.dome);let tx=GKT.get(key);
       if(!tx){let src=img;if(!src){src=document.createElement('canvas');src.width=src.height=4;const x=src.getContext('2d');x.fillStyle=team.ring||team.dome;x.fillRect(0,0,4,4)}tx=texFrom(src);if(img)GKT.set(key,tx)}
       {const u=use('tex',1);gl.uniform3f(u.uLamp,...L);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);draw(M.gkCard,M4)}
