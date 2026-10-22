@@ -2239,7 +2239,7 @@ function frame(ts){
       G.cam.vx=(G.cam.vx||0)+(w*w*(t.x-G.cam.x)-2*w*(G.cam.vx||0))*dt;G.cam.vy=(G.cam.vy||0)+(w*w*(t.y-G.cam.y)-2*w*(G.cam.vy||0))*dt;
       const c=camClamp(G.cam.x+G.cam.vx*dt,G.cam.y+G.cam.vy*dt);G.cam.x=c.x;G.cam.y=c.y}
     if(!G.paused)v3Update(dt);
-    try{if(V3.on&&V3.pose)render3D(ts);else render(ts)}catch(e){if(!frame.err){frame.err=1;console.error(e)}} // a drawing error must never stop play
+    try{if(V3.on&&V3.pose)render3D(ts);else render(ts);if(VFADE){VFADE.t+=dt;const k=1-VFADE.t/VFADE.dur;if(k<=0)VFADE=null;else{ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=k*k*(3-2*k);ctx.drawImage(VFADE.c,0,0);ctx.restore()}}}catch(e){if(!frame.err){frame.err=1;console.error(e)}} // a drawing error must never stop play
     fxTick(dt);{const fc=$('#fxc'),fx=fc.getContext('2d');if(FX.length||fc.dirty){fx.setTransform(1,0,0,1,0,0);fx.clearRect(0,0,fc.width,fc.height);drawFx(fx);fc.dirty=FX.length>0}}
     shotUiTick();
   }
@@ -2455,6 +2455,8 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     {const zs=PAL_PROF.map(p=>p[1]),zm=(Math.min(...zs)+Math.max(...zs))/2;M.palC=lathe(PAL_PROF.map(([r,z])=>[r,z-zm]),96)}
     M.keeper=rbox(KW,KH,KEEP_H,.16,10);
     {const w=KW/2-.2,y=KH/2-.15;M.gkCard=quadsMesh([[[-w,y,.2],[w,y,.2],[w,y,KEEP_H-.2],[-w,y,KEEP_H-.2],[0,-1,0],[[0,1],[1,1],[1,0],[0,0]]]])}
+    {const w=KW/2-.35,h=KH/2-.35,r=Math.min(1,(2*h)/(2*w)*(980/340)),v0=(1-r)/2,v1=(1+r)/2;
+      M.gkFloor=quadsMesh([[[-w,-h,.03],[w,-h,.03],[w,h,.03],[-w,h,.03],[0,0,1],[[0,v0],[1,v0],[1,v1],[0,v1]]]])}
     M.unit=quadsMesh([[[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0],[0,0,1]]]);
     // the table: felt plane under everything, the rail as a raised frame, the sides down to the floor
     M.felt=quadsMesh([[[0,0,0],[TW,0,0],[TW,TH,0],[0,TH,0],[0,0,1],[[0,0],[1,0],[1,1],[0,1]]]]);
@@ -2557,7 +2559,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     G.keepers.forEach((k,i)=>{const t=i===0?tA:tB;items.push({o:{x:k.x,y:k.y,r:KW/2},d:toC(k.x,k.y,1)[2],f:a=>{const M4=TR(k.x,k.y,0,k.a+(k.y<CY?PI:0)),img=gkImg(t);
       const key=img?t.c:'#'+(t.ring||t.dome);let tx=GKT.get(key);
       if(!tx){let src=img;if(!src){src=document.createElement('canvas');src.width=src.height=4;const x=src.getContext('2d');x.fillStyle=t.ring||t.dome;x.fillRect(0,0,4,4)}tx=texFrom(src);GKT.set(key,tx)}
-      {const u=use('tex',a);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);draw(M.gkCard,M4)}
+      {const u=use('tex',a);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);const ca=a*clamp((V3.pose.pitch+1.3)/.4,0,1);if(ca>.02){gl.uniform1f(u.uA,ca);draw(M.gkCard,M4);gl.uniform1f(u.uA,a)}draw(M.gkFloor,TR(k.x,k.y,0,k.a))}
       gl.depthMask(false);lit('#c8dbee',.02,false,a,M4,M.keeper,null,true);gl.depthMask(true)}})});
     items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#0d0f12',.14,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
     if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,pal=curPal();
@@ -2646,7 +2648,7 @@ const angTo=(b,t)=>Math.atan2(t.y-b.y,t.x-b.x);
 function enterShot(btn){
   if(!G||G.phase!=='aim'||G.turn!==0||(V3.on&&V3.mode!=='out'))return;
   V3.list=shotCands();V3.idx=0;V3.oyaw=0;V3.oh=1;const b=btn||V3.list[0];if(!b)return;G.pickShot=false;V3.btn=b;V3.ang=angTo(b,G.ball);
-  const from=V3.on&&V3.pose?V3.pose:topPose();V3.on=true;V3.mode='shotIn';
+  if(!V3.on)snapView(.4);const from=V3.on&&V3.pose?V3.pose:topPose();V3.on=true;V3.mode='shotIn';
   V3.anim={from,t:0,dur:1.05,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}};
   setStatus(tr('shotHelp'));hud();
 }
@@ -2655,8 +2657,10 @@ function pickShooter(){return;if(!G||G.phase!=='aim'||G.turn!==0)return;const ow
 function cycleShooter(){if(!V3.on||V3.mode!=='shot'||G.aim||V3.list.length<2)return;
   V3.idx=(V3.idx+1)%V3.list.length;V3.btn=V3.list[V3.idx];V3.ang=angTo(V3.btn,G.ball);V3.mode='shotIn';
   V3.anim={from:V3.pose,t:0,dur:.8,to:()=>shotPose(V3.btn,V3.ang),done:()=>{V3.mode='shot'}}}
+let VFADE=null;
+function snapView(dur){const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;c.getContext('2d').drawImage(cv,0,0);VFADE={c,t:0,dur}}
 function exitView(after){if(!V3.on)return;G.aim=G.aim&&G.aim.mode3?null:G.aim;V3.mode='out';
-  V3.anim={from:V3.pose,t:0,dur:.95,to:topPose,done:()=>{V3.on=false;V3.mode=null;V3.pose=null;hud();after&&after()}};hud()}
+  V3.anim={from:V3.pose,t:0,dur:.95,to:topPose,done:()=>{snapView(.45);V3.on=false;V3.mode=null;V3.pose=null;hud();after&&after()}};hud()}
 function v3Update(dt){
   if(!V3.on)return;
   if(V3.anim){const A=V3.anim;A.t+=dt;const e=ease(Math.min(1,A.t/A.dur));V3.pose=mixPose(A.from,A.to(),e);
@@ -2863,13 +2867,19 @@ function drawKeeper(c,k,team,edit,pulse){
   const base=team.ring||team.dome,img=gkImg(team);
   c.save();c.translate(0,.32);c.rotate(k.a);rr(c,-KW/2,-KH/2,KW,KH,.22);c.fillStyle=shade(base,-.45);c.fill();c.restore();
   c.rotate(k.a); // the art reads upright on screen for both keepers, like the buttons
-  // glass block: the art card seen through the top, then the glass's sheen and edges
-  c.save();rr(c,-KW/2,-KH/2,KW,KH,.22);c.clip();c.fillStyle=base;c.fillRect(-KW/2,-KH/2,KW,KH);
-  if(img){const dw=KW-.4,dh=KH-.4,iw=img.naturalWidth,ih=img.naturalHeight,k=Math.max(dw/iw,dh/ih),sw=dw/k,sh=dh/k; // scale to fill, centred, no stretching
-    c.drawImage(img,(iw-sw)/2,(ih-sh)/2,sw,sh,-dw/2,-dh/2,dw,dh)}
-  const g=c.createLinearGradient(-KW/2,-KH/2,KW/2,KH/2);g.addColorStop(0,'rgba(255,255,255,.4)');g.addColorStop(.45,'rgba(225,238,255,.14)');g.addColorStop(1,'rgba(0,10,30,.2)');c.fillStyle=g;c.fillRect(-KW/2,-KH/2,KW,KH);c.restore();
-  rr(c,-KW/2,-KH/2,KW,KH,.22);c.lineWidth=.24;c.strokeStyle='rgba(225,240,255,.85)';c.stroke();
-  c.fillStyle='rgba(255,255,255,.45)';c.fillRect(-KW/2+.6,-KH/2+.22,KW-1.2,.12);
+  // a glass block with the art lying under it: the art inside the glass walls, the walls see-through, then the top's sheen
+  const iw2=KW-.7,ih2=KH-.7;
+  c.save();rr(c,-KW/2,-KH/2,KW,KH,.22);c.clip();
+  c.fillStyle='rgba(200,225,245,.30)';c.fillRect(-KW/2,-KH/2,KW,KH);                                  // the glass walls over the felt
+  c.save();rr(c,-iw2/2,-ih2/2,iw2,ih2,.12);c.clip();c.fillStyle=base;c.fillRect(-iw2/2,-ih2/2,iw2,ih2);
+  if(img){const iw=img.naturalWidth,ih=img.naturalHeight,k=Math.max(iw2/iw,ih2/ih),sw=iw2/k,sh=ih2/k; // scale to fill, centred, no stretching
+    c.drawImage(img,(iw-sw)/2,(ih-sh)/2,sw,sh,-iw2/2,-ih2/2,iw2,ih2)}
+  const ish=c.createLinearGradient(0,-ih2/2,0,ih2/2);ish.addColorStop(0,'rgba(0,10,30,.22)');ish.addColorStop(.25,'rgba(0,10,30,0)');ish.addColorStop(.8,'rgba(0,10,30,0)');ish.addColorStop(1,'rgba(0,10,30,.18)');c.fillStyle=ish;c.fillRect(-iw2/2,-ih2/2,iw2,ih2);c.restore();
+  const g=c.createLinearGradient(-KW/2,-KH/2,KW/2,KH/2);g.addColorStop(0,'rgba(255,255,255,.32)');g.addColorStop(.45,'rgba(225,238,255,.12)');g.addColorStop(1,'rgba(0,10,30,.16)');c.fillStyle=g;c.fillRect(-KW/2,-KH/2,KW,KH);
+  c.restore();
+  rr(c,-iw2/2,-ih2/2,iw2,ih2,.12);c.lineWidth=.08;c.strokeStyle='rgba(255,255,255,.4)';c.stroke();     // where the glass wall meets the art
+  rr(c,-KW/2,-KH/2,KW,KH,.22);c.lineWidth=.2;c.strokeStyle='rgba(225,240,255,.85)';c.stroke();
+  c.fillStyle='rgba(255,255,255,.5)';c.fillRect(-KW/2+.6,-KH/2+.12,KW-1.2,.1);
   if(edit){
     c.strokeStyle=`rgba(255,210,63,${.5+.5*pulse})`;c.lineWidth=.22;c.setLineDash([.7,.5]);rr(c,-KW/2-.9,-KH/2-.9,KW+1.8,KH+1.8,1.1);c.stroke();c.setLineDash([]);
     for(const sx of [-1,1]){c.fillStyle='#ffd23f';c.beginPath();c.arc(sx*(KW/2+.2),0,.9,0,2*PI);c.fill();c.strokeStyle='#0a1430';c.lineWidth=.18;c.stroke()}
