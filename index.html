@@ -396,6 +396,24 @@ button{touch-action:manipulation}
 .cupart svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round;overflow:visible;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .cupcard:hover .cupart svg{transform:scale(1.06) rotate(-3deg)}
 @media (max-width:620px){.cupart{width:46px;height:46px;flex:none}}
+/* home: two big modes */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,2vh,20px);margin-bottom:auto}
+#pvpBtn{margin-top:0;width:auto}
+.cupcard.mode{min-height:clamp(220px,46vh,460px);justify-content:space-between;flex-direction:column;align-items:flex-start;padding:clamp(20px,4vh,40px)}
+.cupcard.mode .cupart{width:clamp(80px,15vh,150px);height:clamp(80px,15vh,150px)}
+.cupcard.mode .cuptx b{font-size:clamp(28px,5.4vh,52px)}
+.cupcard.mode.quick{--glow:rgba(255,210,63,.45);border-color:rgba(255,210,63,.55);background:linear-gradient(150deg,rgba(255,210,63,.16),rgba(255,210,63,.03))}
+.cupcard.mode.quick .cupart{color:var(--accent)}
+.cupcard.mode.quick:hover{box-shadow:0 14px 40px rgba(255,210,63,.18)}
+@media (max-width:620px){.cupcard.mode{min-height:clamp(180px,34vh,300px);flex-direction:column;align-items:flex-start;padding:18px}.cupcard.mode .cupart{width:72px;height:72px}.cupcard.mode .cuptx b{font-size:26px}}
+@media (max-width:380px){.modes{grid-template-columns:1fr}.cupcard.mode{min-height:150px}}
+#cups .cups{margin-bottom:auto}
+/* profile: the big turning palheta */
+.palstage{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:6px;border:1px solid var(--line);border-radius:12px;background:radial-gradient(ellipse at 50% 58%,rgba(150,180,255,.2),rgba(150,180,255,.04) 55%,transparent 75%);padding:6px 0 12px}
+#palStage{width:min(100%,clamp(180px,34vh,300px));aspect-ratio:1;height:auto}
+@media (max-width:760px){#palStage{width:min(60vw,210px)}}
+.avatar,.avatar canvas{width:48px;height:48px}
+.skin canvas{width:clamp(34px,5.6vh,52px);height:clamp(34px,5.6vh,52px)}
 .qopts{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end}
 .qopts>div{display:flex;flex-direction:column;gap:6px}
 .qtab button{font-size:12px}
@@ -424,19 +442,28 @@ button{touch-action:manipulation}
         <div class="row"><button class="btn go" id="resumeBtn" data-i="continue"></button><button class="btn ghost" id="abandonBtn" data-i="startOver"></button></div>
       </div>
       <p class="hello" id="hello"></p>
+      <div class="modes">
+        <button class="cupcard mode quick" id="pvpBtn"><span class="cupart"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"/><path d="M32 22.5l9 6.6-3.4 10.6H26.4L23 29.1z"/><path d="M32 22.5V5M41 29.1l16.6-5.4M37.6 39.7l10.3 14.2M26.4 39.7L16.1 53.9M23 29.1L6.4 23.7"/></svg></span><span class="cuptx"><b data-i="pvp"></b></span></button>
+        <button class="cupcard mode" id="cupsBtn"><span class="cupart" id="cupModeArt"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 12h9v12H5M5 40h9v12H5M14 18h7v28h-7M21 32h7M59 12h-9v12h9M59 40h-9v12h9M50 18h-7v28h7M43 32h-7"/><circle cx="32" cy="32" r="4"/></svg></span><span class="cuptx"><b data-i="cupMode"></b></span></button>
+      </div>
+    </div>
+  </section>
+  <section id="cups" class="screen" hidden>
+    <div class="fit">
+      <header class="topbar"><button class="btn ghost back" data-back="home">‹ <span data-i="back"></span></button><div class="tools"></div></header>
+      <p class="hello" data-i="chooseCup"></p>
       <div class="cups">
         <button class="cupcard" data-cup="wc"><span class="cupart wc"></span><span class="cuptx"><b data-i="cupWC"></b></span></button>
         <button class="cupcard" data-cup="br"><span class="cupart br"></span><span class="cuptx"><b data-i="cupBR"></b></span></button>
         <button class="cupcard" data-cup="cl"><span class="cupart cl"></span><span class="cuptx"><b data-i="cupCL"></b></span></button>
       </div>
-      <button class="btn ghost big" id="pvpBtn" data-i="pvp"></button>
     </div>
   </section>
 
   <!-- BRACKET -->
   <section id="setup" class="screen" hidden>
     <div class="fit">
-      <header class="topbar"><button class="btn ghost back" data-back="home">‹ <span data-i="back"></span></button><div class="tools">
+      <header class="topbar"><button class="btn ghost back" data-back="cups">‹ <span data-i="back"></span></button><div class="tools">
           <button class="iconbtn acctb" data-acct data-ia="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c1.2-3.6 4-5.4 7.2-5.4s6 1.8 7.2 5.4"/></svg></button>
           <button class="iconbtn" data-open="help" data-ia="howto">?</button>
           <button class="iconbtn" data-open="settings" data-ia="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -470,6 +497,7 @@ button{touch-action:manipulation}
           <p class="label" data-i="profile"></p>
           <div class="namebox"><span class="avatar" id="avatar"></span><input id="pname" maxlength="18" autocomplete="nickname" spellcheck="false"></div>
           <div class="statrow" id="statRow"></div>
+          <div class="palstage"><canvas id="palStage" width="560" height="560"></canvas><p class="label" id="palStageName"></p></div>
           <div class="acctbox" id="acctBox"></div>
         </section>
         <section class="block">
@@ -597,7 +625,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 /* ---------- language ---------- */
 const STR={
 pt:{
- inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',pickKits:'Escolher uniformes',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
+ inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',cupMode:'Copa',pickMode:'Como você quer jogar?',pickKits:'Escolher uniformes',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
  fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',kitTitle:'Uniformes',menu:'Menu',kitLbl:'Uniforme',kit1:'1º uniforme',kit2:'2º uniforme',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
@@ -633,7 +661,7 @@ pt:{
  skinReq:['Inicial','Inicial','Vença uma partida','Faça um gol de cobertura','Marque 10 gols','Vença 3 partidas','Marque de pênalti','Vença por 3 a 0','Chegue à semifinal','Vença no Difícil','Faça um hat-trick','Ganhe a Copa']
 },
 en:{
- inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',pickKits:'Choose kits',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
+ inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',cupMode:'Cup',pickMode:'How do you want to play?',pickKits:'Choose kits',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
  fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',kitTitle:'Kits',menu:'Menu',kitLbl:'Kit',kit1:'Home',kit2:'Away',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
@@ -1110,7 +1138,7 @@ const Snd={ctx:null,
 const unlockAudio=()=>Snd.init();
 addEventListener('pointerdown',unlockAudio,{capture:true});addEventListener('keydown',unlockAudio,{capture:true});
 
-const ORDER={home:0,setup:1,profile:1,bracket:2,match:3};let curScreen=null;
+const ORDER={home:0,cups:1,setup:2,profile:1,bracket:3,match:4};let curScreen=null;
 function show(id){const prev=curScreen;curScreen=id;
   for(const s of document.querySelectorAll('.screen')){s.hidden=s.id!==id;s.classList.remove('enter','back')}
   const el=document.getElementById(id);
@@ -1151,8 +1179,8 @@ $('#soundToggle').onclick=()=>{Snd.init();Snd.setOn(!prefs.sound);applyLang()};
 /* ================= HOME ================= */
 const CUP_ICON={"wc": "M32 4a28 28 0 1 0 0.01 0ZM32 4c-8 7-12 17-12 28s4 21 12 28M32 4c8 7 12 17 12 28s-4 21-12 28M4 32h56M8.5 18h47M8.5 46h47M32 4v56", "br": "M35.9 5.4L38.1 9.0L38.3 12.2L40.4 12.9L45.7 15.2L50.1 15.7L54.3 16.8L59.0 19.4L59.5 21.9L59.0 25.3L56.3 27.3L54.3 30.2L53.6 33.1L53.3 37.3L51.8 40.7L50.8 43.2L47.7 44.6L44.6 45.7L41.1 47.5L40.1 50.2L39.8 52.5L37.8 55.4L35.2 57.8L33.3 60.0L33.1 57.4L30.2 56.0L27.4 55.0L30.1 52.1L32.6 50.5L31.6 48.3L32.1 46.0L30.2 44.0L27.0 43.3L27.4 40.3L26.6 36.5L23.8 35.0L24.0 31.2L21.2 28.8L16.6 27.2L14.8 25.7L10.5 27.3L5.9 25.2L4.5 22.1L5.9 19.0L10.0 17.7L10.8 13.1L10.1 10.0L14.2 8.8L15.6 10.3L18.1 5.9L20.2 5.7L23.1 4.0L24.6 5.4L24.2 9.5L26.9 9.3L29.7 8.8L32.5 8.3L34.6 8.2Z", "cl": "M57.0 42.5L54.1 42.5L51.2 45.2L49.7 46.3L47.9 43.2L46.9 43.4L45.0 46.6L44.3 48.5L45.2 51.7L42.5 52.7L39.3 52.7L40.3 56.5L39.4 57.6L38.8 59.2L38.1 58.6L37.5 56.3L36.4 54.4L35.8 51.7L35.4 50.3L33.0 48.0L31.7 46.9L30.5 45.6L30.2 44.7L28.9 45.0L30.1 47.9L32.7 50.6L34.9 53.5L33.7 54.6L33.1 55.9L32.2 56.8L32.1 53.6L30.8 52.5L29.1 51.1L27.1 48.8L25.5 46.6L24.1 47.6L21.5 48.2L19.8 48.8L19.9 50.6L17.6 52.5L16.5 54.6L17.0 55.7L16.0 57.4L14.7 58.9L12.5 58.9L11.3 60.0L10.6 58.7L8.0 58.4L8.1 55.7L7.5 54.6L8.2 50.7L7.6 48.8L9.2 47.7L11.2 47.9L15.0 48.2L15.6 44.0L14.6 42.1L12.3 40.2L15.2 38.3L16.9 38.5L18.3 36.2L20.7 34.6L21.5 32.9L24.6 31.9L25.2 28.9L24.8 26.8L27.2 25.4L26.9 28.1L27.5 30.6L29.1 30.8L30.7 31.4L35.0 30.3L37.4 29.0L37.4 26.5L40.3 26.5L39.9 23.0L44.3 22.5L41.3 21.4L38.4 21.1L37.8 19.2L37.9 16.1L41.7 13.7L40.3 12.5L37.9 13.1L35.4 16.0L33.9 17.9L33.7 20.1L34.5 22.8L33.1 25.7L31.1 27.9L29.3 29.0L28.4 25.5L27.2 22.3L25.6 23.9L23.7 24.9L22.3 23.5L21.7 21.1L21.9 18.5L24.6 16.3L27.6 14.1L29.5 11.3L32.0 8.5L35.3 6.2L40.1 4.3L42.1 4.0L44.8 4.3L47.2 5.3L49.2 6.9L52.1 7.4M11.2 37.5L13.8 36.5L18.2 35.9L18.4 33.4L17.1 32.1L16.6 30.5L15.2 28.7L14.8 25.5L13.7 23.9L11.9 23.9L11.2 26.5L11.4 28.6L12.0 30.0L13.8 31.3L13.8 32.2L12.3 33.2L12.8 35.1L11.7 35.0L13.8 35.4ZM10.9 34.2L10.9 31.3L10.7 29.4L8.7 29.4L7.0 31.9L7.1 34.5L8.4 35.1ZM29.0 56.8L32.1 56.5L31.6 58.9L29.1 57.4Z"};
 function renderHome(){
-  const nm=(prefs.name||'').trim();$('#hello').textContent=nm?tr('hello',{n:nm}):tr('chooseCup');
-  for(const c of document.querySelectorAll('.cupcard')){const k=c.dataset.cup,list=CUPS[k];
+  const nm=(prefs.name||'').trim();$('#hello').textContent=nm?tr('hello',{n:nm}):tr('pickMode');
+  for(const c of document.querySelectorAll('.cupcard[data-cup]')){const k=c.dataset.cup,list=CUPS[k];
     c.querySelector('.cupart').innerHTML=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="${CUP_ICON[k]}"/></svg>`;
     c.onclick=()=>{prefs.cup=k;save();renderSetup();show('setup')}}
   const live=T&&!T.done,pm=prefs.match&&(prefs.match.pvp||prefs.match.quick);
@@ -1183,22 +1211,30 @@ function renderProfile(){
   const st=prefs.stats;$('#statRow').innerHTML=[['copas',st.copas],['wins',st.wins],['goals',st.goals]].map(([k,v])=>`<div class="stat"><b>${v||0}</b><small>${tr('st_'+k)}</small></div>`).join('');
   const P=curPal(),mg=$('#matGrid');mg.innerHTML='';
   PAL_MATS.forEach(m=>{const b=document.createElement('button');b.className='skin';b.setAttribute('aria-pressed',P.mat===m.id);
-    b.innerHTML=`<canvas width="96" height="96"></canvas><b>${palName(m)}</b>`;
-    const c=b.querySelector('canvas').getContext('2d');c.scale(2,2);drawPalheta(c,24,23,19,{mat:m.id,base:P.base});
+    b.innerHTML=`<canvas width="128" height="128"></canvas><b>${palName(m)}</b>`;
+    palPaint(b.querySelector('canvas'),m.id,P.base,PI-.4,.75,6.9);
     b.onclick=()=>{prefs.pal={m:m.id,c:P.col.id};save();renderProfile()};mg.appendChild(b)});
   const sg=$('#skinGrid');sg.innerHTML='';let n=0;
   PAL_COLS.forEach((s,i)=>{const ok=unlocked(s);if(ok)n++;
     const b=document.createElement('button');b.className='skin'+(ok?'':' locked');b.setAttribute('aria-pressed',P.col.id===s.id);
-    b.innerHTML=`<canvas width="96" height="96"></canvas><b>${palName(s)}</b>`;b.title=ok?palName(s):`${palName(s)}: ${STR[prefs.lang].skinReq[i]}`;
-    const c=b.querySelector('canvas').getContext('2d');c.scale(2,2);drawPalheta(c,24,23,19,{mat:P.mat,base:s.hex});
+    b.innerHTML=`<canvas width="128" height="128"></canvas><b>${palName(s)}</b>`;b.title=ok?palName(s):`${palName(s)}: ${STR[prefs.lang].skinReq[i]}`;
+    palPaint(b.querySelector('canvas'),P.mat,s.hex,PI-.4,.75,6.9);
     if(ok)b.onclick=()=>{prefs.pal={m:P.mat,c:s.id};save();renderProfile()};
     else{b.setAttribute('aria-disabled','true');b.onclick=()=>{$('#skinHint').innerHTML=`<span class="val">${palName(s)}</span> · ${STR[prefs.lang].skinReq[i]}`}}
     sg.appendChild(b)});
   $('#skinCount').textContent=tr('skinCount',{n,m:PAL_COLS.length});
-  $('#skinHint').innerHTML=`${tr('inUse')}: <span class="val">${palName(PAL_MATS.find(m=>m.id===P.mat))} · ${palName(P.col)}</span>`;
-  renderAcctBox();
+  $('#palStageName').textContent=`${palName(PAL_MATS.find(m=>m.id===P.mat))} · ${palName(P.col)}`;$('#skinHint').innerHTML=`${tr('inUse')}: <span class="val">${palName(PAL_MATS.find(m=>m.id===P.mat))} · ${palName(P.col)}</span>`;
+  renderAcctBox();palStage();
 }
-function avatar(){const a=$('#avatar');if(!a)return;a.innerHTML='';const c=document.createElement('canvas');c.width=c.height=88;const g=c.getContext('2d');g.scale(2,2);drawPalheta(g,22,22,18,curPal());a.appendChild(c)}
+function palPaint(cv,mat,hex,rot,tilt,zd){const x=cv.getContext('2d'),px=cv.width;x.clearRect(0,0,px,px);
+  let r=null;try{r=GL3.palPreview(mat,hex,px,rot,tilt,zd)}catch(e){}
+  if(r)x.drawImage(r.c,0,r.sy,px,px,0,0,px,px);else{x.save();x.scale(px/48,px/48);drawPalheta(x,24,24,19,{mat,base:hex});x.restore()}}
+function avatar(){const a=$('#avatar');if(!a)return;a.innerHTML='';const c=document.createElement('canvas');c.width=c.height=96;const P=curPal();palPaint(c,P.mat,P.base,PI-.4,.75,6.9);a.appendChild(c)}
+// the big turning palheta on the profile screen
+let PSTAGE=0;
+function palStage(){const cv=$('#palStage');if(!cv||PSTAGE)return;const t0=performance.now();
+  const tick=()=>{if($('#profile').hidden){PSTAGE=0;return}const t=(performance.now()-t0)/1000,P=curPal();
+    palPaint(cv,P.mat,P.base,PI+Math.sin(t*.7)*.85,.78+Math.sin(t*1.1)*.1);PSTAGE=requestAnimationFrame(tick)};PSTAGE=requestAnimationFrame(tick)}
 function renderAcctBox(){const box=$('#acctBox');if(!box)return;
   if(!cloudOn()){box.hidden=true;return}box.hidden=false;
   box.innerHTML=AUTH?`<p class="label">${A('account')}</p><p class="acctmail">${escH(AUTH.user&&AUTH.user.email||'')}</p><p class="small" id="syncline">${syncText()}</p><div class="row"><button class="btn ghost" data-aact="syncnow">${A('syncNow')}</button><button class="btn ghost" data-aact="asignout">${A('signout')}</button></div>`
@@ -1230,6 +1266,7 @@ function renderPvp(){
     for(const b of fs.children)b.onclick=()=>{PV.f[p]=b.dataset.v;renderPvp()}}
 }
 $('#pvpBtn').onclick=()=>{renderPvp();openModal('pvp')};
+$('#cupsBtn').onclick=()=>show('cups');
 $('#pvpGo').onclick=()=>{closeModals();const t0=ALLT[PV.t[0]],t1=ALLT[PV.t[1]];
   kitPick([t0,t1],[PV.mode===1?tr('you'):tr('p1'),PV.mode===1?'CPU':tr('p2')],kits=>{useCup('all');startMatch(PV.t[0],PV.t[1],{cup:'all',forms:PV.f.slice(),cpu:PV.mode===1?PV.diff:null,goals:PV.goals,kits})},()=>{renderPvp();openModal('pvp')})};
 $('#resumeBtn').onclick=()=>{if(prefs.match&&resumeSaved())return;show('bracket');renderBracket()};
@@ -2696,7 +2733,21 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     {const u=use('glass',1);gl.uniform3f(u.uLamp,-14,-24,60);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,artTex(team,num));gl.uniform1i(u.uTex,0);
      gl.uniform2f(u.uRot,Math.cos(rot),Math.sin(rot));gl.uniform1f(u.uR,BR);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(team.ring));draw(M.dome,TR(0,0,0))}
     CV=keep;return {c:cv,sy:cv.height-px}}
-  return {init,render,ok:()=>ok,last,preview};
+  // the palheta on its own: tilted up towards the camera and turning, for the profile and the palheta picker
+  function palPreview(mat,hex,px,rot,tilt,zd){if(!init())return null;if(cv.width<px||cv.height<px){cv.width=Math.max(cv.width,px);cv.height=Math.max(cv.height,px)}
+    const el=.5,dist=zd||8.4,tz=1.1,pos=[0,dist*Math.cos(el),tz+dist*Math.sin(el)],f=[0,-Math.cos(el),-Math.sin(el)],r=[1,0,0],u=[0,-Math.sin(el),Math.cos(el)];
+    const F=px/2/Math.tan(.36),n=.5,fa=200,A=(fa+n)/(fa-n),B=-2*fa*n/(fa-n),sx=F/(px/2),d=v=>v[0]*pos[0]+v[1]*pos[1]+v[2]*pos[2];
+    const keep=CV;CV={px:pos[0],py:pos[1],pz:pos[2],f,r,u,F};
+    vp=new Float32Array([r[0]*sx,u[0]*sx,f[0]*A,f[0], r[1]*sx,u[1]*sx,f[1]*A,f[1], r[2]*sx,u[2]*sx,f[2]*A,f[2], -d(r)*sx,-d(u)*sx,-d(f)*A+B,-d(f)]);cur=null;
+    gl.viewport(0,0,px,px);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,0,px,px);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
+    gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+    const t=tilt==null?1.05:tilt,c=Math.cos(t),sn=Math.sin(t),cr=Math.cos(rot),sr=Math.sin(rot),h=PAL_R*sn*.98+.15;
+    const M4=new Float32Array([cr,sr,0,0, -sr*c,cr*c,sn,0, sr*sn,-cr*sn,c,0, 0,0,h,1]);
+    gl.depthMask(false);{const w=PAL_R*(.35+.65*c);const u=use('shadow',.55);gl.uniform3f(u.uLamp,-10,26,60);gl.uniform4f(u.uS,.3,-.4,0,0);gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uRad,Math.max(w,PAL_R*.5));gl.uniform1f(u.uSoft,1.3);draw(M.unit,TR(.3,-.4,.015,0,PAL_R+2.6))}gl.depthMask(true);
+    {const u=use('lit',1);gl.uniform3f(u.uLamp,-9,22,34)}
+    lit(hex,mat==='metal'?.45:mat==='glass'?.02:.21,mat==='metal',1,M4,M.palC,null,mat==='glass');
+    CV=keep;return {c:cv,sy:cv.height-px}}
+  return {init,render,ok:()=>ok,last,preview,palPreview};
 })();
 /* side view of the shot: how high the ball goes against the buttons and the crossbar */
 function flightPanel(c,pr){
