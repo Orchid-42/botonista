@@ -754,7 +754,7 @@ pt:{
  throwMsg:'Lateral.',cornerMsg:'Escanteio.',goalkickMsg:'Tiro de meta.',overMsg:'Por cima do travessão. Tiro de meta.',keeperMsg:'Bola do goleiro.',boxMsg:'Parou na pequena área: tiro de meta.',freeMsg:'Falta.',
  cpuRepo:'{c} reposiciona os botões.',cpuPrep:'{c} prepara a cobrança.',
  kind:{free:'Falta',throw:'Lateral',corner:'Escanteio',goalkick:'Tiro de meta',kickoff:'Saída de bola'},
- koSetup:'<strong>Saída de bola.</strong> Posicione quem dá a saída em volta da bola e mais até {n} botões no seu campo. Depois toque em Feito.',
+ koDef:'<strong>Saída do adversário.</strong> Mova até {n} botões no seu campo, fora do círculo, para fechar o caminho. Depois toque em Pronto.',koSetup:'<strong>Saída de bola.</strong> Posicione quem dá a saída em volta da bola e mais até {n} botões no seu campo. Depois toque em Feito.',
  setupTake:'<strong>{k} para você.</strong> Arraste o cobrador (anel amarelo) dentro do círculo e mova até {n} botões. Depois toque em Feito.',
  setupDef:'<strong>Arme a defesa.</strong> Mova até {n} botões e toque em Feito.',already2:'Você já moveu {n} botões.',
  cpuAnnounce:'<strong>A CPU vai chutar.</strong> Posicione e gire seu goleiro, depois toque em Pronto.',cpuStep:'A CPU vai bater.',
@@ -790,7 +790,7 @@ en:{
  throwMsg:'Throw-in.',cornerMsg:'Corner.',goalkickMsg:'Goal kick.',overMsg:'Over the bar. Goal kick.',boxMsg:'Stopped in the six-yard box: goal kick.',keeperMsg:'Keeper\'s ball.',freeMsg:'Free kick.',
  cpuRepo:'{c} reposition their buttons.',cpuPrep:'{c} set up the restart.',
  kind:{free:'Free kick',throw:'Throw-in',corner:'Corner',goalkick:'Goal kick',kickoff:'Kick-off'},
- koSetup:'<strong>Kick-off.</strong> Place your kicker around the ball and up to {n} more buttons in your own half. Then Done.',
+ koDef:'<strong>Their kick-off.</strong> Move up to {n} buttons in your half, outside the circle, to close the way. Then Ready.',koSetup:'<strong>Kick-off.</strong> Place your kicker around the ball and up to {n} more buttons in your own half. Then Done.',
  setupTake:'<strong>Your {k}.</strong> Drag the taker (yellow ring) anywhere inside the circle and move up to {n} buttons. Then Done.',
  setupDef:'<strong>Set your defence.</strong> Move up to {n} buttons, then Done.',already2:'You have already moved {n} buttons.',
  cpuAnnounce:'<strong>CPU announces a shot.</strong> Move and angle your keeper, then press Ready.',cpuStep:'CPU steps up.',
@@ -835,6 +835,7 @@ const LIFT_P=pwOf(LIFT_T/BALL_K), HIGH_P=pwOf((LIFT_T+Math.sqrt(2*GRAV*BAR)/LIFT
 const LOFT_K=.3; // shot view: vertical speed given to the ball per unit of chosen height
 const E_BB=.75, E_BALL=.88, E_RAIL=.5, E_NET=.2, E_KEEP=.45;
 const MAX_MOVE=4; // buttons each side may reposition at a dead ball
+const KO_DEF=3;  // before any kick-off the defending side may move up to three buttons, in its own half and outside the circle
 const KO_MOVE=2;  // at your kick-off: the kicker plus two more buttons, staying in your own half
 const RING=14, WALL=11, PAL_R=2.4;
 const CANCEL_PX=28, RANGE_PX=230; // pull inside CANCEL_PX cancels; full power at CANCEL_PX+RANGE_PX
@@ -1839,11 +1840,15 @@ function kickoff(side,first){
   setFormation(side);G.lock=null;G.streak=null;G.koTouches=0;G.pendingLock=G.mode==='match';G.cam.manual=false;saveMatch('kickoff',{kside:side});
   const who=side===0?tr('youKick'):tr('cpuKick',{c:cpuC()});
   const kicker=G.buttons.find(b=>b.side===side&&b.num===9);G.koTaker=kicker||null;G.rTaker=kicker||null;G.rKind='kickoff';G.poss={side,n:0};
-  const go=()=>{
-    if(side===0&&G.mode==='match'&&kicker){G.sp={kind:'kickoff',side:0,taker:kicker,msg:who};startSetup(true)}
-    else{ // the CPU sets its kicker at a slight angle so the first pass goes to a teammate
+  const cpuKick=()=>{ // the CPU sets its kicker at a slight angle so the first pass goes to a teammate
       if(kicker){const a=PI/2*(side===1?-1:1)+(rand()-.5)*1.1,d=BR+BALLR+1.4;kicker.x=G.ball.x-Math.cos(a)*d;kicker.y=G.ball.y-Math.sin(a)*d}
-      beginTurn(side,who)}};
+      beginTurn(side,who)};
+  const go=()=>{
+    if(G.mode!=='match'||!kicker){cpuKick();return}
+    G.sp={kind:'kickoff',side,taker:kicker,msg:who};
+    if(G.pvp){flipView('pvpSetup');G.koNext='pvp';startSetup(false)}          // the other player defends first, then it flips back to the kicker
+    else if(side===0){koDefendCpu();later(()=>{snapAll();startSetup(true)},650)} // the CPU closes the middle, then you set your kick-off
+    else{G.koNext=cpuKick;startSetup(false)}};                                  // you defend, then the CPU kicks off
   if(first){Snd.whistle(true);banner(G.half===1?tr('kickoff'):tr('second'),`${tn(TEAMS[G.teams[0]])} × ${cpuC()}`,1400,go)}
   else go();
 }
@@ -2133,6 +2138,11 @@ function setPiece(kind,side,ev,msg){
   else if(G.pvp){flipView('pvpSetup');startSetup(false)}
   else{G.phase='pause';setStatus(tr('cpuRepo',{c:cpuC()}));hud();cpuSetup(false);later(()=>{snapAll();setupTaker()},750)}
 }
+// the CPU's kick-off defence: up to three buttons close the straight line from the centre spot to its goal
+function koDefendCpu(){const mine=G.buttons.filter(b=>b.side===1),used=new Set(),dirY=-1;
+  const T=[{x:CX+(rand()-.5)*6,y:CY+dirY*(RING+4)},{x:CX-12-rand()*5,y:CY+dirY*(RING+16)},{x:CX+12+rand()*5,y:CY+dirY*(RING+16)}];
+  for(const t of T.slice(0,KO_DEF)){let best=null,bd=1e9;for(const b of mine){if(used.has(b))continue;const d=hyp(b.x-t.x,b.y-t.y);if(d<bd){bd=d;best=b}}
+    if(!best)break;used.add(best);const p=nearestOk(t.x,Math.min(t.y,CY-BR-.3),best,RING+.6);if(p&&p.y<CY)moveTo(best,p,true)}}
 function setupTaker(){
   const sp=G.sp;
   if(sp.side===0)startSetup(true);
@@ -2144,7 +2154,7 @@ function startSetup(taking){G.phase='setup';G.turn=G.sp.side;G.setup={taking,mov
 function showCue(k,t){const c=$('#cue');if(!c)return;$('#cueK').textContent=k;$('#cueT').textContent=t;c.hidden=true;void c.offsetWidth;c.hidden=false;
   clearTimeout(showCue.t);showCue.t=setTimeout(()=>{c.hidden=true},2700)}
 function setupStatus(extra){
-  if(G.sp.kind==='kickoff'){setStatus(tr('koSetup',{n:KO_MOVE-G.setup.moved.length})+(extra?' '+extra:''));return}
+  if(G.sp.kind==='kickoff'){setStatus(G.setup.taking?tr('koSetup',{n:KO_MOVE-G.setup.moved.length})+(extra?' '+extra:''):tr('koDef',{n:KO_DEF-G.setup.moved.length})+(extra?' '+extra:''));return}
   const s=G.setup,n=MAX_MOVE-s.moved.length,K=STR[prefs.lang].kind[G.sp.kind];
   setStatus((s.taking?tr('setupTake',{k:prefs.lang==='en'?K.toLowerCase():K,n}):tr('setupDef',{n}))+(extra?' '+extra:''));
 }
@@ -2568,7 +2578,7 @@ cv.addEventListener('pointerdown',e=>{
     if(b){const a=Math.atan2(b.y-p.y,b.x-p.x);G.aim={b,fx:p.x,fy:p.y,pw:0,tpw:0,raw:0,ang:a,tang:a,seed:rand()*6.3};took=true;Snd.hit('press',.45)}
   }else if(G.phase==='setup'){
     const s=G.setup,sp=G.sp;
-    const lim=sp.kind==='kickoff'?KO_MOVE:MAX_MOVE;
+    const lim=sp.kind==='kickoff'?(s.taking?KO_MOVE:KO_DEF):MAX_MOVE;
     const b=nearestOwn(p,BR+3,o=>{if(o===sp.taker)return s.taking;return s.moved.includes(o)||s.moved.length<lim});
     if(b){G.sdrag={b,ox:b.x-p.x,oy:b.y-p.y,taker:s.taking&&b===sp.taker};took=true}
     else if(nearestOwn(p,BR+2))setupStatus(tr('already2',{n:lim}));
@@ -2645,7 +2655,10 @@ $('#btnReady').onclick=()=>{
   if(!G||G.paused)return;
   if(G.phase==='keeperSet'&&G.pvp){flipView();G.phase='aim';hud();return}
   if(G.phase==='keeperSet'){G.phase='cpuThink';setStatus(tr('cpuStep'));hud();later(()=>execPlan(cpuPlan(1,true)),500)}
-  else if(G.phase==='setup'){if(G.setup.taking)beginTurn(0,G.sp.msg);else setupTaker()}
+  else if(G.phase==='setup'){
+    if(G.sp.kind==='kickoff'&&!G.setup.taking){const nx=G.koNext;G.koNext=null;
+      if(nx==='pvp'){flipView('pvpSetup');startSetup(true)}else if(nx)nx();return}
+    if(G.setup.taking)beginTurn(0,G.sp.msg);else setupTaker()}
 };
 function setPause(on){
   if(!G||G.phase==='over')return;
@@ -3559,7 +3572,7 @@ function renderView(ts){
     if(G.phase==='setup'&&b.side===0){const s=G.setup;
       if(b===G.sp.taker){if(s.taking)glow=`rgba(255,210,63,${.5+.5*pulse})`}
       else if(s.moved.includes(b))glow='rgba(255,255,255,.9)';
-      else if(s.moved.length<(G.sp.kind==='kickoff'?KO_MOVE:MAX_MOVE))glow=`rgba(255,255,255,${.15+.25*pulse})`;}
+      else if(s.moved.length<(G.sp.kind==='kickoff'?(s.taking?KO_MOVE:KO_DEF):MAX_MOVE))glow=`rgba(255,255,255,${.15+.25*pulse})`;}
     if(GLV){if(glow){c.strokeStyle=glow;c.lineWidth=.3;c.beginPath();c.arc(b.x,b.y,b.r+.75,0,2*PI);c.stroke()}}else drawButton(c,b,team,glow);
     const showInd=b.side===0||G.pvp; // the CPU's touch warnings stay hidden
     if(showInd&&G.streak&&G.streak.b===b&&G.streak.n===MAX_TOUCH-1&&!(G.lock&&G.lock.b===b)&&G.mode==='match'&&G.phase!=='moving'){const bl=.5+.5*Math.sin(ts/170);c.strokeStyle=`rgba(255,210,63,${.25+.7*bl})`;c.lineWidth=.42;c.beginPath();c.arc(b.x,b.y,b.r+.95,0,2*PI);c.stroke()}
