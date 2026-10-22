@@ -15,3 +15,7 @@ Parked until the first special-edition art is uploaded.
 ## Corinthians (first special edition)
 `Botonista_COR_Edicao_Especial.psd`: artboards named by game position (1 = goalkeeper card). Shirt numbers baked in:
 1→12, 2→2, 3→13, 4→3, 5→8, 6→6, 7→23, 8→5, 9→9, 10→20, 11→11. Export as `COR_1.png … COR_11.png`.
+
+## Brasil 1970
+`Botonista_BRA_1970.psd`: yellow face, green trim, CBD crest top-right, number below (1970 numerals). Shirt numbers:
+1→1, 2→4, 3→3, 4→2, 5→8, 6→16, 7→11, 8→5, 9→10, 10→9, 11→7. Export as `BRA_1.png … BRA_11.png`.
