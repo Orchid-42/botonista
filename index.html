@@ -153,6 +153,9 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .cbox.locked{cursor:default}.cbox.locked canvas{filter:brightness(.18) saturate(0) drop-shadow(0 6px 6px rgba(0,0,0,.5));opacity:.8}
 .cbox.locked span{color:rgba(241,225,200,.45)}
 #boxModal .sheet{max-width:760px}
+#inspCv{width:min(100%,62vh,460px);aspect-ratio:1;height:auto;display:block;margin:0 auto;touch-action:none;cursor:grab;border-radius:12px;background:radial-gradient(ellipse at 50% 60%,rgba(150,180,255,.16),transparent 70%)}
+#inspBack{margin-right:10px;font-size:20px}#inspBack+h2{flex:1}
+.boxbtns figure{cursor:pointer}.boxbtns figure:hover canvas{transform:scale(1.05)}.boxbtns canvas{transition:transform .15s}
 .boxview canvas{width:100%;height:auto;aspect-ratio:1.54;display:block;border-radius:6px}
 .boxbtns{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:12px}
 @media (max-width:620px){.boxbtns{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -693,6 +696,7 @@ button{touch-action:manipulation}
   <button class="btn go big" id="spGo" hidden></button>
 </div>
 <div class="modal" id="boxModal" hidden><div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="boxTitle"><div class="sheet-head"><h2 id="boxTitle"></h2><button class="iconbtn" data-close data-ia="close">×</button></div><div class="boxview" id="boxView"></div><div class="boxbtns" id="boxBtns"></div></div></div>
+<div class="modal" id="inspModal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="inspTitle"><div class="sheet-head"><button class="iconbtn" id="inspBack" data-ia="back">‹</button><h2 id="inspTitle"></h2><button class="iconbtn" data-close data-ia="close">×</button></div><canvas id="inspCv" width="640" height="640"></canvas><p class="hint" data-i="inspHint"></p></div></div>
 <div class="modal" id="kitModal" hidden><div class="sheet wide kitsheet" role="dialog" aria-modal="true" aria-labelledby="kitTitle">
   <div class="sheet-head"><button class="iconbtn" id="kitBack" data-ia="back">‹</button><h2 id="kitTitle" data-i="kitTitle"></h2><button class="iconbtn" data-close data-ia="close">×</button></div>
   <div class="kitcols" id="kitCols"></div>
@@ -731,7 +735,7 @@ const gauss=()=>{let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqr
 const STR={
 pt:{
  inProgress:'Em andamento',resumed:'Partida retomada',champWord:'CAMPEÃO!',continue:'Continuar',startOver:'Recomeçar',pickTeam:'Escolha sua seleção',pvp:'Partida rápida',cupMode:'Copa',pickMode:'Como você quer jogar?',pickKits:'Escolher uniformes',players:'Jogadores',onePlayer:'1 jogador',twoPlayers:'2 jogadores',goalsToWin:'Gols para vencer',quickHint1:'Você contra a CPU.',quickGoals:'Vence quem fizer {n} primeiro; empatou em {m} a {m}, vai a {k}; {n} a {n} vai para os pênaltis.',tab_wc:'Seleções',tab_br:'Brasil',tab_cl:'Europa',pensTitle:'Pênaltis',pensSub:'3 a 3: a decisão vai para os pênaltis.',pvpHint:'Dois jogadores no mesmo aparelho, um de cada vez. O Jogador 1 ataca para cima, o Jogador 2 para baixo.',p1:'Jogador 1',p2:'Jogador 2',pvpStart:'Começar partida',pvpTurn:'Vez de {t}',pvpKeeper:'{t}: posicione o goleiro',pvpSetup:'{t}: reposicione seus botões',pvpWin:'{t} venceu!',pvpAgain:'Menu principal',pickClub:'Escolha seu clube',cupWC:'Copa do Mundo',cupBR:'Copa do Brasil',cupCL:'Champions League',champsCL:'Campeões da Europa',cupCLsub:'16 gigantes da Europa, mata-mata',champsBR:'Campeões da Copa do Brasil',yourPalheta:'Sua palheta',cupWCsub:'16 seleções, mata-mata',cupBRsub:'16 clubes, mata-mata',back:'Voltar',newCup:'Nova copa',profile:'Perfil',hello:'Bora, {n}! Escolha a competição',chooseCup:'Escolha a competição',namePh:'Seu nome',st_copas:'Títulos',st_wins:'Vitórias',st_goals:'Gols',acctPitch:'Entre para salvar seu progresso e continuar a partida em outro aparelho.',startNew:'Começar nova copa',midMatch:'partida em andamento',
- fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',kitTitle:'Uniformes',menu:'Menu',kitLbl:'Uniforme',kit1:'1º uniforme',kit2:'2º uniforme',kitSp:'Edição especial',achDone:'Conquista desbloqueada',kitDone:'2º uniforme desbloqueado',palDone:'Nova cor de palheta',palNew:'Disponível no seu perfil',tabPal:'Palheta',tabAch:'Conquistas',tabBox:'Coleção',boxCount:'{n} de {m} caixas',boxLocked:'Bloqueada',boxSp:'Especiais',kitHint2:'Vença uma partida com o time ou contra ele',kitHintSp:'Ganhe uma Copa com o time',achCount:'{n} de {m}',rnd:'Time aleatório',spedUnlocked:'Edição especial desbloqueada',spedOpen:'Toque para abrir',spedGo:'Continuar',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
+ fpButtons:'altura dos botões',fpBar:'travessão',fpGoal:'gol',cueSetup:'Posicione seus jogadores',kitTitle:'Uniformes',menu:'Menu',kitLbl:'Uniforme',kit1:'1º uniforme',kit2:'2º uniforme',kitSp:'Edição especial',achDone:'Conquista desbloqueada',kitDone:'2º uniforme desbloqueado',palDone:'Nova cor de palheta',palNew:'Disponível no seu perfil',tabPal:'Palheta',tabAch:'Conquistas',tabBox:'Coleção',inspHint:'Arraste para girar',boxCount:'{n} de {m} caixas',boxLocked:'Bloqueada',boxSp:'Especiais',kitHint2:'Vença uma partida com o time ou contra ele',kitHintSp:'Ganhe uma Copa com o time',achCount:'{n} de {m}',rnd:'Time aleatório',spedUnlocked:'Edição especial desbloqueada',spedOpen:'Toque para abrir',spedGo:'Continuar',cueKeeper:'Posicione seu goleiro',cueShot:'Chute anunciado',cuePen:'Pênalti',pitchLbl:'Campo',skinCount:'{n} de {m} liberadas',inUse:'Em uso',unlocked:'Liberada',cpuLevel:'Nível da CPU',formation:'Formação',easy:'Fácil',normal:'Normal',hard:'Difícil',
  eachHalf:'Minutos por tempo',start:'Começar',eliminated:'eliminado',settings:'Configurações',language:'Idioma',sound:'Som',on:'Ligado',off:'Desligado',
  howto:'Como jogar',account:'Conta',close:'Fechar',mainMenu:'Menu principal',you:'Você',paused:'Pausado',resume:'Continuar',leave:'Sair da partida',pause:'Pausar',
  zoomIn:'Aproximar',zoomOut:'Afastar',rotL:'Girar goleiro para a esquerda',rotR:'Girar goleiro para a direita',
@@ -767,7 +771,7 @@ pt:{
 },
 en:{
  inProgress:'In progress',resumed:'Match resumed',champWord:'CHAMPIONS!',continue:'Continue',startOver:'Start over',pickTeam:'Pick your nation',pvp:'Quick match',cupMode:'Cup',pickMode:'How do you want to play?',pickKits:'Choose kits',players:'Players',onePlayer:'1 player',twoPlayers:'2 players',goalsToWin:'Goals to win',quickHint1:'You against the CPU.',quickGoals:'First to {n} wins; at {m}–{m} it becomes first to {k}; {n}–{n} goes to penalties.',tab_wc:'Nations',tab_br:'Brazil',tab_cl:'Europe',pensTitle:'Penalties',pensSub:'3–3: it goes to a shoot-out.',pvpHint:'Two players on one device, taking turns. Player 1 attacks upwards, Player 2 downwards.',p1:'Player 1',p2:'Player 2',pvpStart:'Start match',pvpTurn:'{t} to play',pvpKeeper:'{t}: set your keeper',pvpSetup:'{t}: reposition your buttons',pvpWin:'{t} win!',pvpAgain:'Main menu',pickClub:'Pick your club',cupWC:'World Cup',cupBR:'Brazilian Cup',cupCL:'Champions League',champsCL:'Champions of Europe',cupCLsub:'16 European giants, knockout',champsBR:'Brazilian Cup champions',yourPalheta:'Your palheta',cupWCsub:'16 nations, knockout',cupBRsub:'16 clubs, knockout',back:'Back',newCup:'New cup',profile:'Profile',hello:"Let's go, {n}! Pick a competition",chooseCup:'Pick a competition',namePh:'Your name',st_copas:'Titles',st_wins:'Wins',st_goals:'Goals',acctPitch:'Sign in to save your progress and pick up a match on another device.',startNew:'Start new cup',midMatch:'match in progress',
- fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',kitTitle:'Kits',menu:'Menu',kitLbl:'Kit',kit1:'Home',kit2:'Away',kitSp:'Special edition',achDone:'Achievement unlocked',kitDone:'Away kit unlocked',palDone:'New palheta colour',palNew:'Available in your profile',tabPal:'Palheta',tabAch:'Achievements',tabBox:'Collection',boxCount:'{n} of {m} boxes',boxLocked:'Locked',boxSp:'Specials',kitHint2:'Win a match with or against this team',kitHintSp:'Win a cup with this team',achCount:'{n} of {m}',rnd:'Random team',spedUnlocked:'Special edition unlocked',spedOpen:'Tap to open',spedGo:'Continue',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
+ fpButtons:'button height',fpBar:'crossbar',fpGoal:'goal',cueSetup:'Place your players',kitTitle:'Kits',menu:'Menu',kitLbl:'Kit',kit1:'Home',kit2:'Away',kitSp:'Special edition',achDone:'Achievement unlocked',kitDone:'Away kit unlocked',palDone:'New palheta colour',palNew:'Available in your profile',tabPal:'Palheta',tabAch:'Achievements',tabBox:'Collection',inspHint:'Drag to turn',boxCount:'{n} of {m} boxes',boxLocked:'Locked',boxSp:'Specials',kitHint2:'Win a match with or against this team',kitHintSp:'Win a cup with this team',achCount:'{n} of {m}',rnd:'Random team',spedUnlocked:'Special edition unlocked',spedOpen:'Tap to open',spedGo:'Continue',cueKeeper:'Set your keeper',cueShot:'Shot announced',cuePen:'Penalty',pitchLbl:'Pitch',skinCount:'{n} of {m} unlocked',inUse:'In use',unlocked:'Unlocked',cpuLevel:'CPU level',formation:'Formation',easy:'Easy',normal:'Normal',hard:'Hard',
  eachHalf:'Minutes per half',start:'Start',eliminated:'eliminated',settings:'Settings',language:'Language',sound:'Sound',on:'On',off:'Off',
  howto:'How to play',account:'Account',close:'Close',mainMenu:'Main menu',you:'You',paused:'Paused',resume:'Resume',leave:'Leave match',pause:'Pause',
  zoomIn:'Zoom in',zoomOut:'Zoom out',rotL:'Rotate keeper left',rotR:'Rotate keeper right',
@@ -1354,7 +1358,7 @@ function palStage(){const cv=$('#palStage');if(!cv||PSTAGE)return;
   if(!cv.dataset.drag){cv.dataset.drag=1;cv.style.touchAction='none';cv.style.cursor='grab';
     cv.onpointerdown=e=>{S.drag={x:e.clientX,y:e.clientY,t:performance.now()};S.vr=0;S.vt=0;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
     cv.onpointermove=e=>{if(!S.drag)return;const now=performance.now(),dt=Math.max(1,now-S.drag.t)/1000,dx=e.clientX-S.drag.x,dy=e.clientY-S.drag.y;
-      S.rot+=dx*.012;S.tilt=Math.max(.15,Math.min(PI-.15,S.tilt-dy*.012));S.vr=dx*.012/dt;S.vt=-dy*.012/dt;S.drag={x:e.clientX,y:e.clientY,t:now}};
+      S.rot-=dx*.012;S.tilt=Math.max(.15,Math.min(PI-.15,S.tilt+dy*.012));S.vr=-dx*.012/dt;S.vt=dy*.012/dt;S.drag={x:e.clientX,y:e.clientY,t:now}};
     cv.onpointerup=cv.onpointercancel=()=>{S.drag=null;cv.style.cursor='grab'}}
   const tick=()=>{if($('#profile').hidden){PSTAGE=0;return}const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;const P=curPal();
     if(!S.drag){S.vr+=(1.2-S.vr)*Math.min(1,dt*1.6);S.vt*=Math.pow(.02,dt);S.rot+=S.vr*dt;S.tilt+=S.vt*dt;S.tilt+=(PI/2-S.tilt)*Math.min(1,dt*2.2);S.tilt=Math.max(.15,Math.min(PI-.15,S.tilt))}
@@ -1506,10 +1510,25 @@ function openBox(b){$('#boxTitle').textContent=b.name;
   const v=$('#boxView');v.innerHTML='<canvas width="1100" height="714"></canvas>';drawBox(v.firstChild,b.k,b.t,b.k.kit==='sped'?b.name:tn(b.t));
   const bb=$('#boxBtns');bb.innerHTML='';const shirt=n=>b.k.kit==='sped'&&SPED[b.t.c].shirt?SPED[b.t.c].shirt[n]:n;
   const gk=document.createElement('figure');gk.className='gk';gk.innerHTML=`<canvas width="490" height="170"></canvas><figcaption>GK · ${shirt(1)}</figcaption>`;
-  {const c=gk.firstChild.getContext('2d'),gi=gkImg(b.k);if(gi)c.drawImage(gi,0,0,490,170);else{c.fillStyle=b.k.ring||b.k.dome;c.fillRect(0,0,490,170)}}bb.appendChild(gk);
+  {const c=gk.firstChild.getContext('2d'),gi=gkImg(b.k);if(gi)c.drawImage(gi,0,0,490,170);else{c.fillStyle=b.k.ring||b.k.dome;c.fillRect(0,0,490,170)}}gk.onclick=()=>inspect(b,'gk',1,shirt(1));bb.appendChild(gk);
   for(let n=2;n<=11;n++){const f=document.createElement('figure');f.innerHTML=`<canvas width="240" height="240"></canvas><figcaption>${shirt(n)}</figcaption>`;
-    const c=f.firstChild.getContext('2d'),sp=btnSprite(b.k,n);if(sp)c.drawImage(sp,0,0,240,240);bb.appendChild(f)}
+    const c=f.firstChild.getContext('2d'),sp=btnSprite(b.k,n);if(sp)c.drawImage(sp,0,0,240,240);f.onclick=()=>inspect(b,'btn',n,shirt(n));bb.appendChild(f)}
   openModal('box')}
+// turn one piece in 3D: drag to orbit, let go and it drifts back into a slow turn
+let INSP=0;
+function inspect(b,kind,n,shirt){$('#inspTitle').textContent=`${b.name} · ${kind==='gk'?'GK ':''}${shirt}`;openModal('insp');
+  $('#inspBack').onclick=()=>openBox(b);
+  const cv=$('#inspCv'),S={yaw:kind==='gk'?0:PI+.4,pitch:kind==='gk'?.28:.62,vy:.5,vp:0,drag:null},P0=S.pitch;let last=performance.now();
+  cv.onpointerdown=e=>{S.drag={x:e.clientX,y:e.clientY,t:performance.now()};S.vy=0;S.vp=0;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
+  cv.onpointermove=e=>{if(!S.drag)return;const now=performance.now(),dt=Math.max(1,now-S.drag.t)/1000,dx=e.clientX-S.drag.x,dy=e.clientY-S.drag.y;
+    S.yaw-=dx*.01;S.pitch=clamp(S.pitch+dy*.01,.04,1.5);S.vy=-dx*.01/dt;S.vp=dy*.01/dt;S.drag={x:e.clientX,y:e.clientY,t:now}};
+  cv.onpointerup=cv.onpointercancel=()=>{S.drag=null;cv.style.cursor='grab'};
+  cancelAnimationFrame(INSP);
+  const tick=()=>{if($('#inspModal').hidden){INSP=0;return}const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
+    if(!S.drag){S.vy+=(.5-S.vy)*Math.min(1,dt*1.5);S.vp*=Math.pow(.02,dt);S.yaw+=S.vy*dt;S.pitch=clamp(S.pitch+S.vp*dt+(P0-S.pitch)*Math.min(1,dt*1.8),.04,1.5)}
+    const x=cv.getContext('2d'),px=cv.width;x.clearRect(0,0,px,px);let r=null;try{r=GL3.inspect(kind,b.k,n,px,S.yaw,S.pitch)}catch(e){}
+    if(r)x.drawImage(r.c,0,r.sy,px,px,0,0,px,px);else if(kind!=='gk'){const sp=btnSprite(b.k,n);if(sp)x.drawImage(sp,px*.15,px*.15,px*.7,px*.7)}
+    INSP=requestAnimationFrame(tick)};INSP=requestAnimationFrame(tick)}
 /* ================= TOURNAMENT ================= */
 function newTournament(){
   const ids=TEAMS.map((_,i)=>i);for(let i=ids.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
@@ -3105,7 +3124,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     vp=new Float32Array([r[0]*sx,u[0]*sx,f[0]*A,f[0], r[1]*sx,u[1]*sx,f[1]*A,f[1], r[2]*sx,u[2]*sx,f[2]*A,f[2], -d(r)*sx,-d(u)*sx,-d(f)*A+B,-d(f)]);cur=null;
     gl.viewport(0,0,px,px);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,0,px,px);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
     gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-    const t=tilt==null?1.05:tilt,c=Math.cos(t),sn=Math.sin(t),cr=Math.cos(rot),sr=Math.sin(rot),h=PAL_R*sn*.98+.15;
+    const t=tilt==null?1.05:tilt,c=Math.cos(t),sn=Math.sin(t),cr=Math.cos(rot),sr=Math.sin(rot),h=up?tz:PAL_R*sn*.98+.15; // on the profile stage it turns about its own centre
     const M4=new Float32Array([cr,sr,0,0, -sr*c,cr*c,sn,0, sr*sn,-cr*sn,c,0, 0,0,h,1]);
     gl.depthMask(false);
     gl.depthMask(true);
@@ -3113,7 +3132,27 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     lit(hex,mat==='metal'?.58:mat==='glass'?.62:.74,mat==='metal',1,M4,M.palC,null,mat==='glass'); // softer highlights than in the match
     {const u=use('lit',1);gl.uniform1f(u.uL2,0)}
     CV=keep;return {c:cv,sy:cv.height-px}}
-  return {init,render,ok:()=>ok,last,preview,palPreview};
+  // one button or the keeper on its own, seen from an orbiting camera (yaw around, pitch up from the felt)
+  function inspect(kind,team,num,px,yaw,pitch){if(!init())return null;if(cv.width<px||cv.height<px){cv.width=Math.max(cv.width,px);cv.height=Math.max(cv.height,px)}
+    const gk=kind==='gk',tz=gk?KEEP_H*.45:.25,dist=gk?16.5:9.6,cp=Math.cos(pitch),pos=[dist*cp*Math.sin(yaw),-dist*cp*Math.cos(yaw),tz+dist*Math.sin(pitch)];
+    let f=[-pos[0],-pos[1],tz-pos[2]];{const l=Math.hypot(...f);f=f.map(v=>v/l)}
+    let r=[-f[1],f[0],0];{const l=Math.hypot(...r)||1;r=r.map(v=>v/l)}
+    const u=[f[1]*r[2]-f[2]*r[1],f[2]*r[0]-f[0]*r[2],f[0]*r[1]-f[1]*r[0]];
+    const F=px/2/Math.tan(.36),n=.5,fa=200,A=(fa+n)/(fa-n),B=-2*fa*n/(fa-n),sx=F/(px/2),d=v=>v[0]*pos[0]+v[1]*pos[1]+v[2]*pos[2];
+    const keep=CV;CV={px:pos[0],py:pos[1],pz:pos[2],f,r,u,F};
+    vp=new Float32Array([r[0]*sx,u[0]*sx,f[0]*A,f[0], r[1]*sx,u[1]*sx,f[1]*A,f[1], r[2]*sx,u[2]*sx,f[2]*A,f[2], -d(r)*sx,-d(u)*sx,-d(f)*A+B,-d(f)]);cur=null;
+    gl.viewport(0,0,px,px);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,0,px,px);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
+    gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+    const L=[-10,-22,40];
+    gl.depthMask(false);{const u=use('shadow',.5);gl.uniform3f(u.uLamp,...L);if(gk){gl.uniform4f(u.uS,.3,.5,KW/2,KH/2);gl.uniform1f(u.uRad,.3)}else{gl.uniform4f(u.uS,.3,.5,0,0);gl.uniform1f(u.uRad,BR*.95)}gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uSoft,1.4);draw(M.unit,TR(.3,.5,.015,0,(gk?KW:BR)+3))}gl.depthMask(true);
+    if(gk){const img=gkImg(team),key=img?team.c+(team.kit||''):'#'+(team.ring||team.dome);let tx=GKT.get(key);
+      if(!tx){let src=img;if(!src){src=document.createElement('canvas');src.width=src.height=4;const x=src.getContext('2d');x.fillStyle=team.ring||team.dome;x.fillRect(0,0,4,4)}tx=texFrom(src);if(img)GKT.set(key,tx)}
+      {const u=use('tex',1);gl.uniform3f(u.uLamp,...L);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);draw(M.gkCard,TR(0,0,0,0))}
+      gl.depthMask(false);{const u=use('lit',1);gl.uniform3f(u.uLamp,...L)}lit('#c8dbee',.02,false,1,TR(0,0,0,0),M.keeper,null,true);gl.depthMask(true)}
+    else{const u=use('glass',1);gl.uniform3f(u.uLamp,...L);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,artTex(team,num));gl.uniform1i(u.uTex,0);
+      gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uR,BR);gl.uniform1f(u.uFace,.06);gl.uniform1f(u.uThick,.18);gl.uniform3f(u.uRim,...rgb(team.ring));draw(M.dome,TR(0,0,0))}
+    CV=keep;return {c:cv,sy:cv.height-px}}
+  return {init,render,ok:()=>ok,last,preview,palPreview,inspect};
 })();
 /* side view of the shot: how high the ball goes against the buttons and the crossbar */
 function flightPanel(c,pr){
