@@ -2859,7 +2859,8 @@ function drawKeeper(c,k,team,edit,pulse){
   c.rotate(k.a); // the art reads upright on screen for both keepers, like the buttons
   // glass block: the art card seen through the top, then the glass's sheen and edges
   c.save();rr(c,-KW/2,-KH/2,KW,KH,.22);c.clip();c.fillStyle=base;c.fillRect(-KW/2,-KH/2,KW,KH);
-  if(img)c.drawImage(img,-KW/2+.2,-KH/2+.2,KW-.4,KH-.4);
+  if(img){const dw=KW-.4,dh=KH-.4,iw=img.naturalWidth,ih=img.naturalHeight,k=Math.max(dw/iw,dh/ih),sw=dw/k,sh=dh/k; // scale to fill, centred, no stretching
+    c.drawImage(img,(iw-sw)/2,(ih-sh)/2,sw,sh,-dw/2,-dh/2,dw,dh)}
   const g=c.createLinearGradient(-KW/2,-KH/2,KW/2,KH/2);g.addColorStop(0,'rgba(255,255,255,.4)');g.addColorStop(.45,'rgba(225,238,255,.14)');g.addColorStop(1,'rgba(0,10,30,.2)');c.fillStyle=g;c.fillRect(-KW/2,-KH/2,KW,KH);c.restore();
   rr(c,-KW/2,-KH/2,KW,KH,.22);c.lineWidth=.24;c.strokeStyle='rgba(225,240,255,.85)';c.stroke();
   c.fillStyle='rgba(255,255,255,.45)';c.fillRect(-KW/2+.6,-KH/2+.22,KW-1.2,.12);
