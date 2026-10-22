@@ -11,3 +11,7 @@ Parked until the first special-edition art is uploaded.
   camera tilts to a higher view, the team box rises out, confetti in the team colours, caption "Edição especial desbloqueada".
 - Plan: special boxes unlock with achievements such as winning a cup with that team; special buttons use the art as painted
   (the game adds no number on top).
+
+## Corinthians (first special edition)
+`Botonista_COR_Edicao_Especial.psd`: artboards named by game position (1 = goalkeeper card). Shirt numbers baked in:
+1→12, 2→2, 3→13, 4→3, 5→8, 6→6, 7→23, 8→5, 9→9, 10→20, 11→11. Export as `COR_1.png … COR_11.png`.
