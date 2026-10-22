@@ -11,17 +11,17 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "icons/icon-192-puck.png",
+      "src": "icons/icon-192-b2.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512-puck.png",
+      "src": "icons/icon-512-b2.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512-maskable-puck.png",
+      "src": "icons/icon-512-maskable-b2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
