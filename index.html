@@ -1241,7 +1241,7 @@ function avatar(){const a=$('#avatar');if(!a)return;a.innerHTML='';const c=docum
 let PSTAGE=0;
 function palStage(){const cv=$('#palStage');if(!cv||PSTAGE)return;const t0=performance.now();
   const tick=()=>{if($('#profile').hidden){PSTAGE=0;return}const t=(performance.now()-t0)/1000,P=curPal();
-    palPaint(cv,P.mat,P.base,PI+t*.6,.78);PSTAGE=requestAnimationFrame(tick)};PSTAGE=requestAnimationFrame(tick)}
+    palPaint(cv,P.mat,P.base,PI-t*1.2,PI/2,9.6);PSTAGE=requestAnimationFrame(tick)};PSTAGE=requestAnimationFrame(tick)}
 function renderAcctBox(){const box=$('#acctBox');if(!box)return;
   if(!cloudOn()){box.hidden=true;return}box.hidden=false;
   box.innerHTML=AUTH?`<p class="label">${A('account')}</p><p class="acctmail">${escH(AUTH.user&&AUTH.user.email||'')}</p><p class="small" id="syncline">${syncText()}</p><div class="row"><button class="btn ghost" data-aact="syncnow">${A('syncNow')}</button><button class="btn ghost" data-aact="asignout">${A('signout')}</button></div>`
@@ -2744,7 +2744,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     CV=keep;return {c:cv,sy:cv.height-px}}
   // the palheta on its own: tilted up towards the camera and turning, for the profile and the palheta picker
   function palPreview(mat,hex,px,rot,tilt,zd){if(!init())return null;if(cv.width<px||cv.height<px){cv.width=Math.max(cv.width,px);cv.height=Math.max(cv.height,px)}
-    const el=.5,dist=zd||8.4,tz=1.1,pos=[0,dist*Math.cos(el),tz+dist*Math.sin(el)],f=[0,-Math.cos(el),-Math.sin(el)],r=[1,0,0],u=[0,-Math.sin(el),Math.cos(el)];
+    const up=tilt!=null&&tilt>1.3,el=up?.16:.5,dist=zd||8.4,tz=up?PAL_R+.2:1.1,pos=[0,dist*Math.cos(el),tz+dist*Math.sin(el)],f=[0,-Math.cos(el),-Math.sin(el)],r=[1,0,0],u=[0,-Math.sin(el),Math.cos(el)];
     const F=px/2/Math.tan(.36),n=.5,fa=200,A=(fa+n)/(fa-n),B=-2*fa*n/(fa-n),sx=F/(px/2),d=v=>v[0]*pos[0]+v[1]*pos[1]+v[2]*pos[2];
     const keep=CV;CV={px:pos[0],py:pos[1],pz:pos[2],f,r,u,F};
     vp=new Float32Array([r[0]*sx,u[0]*sx,f[0]*A,f[0], r[1]*sx,u[1]*sx,f[1]*A,f[1], r[2]*sx,u[2]*sx,f[2]*A,f[2], -d(r)*sx,-d(u)*sx,-d(f)*A+B,-d(f)]);cur=null;
@@ -2753,7 +2753,7 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
     const t=tilt==null?1.05:tilt,c=Math.cos(t),sn=Math.sin(t),cr=Math.cos(rot),sr=Math.sin(rot),h=PAL_R*sn*.98+.15;
     const M4=new Float32Array([cr,sr,0,0, -sr*c,cr*c,sn,0, sr*sn,-cr*sn,c,0, 0,0,h,1]);
     gl.depthMask(false);{const w=PAL_R*(.35+.65*c);const u=use('shadow',.55);gl.uniform3f(u.uLamp,-10,26,60);gl.uniform4f(u.uS,.3,-.4,0,0);gl.uniform2f(u.uRot,1,0);gl.uniform1f(u.uRad,Math.max(w,PAL_R*.5));gl.uniform1f(u.uSoft,1.3);draw(M.unit,TR(.3,-.4,.015,0,PAL_R+2.6))}gl.depthMask(true);
-    {const u=use('lit',1);gl.uniform3f(u.uLamp,-9,22,34)}
+    {const u=use('lit',1);if(up)gl.uniform3f(u.uLamp,-8,20,h+14);else gl.uniform3f(u.uLamp,-9,22,34)}
     lit(hex,mat==='metal'?.45:mat==='glass'?.02:.21,mat==='metal',1,M4,M.palC,null,mat==='glass');
     CV=keep;return {c:cv,sy:cv.height-px}}
   return {init,render,ok:()=>ok,last,preview,palPreview};
