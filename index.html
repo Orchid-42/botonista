@@ -2578,8 +2578,9 @@ void main(){vec2 p=vW.xy-uS.xy;p=vec2(p.x*uRot.x+p.y*uRot.y,-p.x*uRot.y+p.y*uRot
       {const u=use('tex',a);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);gl.uniform1i(u.uTex,0);const ca=a*clamp((CV.f[2]+.964)/.18,0,1);if(ca>.02){gl.uniform1f(u.uA,ca);draw(M.gkCard,M4);gl.uniform1f(u.uA,a)}draw(M.gkFloor,TR(k.x,k.y,0,k.a))}
       gl.depthMask(false);lit('#c8dbee',.02,false,a,M4,M.keeper,null,true);gl.depthMask(true)}})});
     items.push({o:null,d:toC(bl.x,bl.y,bl.z)[2],f:a=>lit('#0d0f12',.14,false,a,TR(bl.x,bl.y,bl.z||0),M.ball)});
-    if(A&&A.raw>=CANCEL_PX){const b=A.b,d=b.r+PAL_R+.4+A.pw*6,px=b.x-Math.cos(A.ang)*d,py=b.y-Math.sin(A.ang)*d,pal=curPal();
-      items.push({o:null,d:toC(px,py,0)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:pal.mat==='glass'?.02:.21,pal.mat==='metal',a,TR(px,py,.01,A.ang+PI/2),M.pal,null,pal.mat==='glass')})}
+    {const AA=G.aim&&G.aim.raw>=CANCEL_PX?G.aim:null;
+     if(AA){const b=AA.b,d=AA.mode3?b.r+PAL_R+.4+AA.pw*6:b.r+PAL_R*.7+AA.pw*7,px=b.x-Math.cos(AA.ang)*d,py=b.y-Math.sin(AA.ang)*d,pal=curPal();
+      items.push({o:null,d:toC(px,py,0)[2],f:a=>lit(pal.base,pal.mat==='metal'?.45:pal.mat==='glass'?.02:.21,pal.mat==='metal',a,TR(px,py,.01,AA.ang+PI/2),M.pal,null,pal.mat==='glass')})}}
     items.sort((p,q)=>q.d-p.d);
     for(const it of items){let al=clamp((it.d-2.2)/4,0,1);
       if(it.o&&it.o!==sh&&shS&&it.d<shC[2]){const q=toC(it.o.x,it.o.y,.3);if(q[2]>NEAR){const p=scr(q),rad=CV.F*(it.o.r||3)/q[2]+CV.F*sh.r/shC[2];if(hyp(p[0]-shS[0],p[1]-shS[1])<rad)al=Math.min(al,.3)}}
@@ -2956,7 +2957,7 @@ function drawAim(c,b,ang,pw,finger,skin,arrowOnly){
   c.beginPath();c.moveTo(b.x+ux*(b.r+.5),b.y+uy*(b.r+.5));c.lineTo(ex,ey);c.stroke();
   c.fillStyle=col;c.beginPath();c.moveTo(ex+ux*2,ey+uy*2);c.lineTo(ex-uy*1.2,ey+ux*1.2);c.lineTo(ex+uy*1.2,ey-ux*1.2);c.closePath();c.fill();
   if(arrowOnly)return;
-  drawPalheta(c,b.x-ux*d,b.y-uy*d,PAL_R,skin);
+  if(skin)drawPalheta(c,b.x-ux*d,b.y-uy*d,PAL_R,skin);
   const mx=b.x+uy*(b.r+2.4)-.6,my=b.y-ux*(b.r+2.4)-4.5;
   c.fillStyle='rgba(6,13,34,.7)';rr(c,mx,my,1.2,9,.5);c.fill();
   c.fillStyle=col;rr(c,mx,my+9*(1-pw),1.2,Math.max(.5,9*pw),.5);c.fill();
@@ -3015,7 +3016,7 @@ function renderView(ts){
     const b=G.aim.b;c.strokeStyle='rgba(255,120,100,.85)';c.lineWidth=.3;c.setLineDash([.7,.6]);c.beginPath();c.arc(b.x,b.y,b.r+1.6,0,2*PI);c.stroke();c.setLineDash([]);
     c.lineWidth=.45;const k=1.1,cx=b.x+b.r+2.6,cy=b.y-b.r-1.6;c.beginPath();c.moveTo(cx-k,cy-k);c.lineTo(cx+k,cy+k);c.moveTo(cx+k,cy-k);c.lineTo(cx-k,cy+k);c.stroke()}
   if(G.aim&&G.aim.pw>.005&&G.aim.raw>=CANCEL_PX){const pr=predictBall(G.aim.b,G.aim.ang,G.aim.pw,G.aim.seed,ts);if(pr)drawPrediction(c,pr,G.aim.pw);
-    drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},curPal())}
+    drawAim(c,G.aim.b,G.aim.ang,G.aim.pw,{x:G.aim.fx,y:G.aim.fy},GLV?null:curPal())}
   if(G.announced&&G.phase!=='moving'&&G.mode==='match'){
     const top=(G.turn===0)!==!!G.flipped;c.strokeStyle=`rgba(255,210,63,${.4+.5*pulse})`;c.lineWidth=.5;c.strokeRect(CX-GW/2-.6,top?F.t-GD-.6:F.b-.6,GW+1.2,GD+1.2);
   }

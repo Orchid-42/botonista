@@ -1,5 +1,5 @@
 /* Botonista offline cache. The version changes whenever the game changes. */
-const CACHE='botonista-a87b2b59';
+const CACHE='botonista-ca0dfab9';
 const FILES=["./", "index.html", "manifest.webmanifest", "icons/apple-touch-icon-puck.png", "icons/icon-192-puck.png", "icons/icon-512-puck.png"];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
