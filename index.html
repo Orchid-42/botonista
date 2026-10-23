@@ -2186,9 +2186,14 @@ function cpuSetup(taking){
     let left=MAX_MOVE-1;
     const need=others.map(b=>{const r=spot(b),p=pos(b);return {b,r,e:(r?hyp(p.x-r.x,p.y-r.y)*(.6+r.depth):0)+crowd(b)*12}}).filter(q=>q.r&&q.e>10).sort((a,c)=>c.e-a.e);
     const open=others.some(b=>{const p=pos(b),dd=hyp(p.x-ball.x,p.y-ball.y);if(dd<14||dd>42)return false;let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-p.x,o.y-p.y));return mo>9});
-    for(const q of need.slice(0,open?left:left-1)){if(left<=(open?0:1))break;if(place(q.b,q.r))left--}
+    const keepFor=sp.kind==='corner'?2:sp.kind==='throw'?1:(open?0:1); // corners: two in the box; throw-ins: always a short option
+    for(const q of need){if(left<=keepFor)break;if(place(q.b,q.r))left--}
     if(left>0){ // a passing option in space, 25-40 cm from the ball, not next to a teammate
-      const cand=[];for(let i=-4;i<=4;i++)for(let j=-1;j<=4;j++){const x=CX+i*12,y=clamp(ball.y+j*12,F.t+10,F.b-12),dd=hyp(x-ball.x,y-ball.y);if(dd<20||dd>45)continue;
+      const cand=[];
+      if(sp.kind==='corner'){for(let i=-2;i<=2;i++)for(let j=0;j<3;j++){const x=CX+i*9,y=F.b-13-j*9,dd=hyp(x-ball.x,y-ball.y);
+          let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-x,o.y-y));cand.push({x,y,s:Math.min(mo,16)-Math.abs(x-CX)*.3-Math.abs(dd-40)*.1})}}
+      else for(let i=-4;i<=4;i++)for(let j=-1;j<=4;j++){const x=CX+i*12,y=clamp(ball.y+j*12,F.t+10,F.b-12),dd=hyp(x-ball.x,y-ball.y);
+        if(sp.kind==='throw'&&(dd<15||dd>32||x<F.l+15||x>F.r-15))continue;if(dd<20&&sp.kind!=='throw'||dd>45)continue;
         let mo=1e9;for(const o of opp)mo=Math.min(mo,hyp(o.x-x,o.y-y));cand.push({x,y,s:Math.min(mo,18)-Math.abs(dd-32)*.2+(y-ball.y)*.06})}
       cand.sort((a,c)=>c.s-a.s);
       const spare=others.filter(b=>b.tx==null).sort((a,c)=>{const ra=spot(a),rc=spot(c);return (rc?rc.depth:0)-(ra?ra.depth:0)}); // forwards/mids first, keep defenders home
@@ -2314,7 +2319,8 @@ function evalFlick(b,T,D,lob,vbo){
   // crowding: opponents beside the button's path or just past the contact point (where the button carries on) mean likely fouls
   let crowd=0;const ex=cx+ddx*8,ey=cy+ddy*8;
   for(const o of bodies())if(o.side!==b.side&&(segDist(o.x,o.y,b.x,b.y,cx,cy)[0]<BR*2+1.5||segDist(o.x,o.y,cx,cy,ex,ey)[0]<BR*2+1))crowd++;
-  return {b,ux,uy,v0,s,cos,crowd,score:25*cos-.55*s-30*block-40*foul-15*crowd-(weak?12:0)};
+  const outside=b.x<F.l||b.x>F.r||b.y<F.t||b.y>F.b;  // a taker still standing off the pitch is a long, awkward flick
+  return {b,ux,uy,v0,s,cos,crowd,score:25*cos-.55*s-30*block-40*foul-15*crowd-(weak?12:0)-(outside&&s>14?30:0)};
 }
 function keeperShadow(k,bx,by,gy){
   const c=Math.cos(k.a),s=Math.sin(k.a),xs=[];
@@ -2348,10 +2354,13 @@ function cpuPlan(side,forceShot){
   // last flick of the attack: it has to be a try at goal (pick the best one in trial runs)
   if(G.mode==='match'&&flicksLeft===1&&bestShot)return simPick(side,shots.filter(f=>f.total>-1e8),true)||bestShot;
   const base=Math.atan2(gy-ball.y,CX-ball.x);
-  for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of [6,11,17,25,36,52]){
+  for(const a of [-140,-110,-80,-55,-30,-12,0,12,30,55,80,110,140])for(const L of (G.rKind==='corner'&&G.rTaker&&G.rTaker.side===side?[17,25,36,44,52]:[6,11,17,25,36,52])){
     const ang=base+a*PI/180,Tp={x:ball.x+Math.cos(ang)*L,y:ball.y+Math.sin(ang)*L};
     let ts=(Tp.y-ball.y)*dirY*.4-Math.max(0,L-36)*.5;
-    {const ms=Math.min(Tp.x-F.l,F.r-Tp.x),me=Math.min(Tp.y-F.t,F.b-Tp.y);if(ms<10)ts-=5*(10-ms);if(me<8)ts-=(Math.abs(Tp.x-CX)>PA.w/2-4?5:2)*(8-me)}
+    {const ms=Math.min(Tp.x-F.l,F.r-Tp.x),me=Math.min(Tp.y-F.t,F.b-Tp.y);if(ms<13)ts-=6*(13-ms);if(me<11)ts-=(Math.abs(Tp.x-CX)>PA.w/2-4?6:2)*(11-me)}
+    if(G.mode==='match'&&G.rTaker&&G.rTaker.side===side&&(G.rKind==='corner'||G.rKind==='throw')){
+      if(Tp.x<F.l+13||Tp.x>F.r-13||Tp.y<F.t+12||Tp.y>F.b-12)continue;            // never along the line it came from
+      if(G.rKind==='corner'&&(Math.abs(Tp.x-CX)>PA.w/2||Math.abs(Tp.y-gy)>PA.d+14))continue} // corners go into the box
     for(const o of opp)if(segDist(o.x,o.y,ball.x,ball.y,Tp.x,Tp.y)[0]<BR+BALLR+.3)ts-=22;
     let dn=1e9;for(const o of mine)dn=Math.min(dn,hyp(o.x-Tp.x,o.y-Tp.y));ts+=Math.max(0,18-dn)*.7;
     ts+=Math.max(0,70-hyp(Tp.x-CX,Tp.y-gy))*.25;
@@ -2427,7 +2436,7 @@ function rateOutcome(o,side,shot){
   // we keep the ball: value where it is and whether one of our buttons can play it on
   let v=Math.max(0,(FH-dGoal))/FH*95+((bl.y-o.m.ballStart.y)*(side===1?1:-1))*.45;
   // rammed balls are hard to control: long runs of the ball cost, short controlled moves are free
-  const travel=hyp(bl.x-o.m.ballStart.x,bl.y-o.m.ballStart.y);v-=Math.max(0,travel-30)*1.2;if(travel<4)v-=25;
+  const travel=hyp(bl.x-o.m.ballStart.x,bl.y-o.m.ballStart.y);v-=Math.max(0,travel-(dGoal>FH*.6?44:30))*1.2;if(travel<4)v-=25;
   // space around the ball: nobody of theirs close enough to nick it
   let dOpp=1e9;for(const q of o.buttons)if(q.side!==side)dOpp=Math.min(dOpp,hyp(q.x-bl.x,q.y-bl.y));v+=clamp((dOpp-8)/18,0,1)*22;
   let play=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d>34)continue;
@@ -2446,12 +2455,20 @@ function rateOutcome(o,side,shot){
   // between the big box and a little past halfway, not too wide
   if(o.left!=null){const dy=Math.abs(bl.y-gy),wide=Math.abs(bl.x-CX);
     const zoneD=dy<PA.d+3?PA.d+3-dy:dy>FH/2+12?dy-(FH/2+12):0,zoneW=Math.max(0,wide-FW*.32),off=zoneD+zoneW;
-    const urg=clamp((6-o.left)/5,0,1);   // grows from 5 flicks left
-    v+=urg*(off===0?45:-off*1.6);
+    // the pace the attack needs: the rest of the way to the shooting zone over the flicks that are left
+    {const need=Math.max(0,dy-(FH/2+12))/Math.max(1,o.left-1);if(need>16)v-=(need-16)*2.2}
+    const urg=clamp((7-o.left)/5,0,1);   // grows from 6 flicks left
+    v+=urg*(off===0?45:-off*2.2);
     if(o.left<=1&&off===0){let sh2=0;for(const b of o.buttons){if(b.side!==side)continue;const d=hyp(b.x-bl.x,b.y-bl.y);if(d<16)sh2=Math.max(sh2,1-d/16)}v+=40*sh2}}
   // keep the ball off the lines: near a touchline (or a goal line away from the box) it is easy to lose, so leave ~10 cm of room
-  {const ms=Math.min(bl.x-F.l,F.r-bl.x);if(ms<11)v-=55*Math.pow(1-Math.max(0,ms)/11,2);
-   const me=Math.min(bl.y-F.t,F.b-bl.y),wide=Math.abs(bl.x-CX)>PA.w/2-4;if(me<9)v-=(wide?40:14)*Math.pow(1-Math.max(0,me)/9,2)}
+  {const ms=Math.min(bl.x-F.l,F.r-bl.x);if(ms<14)v-=95*Math.pow(1-Math.max(0,ms)/14,1.6);
+   const me=Math.min(bl.y-F.t,F.b-bl.y),wide=Math.abs(bl.x-CX)>PA.w/2-4;if(me<12)v-=(wide?95:30)*Math.pow(1-Math.max(0,me)/12,1.6);
+   // the wing trap: deep and wide of the box there is no shot and little room, so cut inside instead of running at the corner flag
+   const dl=Math.abs(bl.y-gy),wx=Math.abs(bl.x-CX)-(PA.w/2-6);if(dl<38&&wx>0)v-=Math.min(wx,30)*(38-dl)/38*2.2}
+  // the next touch: with the mover nearly out of touches, someone else has to be close to the ball
+  {const mvB=o.mi>=0?o.buttons[o.mi]:null,used=(G.streak&&mvB&&G.streak.b===G.buttons[o.mi]?G.streak.n:0)+1;
+   let d2=1e9;for(const b of o.buttons)if(b.side===side&&b!==mvB)d2=Math.min(d2,hyp(b.x-bl.x,b.y-bl.y));
+   v+=clamp((32-d2)/20,0,1)*16;if(used>=2&&d2>30)v-=(d2-30)*1.4+30}
   return reach*v+(1-reach)*loss*.8;
 }
 function idealKeeper(def){const sk=G.skill;G.skill=1;const k=faceBall(def);G.skill=sk;return k}
