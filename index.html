@@ -118,7 +118,7 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .resume h2{font-size:16px}
 
 .acctb{position:relative}
-.acctb.in::after{content:"";position:absolute;right:1px;top:1px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
+.acctb.new::after,.acctb.in.err::after{content:"";position:absolute;right:1px;top:1px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
 .acctb.in.err::after{background:#ff5a3d}
 .authf{display:flex;flex-direction:column;gap:10px}
 .authf input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--soft);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;outline:none}
@@ -1149,7 +1149,7 @@ async function cloudStart(){
   acctBtn();
 }
 /* ---- account screens ---- */
-function acctBtn(){if(!$('#profile').hidden)renderAcctBox();for(const b of document.querySelectorAll('[data-acct]')){b.hidden=false;b.classList.toggle('in',!!AUTH);b.classList.toggle('err',SYNC.state==='error');const t=AUTH?(AUTH.user&&AUTH.user.email||A('account')):A('signin');b.title=t;b.setAttribute('aria-label',t)}}
+function acctBtn(){if(!$('#profile').hidden)renderAcctBox();for(const b of document.querySelectorAll('[data-acct]')){b.hidden=false;b.classList.toggle('in',!!AUTH);b.classList.toggle('new',!!prefs.newU);b.classList.toggle('err',SYNC.state==='error');const t=AUTH?(AUTH.user&&AUTH.user.email||A('account')):A('signin');b.title=t;b.setAttribute('aria-label',t)}}
 function authSheet(title,body){lastFocus=document.activeElement;for(const m of document.querySelectorAll('.modal'))m.hidden=true;$('#authTitle').textContent=title;$('#authBody').innerHTML=body;$('#authModal').hidden=false}
 function signInSheet(mode){
   const up=mode==='up';
@@ -1322,7 +1322,7 @@ function renderSetup(){
   pitchSeg('#pitchSeg');$('#pitchBox').hidden=PITCHES.length<2;
   $('#startBtn').textContent=T&&!T.done?tr('startNew'):tr('start');
 }
-function renderProfile(){
+function renderProfile(){if(prefs.newU){prefs.newU=0;saveLocal();acctBtn()}
   const inp=$('#pname');inp.placeholder=tr('namePh');if(document.activeElement!==inp)inp.value=prefs.name||'';
   inp.oninput=()=>{prefs.name=inp.value.slice(0,18);avatar();save()};
   inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
@@ -1460,16 +1460,16 @@ const ICON_PAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 let palSeen=null;
 function progressCheck(){
   if(!palSeen)palSeen=new Set([...PAL_COLS,...PAL_MATS].filter(unlocked).map(c=>c.id));
-  for(const c of [...PAL_COLS,...PAL_MATS])if(unlocked(c)&&!palSeen.has(c.id)){palSeen.add(c.id);notify('pal',palName(c),tr('palNew'))}
+  for(const c of [...PAL_COLS,...PAL_MATS])if(unlocked(c)&&!palSeen.has(c.id)){palSeen.add(c.id);prefs.newU=1;saveLocal();acctBtn()}
   const st=prefs.stats;let got=false;
-  for(const a of ACH)if(!prefs.ach[a[0]]&&a[5](st)){prefs.ach[a[0]]=Date.now();got=true;notify('ach',achL(a,0),achL(a,1))}
-  if(got){saveLocal();cloudDirty()}
+  for(const a of ACH)if(!prefs.ach[a[0]]&&a[5](st)){prefs.ach[a[0]]=Date.now();got=true;prefs.newU=1;notify('ach',achL(a,0),achL(a,1))}
+  if(got){saveLocal();cloudDirty();acctBtn()}
 }
 /* end of a match: counters and the second kits it earns */
 function matchProgress(){
   const pk=G.mode==='pens'?G.pens.k.map(k=>k.reduce((x,y)=>x+y,0)):null,w=pk?(pk[0]>pk[1]?0:1):(G.score[0]>G.score[1]?0:1);
   const tw=TEAMS[G.teams[w]],tl=TEAMS[G.teams[1-w]];
-  for(const t of [tw,tl])if(hasKit2(t)&&!prefs.kit2[t.c]){if(!G.pvp&&w!==0&&t===tw)continue;prefs.kit2[t.c]=1;notify('kit',tn(t),tr('kit2'))}
+  for(const t of [tw,tl])if(hasKit2(t)&&!prefs.kit2[t.c]){if(!G.pvp&&w!==0&&t===tw)continue;prefs.kit2[t.c]=1;prefs.newU=1;notify('kit',tn(t),tr('kit2'))}
   if(!G.pvp){const st=prefs.stats;st.played++;if(G.quick)st.quick++;
     if(w===0&&!pk){if(G.score[0]-G.score[1]>=3)st.rout++;if(G.behind)st.comeback++}
     if(w===0&&pk&&G.behind)st.comeback++}
@@ -1568,7 +1568,7 @@ function recordUser(res){
   if(!res.win){T.out=true;T.outRound=T.r}
   closeRound();
   if(!T.out&&T.r===2&&!T.done)prefs.stats.semis++;
-  if(T.done&&T.champ===T.user){const uc=TEAMS[T.user].c;prefs.stats['cup'+(T.cup||'wc')]=(prefs.stats['cup'+(T.cup||'wc')]||0)+1;if(SPED[uc]&&!(prefs.sped&&prefs.sped[uc])){prefs.sped=Object.assign({},prefs.sped,{[uc]:1});prefs.spedNew=uc}prefs.stats.copas++;if(!T.conceded)prefs.stats.perfect=(prefs.stats.perfect||0)+1}
+  if(T.done&&T.champ===T.user){const uc=TEAMS[T.user].c;prefs.stats['cup'+(T.cup||'wc')]=(prefs.stats['cup'+(T.cup||'wc')]||0)+1;if(SPED[uc]&&!(prefs.sped&&prefs.sped[uc])){prefs.sped=Object.assign({},prefs.sped,{[uc]:1});prefs.spedNew=uc;prefs.newU=1}prefs.stats.copas++;if(!T.conceded)prefs.stats.perfect=(prefs.stats.perfect||0)+1}
   if(T.out)while(!T.done)closeRound();
   save();
 }
